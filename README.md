@@ -43,6 +43,7 @@
 
 ## 👥 Thành viên tham gia
 
+GROUP 6
 | STT | Họ và Tên | Link |
 | :--- | :--- | :--- |
 | 1 | **Nguyễn Khánh Hoàng** | https://github.com/FishCake9918 |
