@@ -43,10 +43,10 @@
 
 ## 👥 Thành viên tham gia
 
-| STT | Họ và Tên |
-| :--- | :--- |
-| 1 | **Nguyễn Khánh Hoàng** |
-| 2 | **Lê Hoàng Việt** |
-| 3 | **Nguyễn Kiều Minh Trí** |
-| 4 | **Hứa Đức Nghĩa** |
+| STT | Họ và Tên | Link |
+| :--- | :--- | :--- |
+| 1 | **Nguyễn Khánh Hoàng** | https://github.com/FishCake9918 |
+| 2 | **Lê Hoàng Việt** | https://github.com/LeHoangViet905 |
+| 3 | **Nguyễn Kiều Minh Trí** | https://github.com/MinhTri1701/Minhtri.git |
+| 4 | **Hứa Đức Nghĩa** | https://github.com/nghia2122005-cmyk |
 
