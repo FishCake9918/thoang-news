@@ -1,11 +1,474 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thoáng.vn — Lướt qua là nắm ngay</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#F5F3EE; --card-bg:#FFFFFF; --text-1:#1A1917; --text-2:#6B6860; --text-3:#A8A59E;
+      --border:rgba(26,25,23,0.09); --border-med:rgba(26,25,23,0.15);
+      --teal:#1D9E75; --teal-light:#E1F5EE; --teal-dark:#0F6E56;
+      --radius-card:20px; --shadow-card:0 2px 16px rgba(0,0,0,0.07);
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    html,body{height:100%;font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text-1);overflow-x:hidden;}
+
+    /* NAVBAR */
+    .thoang-nav{position:sticky;top:0;z-index:1000;background:rgba(245,243,238,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:56px;}
+    .thoang-nav .navbar-brand{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--text-1);letter-spacing:-0.3px;}
+    .thoang-nav .navbar-brand span{color:var(--text-3);font-weight:400;font-style:italic;}
+    .nav-icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-med);background:transparent;display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:background .15s,color .15s;text-decoration:none;position:relative;}
+    .nav-icon-btn:hover{background:var(--card-bg);color:var(--text-1);}
+    .saved-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;}
+
+    /* FILTER */
+    .filter-bar{background:rgba(245,243,238,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+    .filter-bar::-webkit-scrollbar{display:none;}
+    .filter-bar .nav-pills{flex-wrap:nowrap;gap:6px;}
+    .filter-pill{border-radius:20px!important;padding:4px 14px!important;font-size:12px!important;font-weight:500!important;color:var(--text-2)!important;background:transparent!important;border:1px solid var(--border-med)!important;transition:all .15s!important;white-space:nowrap;}
+    .filter-pill:hover{background:var(--card-bg)!important;color:var(--text-1)!important;}
+    .filter-pill.active{background:var(--text-1)!important;color:#fff!important;border-color:var(--text-1)!important;}
+
+    /* MAIN */
+    main{min-height:calc(100vh - 100px);padding:28px 16px 80px;}
+    .feed-wrapper{max-width:420px;margin:0 auto;}
+
+    /* PROGRESS */
+    .progress-label{font-size:12px;color:var(--text-3);white-space:nowrap;}
+    .progress{height:3px;border-radius:2px;background:var(--border);flex:1;}
+    .progress-bar{background:var(--text-1);border-radius:2px;transition:width .35s ease;}
+
+    /* CARD STACK */
+    .stack-container{position:relative;width:100%;margin-bottom:16px;transition:height .3s ease;}
+    .news-card{position:absolute;width:100%;background:var(--card-bg);border-radius:var(--radius-card);border:1px solid var(--border);padding:22px 22px 18px;cursor:grab;user-select:none;transform-origin:center bottom;transition:transform .38s cubic-bezier(.34,1.56,.64,1),opacity .3s;will-change:transform;box-shadow:var(--shadow-card);}
+    .news-card:active{cursor:grabbing;}
+    .news-card.pos-back2{transform:translateY(-18px) scale(0.90);opacity:.45;z-index:1;pointer-events:none;}
+    .news-card.pos-back1{transform:translateY(-9px) scale(0.95);opacity:.72;z-index:2;pointer-events:none;}
+    .news-card.pos-front{transform:translateY(0) scale(1);opacity:1;z-index:3;}
+    .news-card.gone-left{transform:translateX(-130%) rotate(-18deg);opacity:0;z-index:4;pointer-events:none;transition:transform .4s ease,opacity .3s;}
+    .news-card.gone-right{transform:translateX(130%) rotate(18deg);opacity:0;z-index:4;pointer-events:none;transition:transform .4s ease,opacity .3s;}
+    .news-card.dragging{transition:none!important;}
+    .swipe-hint{position:absolute;top:18px;z-index:10;font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:6px;opacity:0;transition:opacity .12s;pointer-events:none;}
+    .hint-skip{left:18px;background:#FAECE7;color:#993C1D;}
+    .hint-save{right:18px;background:var(--teal-light);color:var(--teal-dark);}
+
+    /* CARD INTERNALS */
+    .card-cat-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.05em;padding:3px 10px;border-radius:20px;}
+    .card-cat-dot{width:5px;height:5px;border-radius:50%;}
+    .card-read-time{font-size:10px;color:var(--text-3);}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;line-height:1.3;color:var(--text-1);}
+    .card-body-text{font-size:13.5px;line-height:1.75;color:var(--text-2);}
+    .card-divider{border-color:var(--border);}
+    .source-avatar{width:26px;height:26px;border-radius:7px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text-2);}
+    .source-name{font-size:12px;font-weight:500;color:var(--text-2);}
+    .source-time{font-size:10px;color:var(--text-3);}
+    .card-tag-pill{font-size:10px;color:var(--text-3);background:var(--bg);border:1px solid var(--border);padding:2px 9px;border-radius:20px;}
+    .readmore-link{font-size:12px;font-weight:500;color:var(--teal);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:gap .15s;}
+    .readmore-link:hover{gap:8px;color:var(--teal-dark);}
+
+    /* ACTION BUTTONS */
+    .action-btn{border-radius:50%!important;display:flex!important;align-items:center;justify-content:center;border:1px solid var(--border-med)!important;background:var(--card-bg)!important;color:var(--text-2)!important;transition:transform .12s,background .12s!important;}
+    .action-btn:hover{background:#fff!important;transform:scale(1.06);}
+    .action-btn:active{transform:scale(0.95)!important;}
+    .btn-skip,.btn-save{width:52px;height:52px;font-size:17px;}
+    .btn-next{width:68px;height:68px;font-size:20px;background:var(--text-1)!important;border-color:var(--text-1)!important;color:#fff!important;}
+    .btn-next:hover{background:#2d2c2a!important;}
+    .btn-save.bookmarked{background:var(--teal-light)!important;border-color:var(--teal)!important;color:var(--teal)!important;}
+    .action-hint{font-size:11px;color:var(--text-3);}
+
+    /* DONE STATE */
+    .done-icon-wrap{width:60px;height:60px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--teal);}
+    .done-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,#eae8e2 25%,#f5f3ee 50%,#eae8e2 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ANIMATIONS */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .stack-container{animation:fadeUp .45s cubic-bezier(.34,1.2,.64,1) both;}
+    .progress-row{animation:fadeUp .45s .06s both;}
+    .action-row{animation:fadeUp .45s .1s both;}
+    .action-hint{animation:fadeUp .45s .14s both;}
+
+    /* TOAST */
+    .toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;}
+    .thoang-toast{background:var(--text-1);color:#fff;border-radius:20px;padding:8px 20px;font-size:12px;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;white-space:nowrap;}
+    .thoang-toast.show{opacity:1;transform:translateY(0);}
+  </style>
 </head>
 <body>
-    
+
+<!-- NAVBAR -->
+<nav class="thoang-nav d-flex align-items-center px-3 px-md-4">
+  <a class="navbar-brand me-auto" href="index.html">Thoáng<span>.vn</span></a>
+  <div class="d-flex align-items-center gap-2">
+    <a href="saved.html" class="nav-icon-btn" title="Đã lưu">
+      <i class="bi bi-bookmark"></i>
+      <span class="saved-badge" id="savedBadge">0</span>
+    </a>
+    <a href="about.html" class="nav-icon-btn" title="Giới thiệu">
+      <i class="bi bi-info-circle"></i>
+    </a>
+  </div>
+</nav>
+
+<!-- CATEGORY FILTER -->
+<div class="filter-bar py-2 px-3 px-md-4">
+  <ul class="nav nav-pills flex-nowrap" id="categoryFilter">
+    <li class="nav-item"><button class="nav-link filter-pill active" data-cat="all">Tất cả</button></li>
+    <li class="nav-item"><button class="nav-link filter-pill" data-cat="tech">Công nghệ</button></li>
+    <li class="nav-item"><button class="nav-link filter-pill" data-cat="biz">Kinh tế</button></li>
+    <li class="nav-item"><button class="nav-link filter-pill" data-cat="world">Thế giới</button></li>
+    <li class="nav-item"><button class="nav-link filter-pill" data-cat="sport">Thể thao</button></li>
+    <li class="nav-item"><button class="nav-link filter-pill" data-cat="life">Đời sống</button></li>
+  </ul>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="feed-wrapper">
+    <div class="d-flex align-items-center gap-2 progress-row mb-3" id="progressRow">
+      <span class="progress-label" id="progressLabel">1 / 6</span>
+      <div class="progress flex-grow-1">
+        <div class="progress-bar" id="progressBar" style="width:16.6%"></div>
+      </div>
+    </div>
+
+    <div class="stack-container" id="cardStack">
+      <div class="swipe-hint hint-skip" id="hintSkip">BỎ QUA</div>
+      <div class="swipe-hint hint-save" id="hintSave">LƯU LẠI</div>
+      <!-- Loading skeleton -->
+      <div id="loadingState" class="news-card pos-front p-4">
+        <div class="skeleton mb-3" style="height:22px;width:80px;"></div>
+        <div class="skeleton mb-2" style="height:28px;width:100%;"></div>
+        <div class="skeleton mb-4" style="height:28px;width:75%;"></div>
+        <div class="skeleton mb-2" style="height:14px;"></div>
+        <div class="skeleton mb-2" style="height:14px;"></div>
+        <div class="skeleton" style="height:14px;width:60%;"></div>
+      </div>
+    </div>
+
+    <!-- Done state -->
+    <div class="d-none text-center py-5" id="doneState">
+      <div class="done-icon-wrap mx-auto mb-3"><i class="bi bi-check2"></i></div>
+      <div class="done-title mb-2">Xong rồi!</div>
+      <p class="text-muted" style="font-size:13px;">Bạn đã đọc hết tin hôm nay.</p>
+      <button class="btn btn-dark rounded-pill px-4 mt-2" onclick="NewsController.restart()">Đọc lại từ đầu</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex align-items-center justify-content-center gap-3 action-row mb-2" id="actionRow">
+      <button class="btn action-btn btn-skip" title="Bỏ qua" onclick="NewsController.skip()"><i class="bi bi-x-lg"></i></button>
+      <button class="btn action-btn btn-next" title="Tiếp theo" onclick="NewsController.skip()"><i class="bi bi-arrow-right"></i></button>
+      <button class="btn action-btn btn-save" id="btnSave" title="Lưu lại" onclick="NewsController.toggleSave()"><i class="bi bi-bookmark" id="bookmarkIcon"></i></button>
+    </div>
+    <p class="text-center action-hint">Vuốt trái để bỏ qua · Vuốt phải để lưu</p>
+  </div>
+</main>
+
+<div class="toast-wrap"><div class="thoang-toast" id="toast"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- =============================================
+  DATA LAYER  (thay thế bằng fetch('/api/news') khi có backend)
+============================================= -->
+<script>
+const ARTICLES_DATA = [
+  { id:1, cat:"tech", catLabel:"Công nghệ", catBg:"#EEEDFE", catColor:"#534AB7",
+    title:"Meta ra mắt kính AR thế hệ mới tại CES 2026",
+    summary:"Thiết bị hỗ trợ hiển thị thực tế tăng cường với độ trễ dưới 5ms. Dự kiến lên kệ quý 3 năm nay với giá 299 USD — rẻ hơn 40% so với thế hệ trước.",
+    source:"VnExpress", sourceInitial:"VN", time:"2 phút trước", tag:"#AR #Meta", url:"article.html?id=1" },
+  { id:2, cat:"biz", catLabel:"Kinh tế", catBg:"#FAEEDA", catColor:"#854F0B",
+    title:"VN-Index tăng 12 điểm, nhóm ngân hàng dẫn đầu",
+    summary:"Thanh khoản sàn HoSE đạt 18.000 tỷ đồng trong phiên sáng — mức cao nhất hai tuần. Khối ngoại mua ròng 320 tỷ, tập trung vào VCB và TCB.",
+    source:"CafeF", sourceInitial:"CF", time:"8 phút trước", tag:"#VNIndex #CK", url:"article.html?id=2" },
+  { id:3, cat:"world", catLabel:"Thế giới", catBg:"#E1F5EE", catColor:"#0F6E56",
+    title:"G20 đồng thuận giảm 40% phát thải carbon vào 2035",
+    summary:"Đây là cam kết tham vọng nhất từ trước đến nay. Các nước lập quỹ 500 tỷ USD hỗ trợ quốc gia đang phát triển chuyển đổi năng lượng sạch.",
+    source:"Reuters VN", sourceInitial:"RT", time:"15 phút trước", tag:"#G20 #KhíHậu", url:"article.html?id=3" },
+  { id:4, cat:"sport", catLabel:"Thể thao", catBg:"#FAECE7", catColor:"#993C1D",
+    title:"Đội tuyển Việt Nam thắng 2-0 trong trận giao hữu quốc tế",
+    summary:"Hai bàn thắng đến từ Tiến Linh và Công Phượng. HLV Kim Sang-sik hài lòng với lối pressing cao và khả năng phối hợp của các cầu thủ.",
+    source:"Bóng Đá", sourceInitial:"BD", time:"22 phút trước", tag:"#ĐTVN #GiaoHữu", url:"article.html?id=4" },
+  { id:5, cat:"tech", catLabel:"Công nghệ", catBg:"#EEEDFE", catColor:"#534AB7",
+    title:"OpenAI công bố GPT-5 với khả năng lý luận vượt trội",
+    summary:"Mô hình mới đạt điểm kỷ lục trên bài kiểm tra toán và lập trình. OpenAI cho biết GPT-5 tiêu thụ ít điện hơn 30% so với GPT-4.",
+    source:"TechCrunch", sourceInitial:"TC", time:"35 phút trước", tag:"#AI #OpenAI", url:"article.html?id=5" },
+  { id:6, cat:"life", catLabel:"Đời sống", catBg:"#E6F1FB", catColor:"#185FA5",
+    title:"TP.HCM thí điểm tuyến xe buýt điện đầu tiên tại quận 1",
+    summary:"Tuyến D4 dài 14km kết nối Bến Thành đến Thảo Điền vận hành từ tháng 4. Tần suất 8 phút một chuyến vào giờ cao điểm.",
+    source:"Tuổi Trẻ", sourceInitial:"TT", time:"50 phút trước", tag:"#TPHCM #XeBus", url:"article.html?id=6" }
+];
+</script>
+
+<!-- =============================================
+  MODEL (OOP)
+============================================= -->
+<script>
+class ArticleModel {
+  constructor() {
+    this._all      = [];
+    this._filtered = [];
+    this._savedIds = new Set(JSON.parse(localStorage.getItem('thoang_saved') || '[]'));
+  }
+
+  // Mô phỏng AJAX fetch JSON — thay bằng fetch('/api/news?cat='+cat) khi có backend
+  async fetchArticles(cat = 'all') {
+    await new Promise(r => setTimeout(r, 80)); // simulate network
+    this._filtered = cat === 'all' ? [...ARTICLES_DATA] : ARTICLES_DATA.filter(a => a.cat === cat);
+    return this._filtered;
+  }
+
+  getSlice(start, count = 3) { return this._filtered.slice(start, start + count); }
+  get total()    { return this._filtered.length; }
+  isSaved(id)    { return this._savedIds.has(id); }
+  get savedCount(){ return this._savedIds.size; }
+
+  toggleSave(id) {
+    this._savedIds.has(id) ? this._savedIds.delete(id) : this._savedIds.add(id);
+    localStorage.setItem('thoang_saved', JSON.stringify([...this._savedIds]));
+  }
+}
+</script>
+
+<!-- =============================================
+  VIEW
+============================================= -->
+<script>
+const NewsView = {
+  stackEl:      document.getElementById('cardStack'),
+  progressLabel:document.getElementById('progressLabel'),
+  progressBar:  document.getElementById('progressBar'),
+  progressRow:  document.getElementById('progressRow'),
+  doneState:    document.getElementById('doneState'),
+  actionRow:    document.getElementById('actionRow'),
+  hintSkip:     document.getElementById('hintSkip'),
+  hintSave:     document.getElementById('hintSave'),
+  btnSave:      document.getElementById('btnSave'),
+  bookmarkIcon: document.getElementById('bookmarkIcon'),
+  savedBadge:   document.getElementById('savedBadge'),
+  toastEl:      document.getElementById('toast'),
+  _cardEls:     [],
+  _toastTimer:  null,
+
+  renderStack(articles) {
+    this._cardEls.forEach(c => c.remove());
+    this._cardEls = [];
+    const loading = document.getElementById('loadingState');
+    if (loading) loading.remove();
+    if (!articles.length) return;
+
+    articles.slice(0, 3).forEach((article, i) => {
+      const el = this._buildCard(article);
+      el.classList.add(['pos-front','pos-back1','pos-back2'][i]);
+      this.stackEl.appendChild(el);
+      this._cardEls.push(el);
+    });
+    requestAnimationFrame(() => {
+      const f = this._cardEls[0];
+      if (f) this.stackEl.style.height = f.scrollHeight + 'px';
+    });
+  },
+
+  _buildCard(a) {
+    const div = document.createElement('div');
+    div.className = 'news-card';
+    div.dataset.id = a.id;
+    div.innerHTML = `
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <span class="card-cat-badge" style="background:${a.catBg};color:${a.catColor};">
+          <span class="card-cat-dot" style="background:${a.catColor};"></span>${a.catLabel}
+        </span>
+        <span class="card-read-time">~ 30 giây</span>
+      </div>
+      <h2 class="card-title mb-3">${a.title}</h2>
+      <p class="card-body-text mb-3">${a.summary}</p>
+      <hr class="card-divider my-3"/>
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+          <div class="source-avatar">${a.sourceInitial}</div>
+          <div><div class="source-name">${a.source}</div><div class="source-time">${a.time}</div></div>
+        </div>
+        <span class="card-tag-pill">${a.tag}</span>
+      </div>
+      <div class="mt-3">
+        <a href="${a.url}" class="readmore-link">Đọc thêm <i class="bi bi-arrow-right" style="font-size:12px;"></i></a>
+      </div>`;
+    return div;
+  },
+
+  getFrontCard()  { return this._cardEls[0] || null; },
+  getCardEls()    { return this._cardEls; },
+
+  animateGone(el, dir) {
+    el.classList.remove('pos-front');
+    el.classList.add(dir === 'left' ? 'gone-left' : 'gone-right');
+  },
+  updateProgress(cur, total) {
+    this.progressLabel.textContent = `${cur} / ${total}`;
+    this.progressBar.style.width   = `${Math.round(cur/total*100)}%`;
+  },
+  updateSaveBtn(isSaved) {
+    this.btnSave.classList.toggle('bookmarked', isSaved);
+    this.bookmarkIcon.className = isSaved ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+  },
+  updateSavedBadge(count) {
+    this.savedBadge.textContent = count;
+    this.savedBadge.style.display = count > 0 ? 'flex' : 'none';
+  },
+  showDone() {
+    this._cardEls.forEach(c => c.remove()); this._cardEls = [];
+    this.stackEl.style.height = '';
+    this.progressRow.classList.add('d-none');
+    this.actionRow.classList.add('d-none');
+    this.doneState.classList.remove('d-none');
+  },
+  hideDone() {
+    this.doneState.classList.add('d-none');
+    this.progressRow.classList.remove('d-none');
+    this.actionRow.classList.remove('d-none');
+  },
+  setHint(diff) {
+    const a = Math.abs(diff);
+    this.hintSkip.style.opacity = diff < -20 ? Math.min((a-20)/60,1) : 0;
+    this.hintSave.style.opacity = diff >  20 ? Math.min((a-20)/60,1) : 0;
+  },
+  clearHints() { this.hintSkip.style.opacity = 0; this.hintSave.style.opacity = 0; },
+  showToast(msg) {
+    this.toastEl.textContent = msg;
+    this.toastEl.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.toastEl.classList.remove('show'), 2000);
+  }
+};
+</script>
+
+<!-- =============================================
+  CONTROLLER
+============================================= -->
+<script>
+const NewsController = (() => {
+  const model = new ArticleModel();
+  let idx = 0, activeCat = 'all';
+  let dragging = false, startX = 0, curX = 0;
+
+  async function init() {
+    await _load('all');
+    _bindFilter();
+    _bindDrag();
+    NewsView.updateSavedBadge(model.savedCount);
+  }
+
+  async function _load(cat) {
+    activeCat = cat; idx = 0;
+    await model.fetchArticles(cat);
+    NewsView.hideDone();
+    NewsView.renderStack(model.getSlice(0));
+    NewsView.updateProgress(1, model.total);
+    _updateSaveBtn();
+    _bindDrag();
+  }
+
+  function _bindFilter() {
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        await _load(this.dataset.cat);
+      });
+    });
+  }
+
+  function skip() {
+    const f = NewsView.getFrontCard(); if (!f) return;
+    NewsView.animateGone(f, 'left'); _advance();
+  }
+
+  function _saveAndAdvance() {
+    if (idx < model.total) {
+      const a = model._filtered[idx];
+      if (!model.isSaved(a.id)) { model.toggleSave(a.id); NewsView.showToast('Đã lưu bài viết'); }
+      NewsView.updateSavedBadge(model.savedCount);
+    }
+    const f = NewsView.getFrontCard(); if (!f) return;
+    NewsView.animateGone(f, 'right'); _advance();
+  }
+
+  function toggleSave() {
+    if (idx >= model.total) return;
+    const a = model._filtered[idx];
+    model.toggleSave(a.id);
+    _updateSaveBtn();
+    NewsView.updateSavedBadge(model.savedCount);
+    NewsView.showToast(model.isSaved(a.id) ? 'Đã lưu bài viết' : 'Đã bỏ lưu');
+  }
+
+  function _advance() {
+    idx++;
+    setTimeout(() => {
+      if (idx >= model.total) { NewsView.showDone(); return; }
+      NewsView.renderStack(model.getSlice(idx));
+      NewsView.updateProgress(idx + 1, model.total);
+      _updateSaveBtn(); _bindDrag();
+    }, 420);
+  }
+
+  async function restart() { await _load(activeCat); }
+
+  function _updateSaveBtn() {
+    if (idx >= model.total) return;
+    const a = model._filtered[idx];
+    if (a) NewsView.updateSaveBtn(model.isSaved(a.id));
+  }
+
+  function _bindDrag() {
+    const f = NewsView.getFrontCard(); if (!f) return;
+    f.addEventListener('mousedown',  _ds);
+    f.addEventListener('touchstart', _ds, {passive:true});
+  }
+
+  function _ds(e) {
+    dragging = true;
+    startX = curX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    e.currentTarget.classList.add('dragging');
+    document.addEventListener('mousemove', _dm);
+    document.addEventListener('mouseup',   _de);
+    document.addEventListener('touchmove', _dm, {passive:true});
+    document.addEventListener('touchend',  _de);
+  }
+  function _dm(e) {
+    if (!dragging) return;
+    curX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    const diff = curX - startX;
+    const f = NewsView.getFrontCard();
+    if (f) f.style.transform = `translateX(${diff}px) rotate(${diff*.06}deg)`;
+    NewsView.setHint(diff);
+  }
+  function _de() {
+    if (!dragging) return; dragging = false;
+    document.removeEventListener('mousemove', _dm);
+    document.removeEventListener('mouseup',   _de);
+    document.removeEventListener('touchmove', _dm);
+    document.removeEventListener('touchend',  _de);
+    const f = NewsView.getFrontCard();
+    if (f) f.classList.remove('dragging');
+    NewsView.clearHints();
+    const diff = curX - startX;
+    if      (diff < -80) skip();
+    else if (diff >  80) _saveAndAdvance();
+    else if (f)          f.style.transform = '';
+  }
+
+  return { init, skip, toggleSave, restart };
+})();
+
+document.addEventListener('DOMContentLoaded', () => NewsController.init());
+</script>
 </body>
 </html>
