@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Về chúng tôi — Thoáng.vn</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --navy: #1a2744;
+        --red: #c41230;
+        --gold: #f5c518;
+        --bg: #f4f4f0;
+        --white: #ffffff;
+        --border: #d9d9d3;
+        --text: #1a1a1a;
+        --muted: #767676;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Be Vietnam Pro", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        background: var(--navy);
+        border-bottom: 3px solid var(--gold);
+        padding: 6px 0;
+        font-size: 12px;
+        color: #cdd3e0;
+      }
+
+      /* MASTHEAD */
+      .masthead {
+        background: var(--navy);
+        padding: 16px 0 12px;
+      }
+      .masthead-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+        line-height: 1;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .masthead-logo span {
+        color: var(--gold);
+      }
+      .masthead-tagline {
+        font-size: 11px;
+        color: #9daabf;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+      .masthead-search input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 3px;
+        padding: 5px 12px;
+        font-size: 13px;
+        width: 180px;
+      }
+      .masthead-search input::placeholder {
+        color: #9daabf;
+      }
+      .masthead-search input:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+
+      /* PRIMARY NAV */
+      .primary-nav {
+        background: var(--navy);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 4px solid var(--gold);
+      }
+      .primary-nav .nav-link {
+        color: #fff !important;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 16px !important;
+        border-bottom: 3px solid transparent;
+        transition: all 0.15s;
+      }
+      .primary-nav .nav-link:hover {
+        border-bottom-color: var(--gold);
+        color: var(--gold) !important;
+      }
+      .primary-nav .nav-link.active {
+        border-bottom-color: var(--gold);
+        color: var(--gold) !important;
+      }
+
+      /* SECTION LABEL */
+      .section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--red);
+        border-top: 3px solid var(--red);
+        padding-top: 6px;
+        margin-bottom: 16px;
+        display: block;
+      }
+
+      /* PAGE BODY */
+      .page-body {
+        padding: 36px 0 60px;
+      }
+
+      /* HERO */
+      .about-hero {
+        background: var(--navy);
+        padding: 56px 0 48px;
+        margin-bottom: 36px;
+        position: relative;
+        overflow: hidden;
+      }
+      .about-hero::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gold);
+      }
+      .about-hero-eyebrow {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 16px;
+      }
+      .about-hero-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+      }
+      .about-hero-title em {
+        font-style: italic;
+        color: var(--gold);
+      }
+      .about-hero-lead {
+        font-size: 15px;
+        color: #9daabf;
+        line-height: 1.8;
+        max-width: 580px;
+      }
+
+      /* STATS BAR */
+      .stats-bar {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--navy);
+        margin-bottom: 36px;
+      }
+      .stat-cell {
+        padding: 20px 24px;
+        text-align: center;
+        border-right: 1px solid var(--border);
+      }
+      .stat-cell:last-child {
+        border-right: none;
+      }
+      .stat-num {
+        font-family: "Playfair Display", serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--navy);
+        line-height: 1;
+      }
+      .stat-unit {
+        font-size: 1rem;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .stat-label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* CONTENT CARD */
+      .content-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        padding: 28px;
+        margin-bottom: 24px;
+      }
+      .content-card-body {
+        font-size: 13.5px;
+        line-height: 1.85;
+        color: #444;
+      }
+      .content-card-body p {
+        margin-bottom: 12px;
+      }
+      .content-card-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* BLOCKQUOTE */
+      .about-quote {
+        border-left: 4px solid var(--gold);
+        padding: 16px 20px;
+        background: #fffdf0;
+        margin-bottom: 24px;
+      }
+      .about-quote p {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-style: italic;
+        color: var(--navy);
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* VALUES */
+      .value-item {
+        display: flex;
+        gap: 16px;
+        padding: 16px 0;
+        border-top: 1px solid var(--border);
+      }
+      .value-item:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      .value-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--navy);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+        border-radius: 3px;
+      }
+      .value-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .value-desc {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* STORY TIMELINE */
+      .timeline-item {
+        display: flex;
+        gap: 20px;
+        padding-bottom: 28px;
+        position: relative;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: 19px;
+        top: 40px;
+        bottom: 0;
+        width: 1px;
+        background: var(--border);
+      }
+      .timeline-item:last-child::before {
+        display: none;
+      }
+      .timeline-num {
+        width: 40px;
+        height: 40px;
+        background: var(--white);
+        border: 2px solid var(--navy);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Playfair Display", serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--navy);
+        flex-shrink: 0;
+      }
+      .timeline-content {
+        flex: 1;
+        padding-top: 8px;
+      }
+      .timeline-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 5px;
+      }
+      .timeline-desc {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      /* FEATURES */
+      .feat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 7px 14px;
+        font-size: 12px;
+        color: var(--text);
+        margin: 4px;
+      }
+      .feat-pill i {
+        color: var(--navy);
+        font-size: 13px;
+      }
+
+      /* TEAM */
+      .team-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--navy);
+        padding: 20px 16px;
+        text-align: center;
+      }
+      .team-avatar {
+        width: 52px;
+        height: 52px;
+        background: var(--navy);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--gold);
+        margin: 0 auto 12px;
+      }
+      .team-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 3px;
+      }
+      .team-role {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        border-left: 1px solid var(--border);
+        padding-left: 24px;
+      }
+      .sidebar-block {
+        margin-bottom: 28px;
+      }
+      .sidebar-heading {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--navy);
+        border-top: 3px solid var(--navy);
+        padding-top: 6px;
+        margin-bottom: 14px;
+      }
+      .quick-fact {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .quick-fact:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      .quick-fact i {
+        color: var(--navy);
+        font-size: 15px;
+        margin-top: 1px;
+        flex-shrink: 0;
+      }
+      .quick-fact span {
+        color: #444;
+        line-height: 1.5;
+      }
+      .contact-box {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--red);
+        padding: 16px;
+      }
+      .contact-box h6 {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 10px;
+      }
+      .contact-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--navy);
+        text-decoration: none;
+        padding: 7px 0;
+        border-top: 1px solid var(--border);
+      }
+      .contact-link:first-of-type {
+        border-top: none;
+      }
+      .contact-link:hover {
+        color: var(--red);
+      }
+
+      /* CTA BOX */
+      .cta-box {
+        background: var(--navy);
+        padding: 32px;
+        text-align: center;
+        margin-top: 24px;
+        position: relative;
+      }
+      .cta-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gold);
+      }
+      .cta-box h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      .cta-box p {
+        font-size: 13px;
+        color: #9daabf;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+      .btn-cta-gold {
+        background: var(--gold);
+        color: var(--navy);
+        border: none;
+        padding: 9px 24px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: opacity 0.15s;
+      }
+      .btn-cta-gold:hover {
+        opacity: 0.88;
+        color: var(--navy);
+      }
+      .btn-cta-outline {
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 9px 24px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: border-color 0.15s;
+      }
+      .btn-cta-outline:hover {
+        border-color: #fff;
+        color: #fff;
+      }
+
+      /* FOOTER */
+      footer {
+        background: var(--navy);
+        color: #9daabf;
+        padding: 28px 0 16px;
+        font-size: 13px;
+      }
+      .footer-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+      }
+      .footer-logo span {
+        color: var(--gold);
+      }
+      footer a {
+        color: #9daabf;
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: #fff;
+      }
+      .footer-links {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 14px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 14px;
+      }
+      .footer-copy {
+        font-size: 11px;
+        color: #5d6a80;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 768px) {
+        .masthead-logo {
+          font-size: 2rem;
+        }
+        .sidebar {
+          border-left: none;
+          padding-left: 0;
+          border-top: 1px solid var(--border);
+          padding-top: 24px;
+          margin-top: 8px;
+        }
+        .masthead-search {
+          display: none;
+        }
+        .stat-cell {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .stat-cell:last-child {
+          border-bottom: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="container d-flex justify-content-between align-items-center">
+        <span>Thứ Sáu, 11 tháng 4, 2025</span>
+      </div>
+    </div>
+
+    <!-- MASTHEAD -->
+    <div class="masthead">
+      <div class="container d-flex justify-content-between align-items-end">
+        <div>
+          <a href="index.html" class="masthead-logo">Thoáng<span>.</span>vn</a>
+          <div class="masthead-tagline">Lướt qua là nắm ngay</div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="masthead-search">
+            <input type="text" placeholder="Tìm kiếm..." />
+          </div>
+          <a
+            href="saved.html"
+            class="nav-link text-white"
+            style="font-size: 13px"
+          >
+            <i class="bi bi-bookmark me-1"></i>Đã lưu
+          </a>
+          <a
+            href="about.html"
+            class="nav-link text-white"
+            style="font-size: 13px"
+          >
+            <i class="bi bi-info-circle me-1"></i>Giới thiệu
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIMARY NAV -->
+    <div class="primary-nav">
+      <div class="container">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Tin mới</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#">Thế giới</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Kinh tế</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Công nghệ</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Thể thao</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Đời sống</a></li>
+          <li class="nav-item">
+            <a class="nav-link active" href="about.html">Về chúng tôi</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="about-hero">
+      <div class="container">
+        <div class="about-hero-eyebrow">Về chúng tôi</div>
+        <h1 class="about-hero-title">
+          Tin tức thời <em>thoáng qua,</em><br />kiến thức ở lại.
+        </h1>
+        <p class="about-hero-lead">
+          Thoáng.vn là ứng dụng đọc tin hiện đại, được thiết kế để bạn nắm bắt
+          thông tin quan trọng trong 30 giây — không cuộn vô tận, không bị phân
+          tâm.
+        </p>
+      </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="container mb-4">
+      <div class="stats-bar">
+        <div class="row g-0">
+          <div class="col-6 col-md-3">
+            <div class="stat-cell">
+              <div class="stat-num">30<span class="stat-unit">s</span></div>
+              <div class="stat-label">Thời gian đọc mỗi tin</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-cell">
+              <div class="stat-num">5<span class="stat-unit">+</span></div>
+              <div class="stat-label">Chủ đề tin tức</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-cell">
+              <div class="stat-num">100<span class="stat-unit">%</span></div>
+              <div class="stat-label">Không quảng cáo xâm phạm</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-cell">
+              <div class="stat-num">0<span class="stat-unit">đ</span></div>
+              <div class="stat-label">Hoàn toàn miễn phí</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE BODY -->
+    <div class="page-body">
+      <div class="container">
+        <div class="row">
+          <!-- MAIN CONTENT -->
+          <div class="col-lg-7 col-xl-8 mb-4">
+            <!-- MISSION -->
+            <span class="section-label">Sứ mệnh</span>
+            <div class="about-quote">
+              <p>
+                "Mỗi người xứng đáng được tiếp cận thông tin rõ ràng, trung thực
+                và nhanh chóng — dù bận đến đâu."
+              </p>
+            </div>
+            <div class="content-card">
+              <div class="content-card-body">
+                <p>
+                  Trong thời đại thông tin bùng nổ, chúng ta thường bị cuốn vào
+                  vòng xoáy cuộn mãi không dứt. Thoáng.vn ra đời để phá vỡ điều
+                  đó. Thay vì đẩy bạn đọc thêm và thêm, chúng tôi giúp bạn
+                  <strong>nắm ngay điều cốt lõi</strong> rồi tiếp tục ngày của
+                  mình.
+                </p>
+                <p>
+                  Mọi bài viết trên Thoáng.vn đều được biên tập để đọc trong
+                  vòng 30 giây — đủ để hiểu, đủ để nhớ, không dư thừa. Chúng tôi
+                  tin rằng thông tin chất lượng không cần phải tốn nhiều thời
+                  gian.
+                </p>
+              </div>
+            </div>
+
+            <!-- VALUES -->
+            <span class="section-label" style="margin-top: 32px"
+              >Giá trị cốt lõi</span
+            >
+            <div class="content-card">
+              <div class="value-item">
+                <div class="value-icon">
+                  <i class="bi bi-lightning-charge"></i>
+                </div>
+                <div>
+                  <div class="value-title">Nhanh mà không nông</div>
+                  <div class="value-desc">
+                    Cô đọng không có nghĩa là bỏ qua chiều sâu. Chúng tôi chắt
+                    lọc bản chất, không cắt xén ngữ cảnh.
+                  </div>
+                </div>
+              </div>
+              <div class="value-item">
+                <div class="value-icon"><i class="bi bi-shield-check"></i></div>
+                <div>
+                  <div class="value-title">Trung thực trước tiên</div>
+                  <div class="value-desc">
+                    Mỗi tin đều có nguồn rõ ràng. Chúng tôi không giật tít câu
+                    view hay bóp méo sự thật để tăng traffic.
+                  </div>
+                </div>
+              </div>
+              <div class="value-item">
+                <div class="value-icon"><i class="bi bi-person-heart"></i></div>
+                <div>
+                  <div class="value-title">Người dùng làm trọng</div>
+                  <div class="value-desc">
+                    Không thuật toán gây nghiện, không thông báo quấy rầy. Bạn
+                    kiểm soát những gì bạn đọc.
+                  </div>
+                </div>
+              </div>
+              <div class="value-item">
+                <div class="value-icon"><i class="bi bi-leaf"></i></div>
+                <div>
+                  <div class="value-title">Nhẹ nhàng & bền vững</div>
+                  <div class="value-desc">
+                    Thoáng được thiết kế gọn nhẹ, tiết kiệm pin và dữ liệu — tốt
+                    cho bạn lẫn môi trường.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STORY -->
+            <span class="section-label" style="margin-top: 32px"
+              >Câu chuyện</span
+            >
+            <div class="content-card">
+              <div class="timeline-item">
+                <div class="timeline-num">1</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Bắt đầu từ nỗi bực bội</div>
+                  <div class="timeline-desc">
+                    Nhóm sáng lập nhận ra rằng mình dành hàng giờ cuộn đọc tin
+                    mà không nhớ được gì. Quá nhiều nội dung, quá ít giá trị
+                    thực sự.
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-num">2</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Ý tưởng về "thoáng"</div>
+                  <div class="timeline-desc">
+                    Lấy cảm hứng từ cơ chế swipe của các ứng dụng hiện đại,
+                    chúng tôi nghĩ: nếu tin tức cũng có thể được tiếp nhận nhẹ
+                    nhàng và tức thì như vậy thì sao?
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-num">3</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Xây dựng cho người Việt</div>
+                  <div class="timeline-desc">
+                    Thoáng.vn được tối ưu cho thói quen đọc tin của người Việt:
+                    nhanh, trên điện thoại, trong những khoảng thời gian ngắn
+                    của ngày.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FEATURES -->
+            <span class="section-label" style="margin-top: 32px"
+              >Tính năng nổi bật</span
+            >
+            <div class="content-card">
+              <div class="d-flex flex-wrap">
+                <span class="feat-pill"
+                  ><i class="bi bi-hand-index"></i> Swipe để lưu / bỏ qua</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-clock"></i> Đọc trong 30 giây</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-funnel"></i> Lọc theo chủ đề</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-bookmark-check"></i> Lưu tin quan trọng</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-layout-text-sidebar"></i> Giao diện
+                  sạch</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-moon-stars"></i> Không gây nghiện</span
+                >
+                <span class="feat-pill"
+                  ><i class="bi bi-broadcast"></i> Cập nhật liên tục</span
+                >
+              </div>
+            </div>
+
+            <!-- TEAM -->
+            <span class="section-label" style="margin-top: 32px">Đội ngũ</span>
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-md-3">
+                <div class="team-card">
+                  <div class="team-avatar">NM</div>
+                  <div class="team-name">Nguyễn Khánh Hoàng</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="team-card">
+                  <div class="team-avatar">TL</div>
+                  <div class="team-name">Hứa Đức Nghĩa</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="team-card">
+                  <div class="team-avatar">PH</div>
+                  <div class="team-name">Lê Hoàng Việt</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="team-card">
+                  <div class="team-avatar">NA</div>
+                  <div class="team-name">Nguyễn Kiều Minh Trí</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-box">
+              <h3>Thoáng qua là nắm ngay.</h3>
+              <p>
+                Hãy thử một lần đọc tin theo cách khác — nhanh hơn, rõ hơn,
+                không tốn thêm một giây nào thừa.
+              </p>
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="index.html" class="btn-cta-gold"
+                  ><i class="bi bi-play-fill me-1"></i>Đọc tin ngay</a
+                >
+                <a href="mailto:hello@thoang.vn" class="btn-cta-outline"
+                  ><i class="bi bi-envelope me-1"></i>Liên hệ</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- SIDEBAR -->
+          <div class="col-lg-5 col-xl-4">
+            <div class="sidebar">
+              <div class="sidebar-block">
+                <div class="sidebar-heading">Thông tin nhanh</div>
+                <div class="quick-fact">
+                  <i class="bi bi-calendar3"></i
+                  ><span>Ra mắt năm 2026, xây dựng bởi sinh viên UEH</span>
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-geo-alt"></i
+                  ><span>TP. Hồ Chí Minh, Việt Nam</span>
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-people"></i><span>Đội ngũ 4 thành viên</span>
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-translate"></i
+                  ><span>Ngôn ngữ: Tiếng Việt</span>
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-code-slash"></i
+                  ><span>HTML · CSS · Bootstrap · JavaScript</span>
+                </div>
+              </div>
+
+              <div class="sidebar-block">
+                <div class="contact-box">
+                  <h6>Liên hệ</h6>
+                  <a href="mailto:hello@thoang.vn" class="contact-link"
+                    ><i class="bi bi-envelope"></i> hello@thoang.vn</a
+                  >
+                  <a href="#" class="contact-link"
+                    ><i class="bi bi-github"></i> github.com/thoang-vn</a
+                  >
+                  <a href="#" class="contact-link"
+                    ><i class="bi bi-facebook"></i> facebook.com/thoangvn</a
+                  >
+                </div>
+              </div>
+
+              <div class="sidebar-block">
+                <div class="sidebar-heading">Khám phá thêm</div>
+                <div class="quick-fact">
+                  <i class="bi bi-house"></i
+                  ><span
+                    ><a
+                      href="index.html"
+                      style="color: var(--navy); text-decoration: none"
+                      >Trang chủ — Đọc tin mới nhất</a
+                    ></span
+                  >
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-bookmark"></i
+                  ><span
+                    ><a
+                      href="saved.html"
+                      style="color: var(--navy); text-decoration: none"
+                      >Tin đã lưu của bạn</a
+                    ></span
+                  >
+                </div>
+                <div class="quick-fact">
+                  <i class="bi bi-newspaper"></i
+                  ><span
+                    ><a
+                      href="article.html"
+                      style="color: var(--navy); text-decoration: none"
+                      >Đọc bài viết đầy đủ</a
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container">
+        <div class="footer-logo">Thoáng<span>.</span>vn</div>
+        <p style="font-size: 12px; margin-top: 4px">
+          Tin tức nhanh — Đọc ngay — Hiểu liền
+        </p>
+        <div class="footer-links">
+          <a href="index.html">Trang chủ</a>
+          <a href="article.html">Bài viết</a>
+          <a href="saved.html">Đã lưu</a>
+          <a href="about.html">Giới thiệu</a>
+          <a href="#">Liên hệ</a>
+        </div>
+        <div class="footer-copy">
+          &copy; 2026 Thoáng.vn — Dự án môn Lập trình Web · UEH
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
