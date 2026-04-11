@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đã lưu — Thoáng.vn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy:  #1a2744;
+      --red:   #c41230;
+      --gold:  #f5c518;
+      --bg:    #f4f4f0;
+      --white: #ffffff;
+      --border:#d9d9d3;
+      --text:  #1a1a1a;
+      --muted: #767676;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* TOP BAR */
+    .top-bar { background: var(--navy); border-bottom: 3px solid var(--gold); padding: 6px 0; font-size: 12px; color: #cdd3e0; }
+    .top-bar a { color: #cdd3e0; text-decoration: none; }
+    .top-bar a:hover { color: #fff; }
+
+    /* MASTHEAD */
+    .masthead { background: var(--navy); padding: 16px 0 12px; }
+    .masthead-logo { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 800; color: #fff; letter-spacing: -1px; line-height: 1; }
+    .masthead-logo span { color: var(--gold); }
+    .masthead-tagline { font-size: 11px; color: #9daabf; letter-spacing: .1em; text-transform: uppercase; margin-top: 3px; }
+    .masthead-search input { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #fff; border-radius: 3px; padding: 5px 12px; font-size: 13px; width: 180px; }
+    .masthead-search input::placeholder { color: #9daabf; }
+    .masthead-search input:focus { outline: none; border-color: var(--gold); }
+
+    /* PRIMARY NAV */
+    .primary-nav { background: var(--navy); border-top: 1px solid rgba(255,255,255,.1); border-bottom: 4px solid var(--gold); }
+    .primary-nav .nav-link { color: #fff !important; font-size: 14px; font-weight: 600; padding: 10px 16px !important; border-bottom: 3px solid transparent; transition: all .15s; }
+    .primary-nav .nav-link:hover { border-bottom-color: var(--gold); color: var(--gold) !important; }
+    .primary-nav .nav-link.active { border-bottom-color: var(--gold); color: var(--gold) !important; }
+
+    /* SECONDARY NAV */
+    .secondary-nav { background: var(--white); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; }
+    .secondary-nav::-webkit-scrollbar { display: none; }
+    .secondary-nav a { display: inline-block; font-size: 12px; color: var(--text); text-decoration: none; padding: 7px 13px; border-right: 1px solid var(--border); transition: background .12s; }
+    .secondary-nav a:hover { background: var(--bg); }
+    .secondary-nav a.active { color: var(--red); font-weight: 600; }
+
+    /* LAYOUT */
+    .page-body { padding: 28px 0 60px; }
+
+    /* SECTION LABEL */
+    .section-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red); border-top: 3px solid var(--red); padding-top: 6px; margin-bottom: 16px; display: block; }
+
+    /* COMMON CARD ELEMENTS */
+    .card-cat { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 10px; border-radius: 2px; }
+    .source-dot { width: 22px; height: 22px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+    .source-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .source-time { font-size: 11px; color: var(--muted); }
+
+    /* SAVED ARTICLES STYLES */
+    .saved-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .saved-card:hover {
+      box-shadow: 0 4px 15px rgba(0,0,0,.05);
+      transform: translateY(-2px);
+    }
+    .saved-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; line-height: 1.3;
+      margin: 10px 0;
+    }
+    .saved-headline a { color: var(--text); text-decoration: none; }
+    .saved-headline a:hover { color: var(--navy); }
+    .saved-summary { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
+    
+    .btn-remove-saved {
+      background: none; border: none; color: #1d9e75; font-size: 16px; cursor: pointer; transition: color 0.15s;
+    }
+    .btn-remove-saved:hover { color: var(--red); }
+
+    /* SIDEBAR */
+    .sidebar { border-left: 1px solid var(--border); padding-left: 24px; }
+    .sidebar-block { margin-bottom: 28px; }
+    .sidebar-heading { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); border-top: 3px solid var(--navy); padding-top: 6px; margin-bottom: 14px; }
+    .most-read-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
+    .most-read-item:first-child { border-top: none; padding-top: 0; }
+    .mr-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--border); line-height: 1; min-width: 26px; }
+    .mr-title { font-size: 13px; font-weight: 600; line-height: 1.4; }
+    .mr-title a { color: var(--text); text-decoration: none; }
+    .mr-title a:hover { color: var(--navy); }
+    .latest-item { padding: 9px 0; border-top: 1px solid var(--border); }
+    .latest-item:first-child { border-top: none; padding-top: 0; }
+    .latest-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .latest-title a { color: var(--text); text-decoration: none; }
+    .latest-title a:hover { color: var(--navy); }
+    .latest-meta { font-size: 11px; color: var(--muted); }
+
+    /* FOOTER */
+    footer { background: var(--navy); color: #9daabf; padding: 28px 0 16px; font-size: 13px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .footer-logo span { color: var(--gold); }
+    footer a { color: #9daabf; text-decoration: none; }
+    footer a:hover { color: #fff; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; margin: 14px 0; border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
+    .footer-copy { font-size: 11px; color: #5d6a80; margin-top: 10px; }
+
+    @media (max-width: 768px) {
+      .masthead-logo { font-size: 2rem; }
+      .sidebar { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 24px; margin-top: 8px; }
+      .masthead-search { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span>Thứ Sáu, 11 tháng 4, 2025</span>
+  </div>
+</div>
+
+<div class="masthead">
+  <div class="container d-flex justify-content-between align-items-end">
+    <div>
+      <div class="masthead-logo">Thoáng<span>.</span>vn</div>
+      <div class="masthead-tagline">Lướt qua là nắm ngay</div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="masthead-search">
+        <input type="text" placeholder="Tìm kiếm..." />
+      </div>
+      
+      <a href="saved.html" class="nav-link" style="font-size:13px; color: var(--gold);">
+        <i class="bi bi-bookmark-fill me-1"></i>Đã lưu
+      </a>
+      
+      <a href="about.html" class="nav-link text-white" style="font-size:13px;">
+        <i class="bi bi-info-circle me-1"></i>Giới thiệu
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="primary-nav">
+  <div class="container">
+    <ul class="nav">
+      <li class="nav-item"><a class="nav-link" href="index.html">Tin mới</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Thế giới</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Kinh tế</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Công nghệ</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Thể thao</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Đời sống</a></li>
+      <li class="nav-item"><a class="nav-link" href="about.html">Về chúng tôi</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="secondary-nav">
+  <div class="container p-0">
+    <a href="#" class="active" data-cat="all">Tất cả</a>
+    <a href="#" data-cat="tech">Công nghệ</a>
+    <a href="#" data-cat="biz">Kinh tế</a>
+    <a href="#" data-cat="world">Thế giới</a>
+    <a href="#" data-cat="sport">Thể thao</a>
+    <a href="#" data-cat="life">Đời sống</a>
+    <a href="#" data-cat="edu">Giáo dục</a>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container">
+    <div class="row">
+
+      <div class="col-lg-7 col-xl-8 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="section-label mb-0">Tin tức đã lưu (3)</span>
+          <a href="#" class="text-muted" style="font-size: 12px; text-decoration: none;"><i class="bi bi-trash3 me-1"></i>Xóa tất cả</a>
+        </div>
+
+        <div class="saved-list">
+          <div class="saved-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="card-cat" style="background:#EEEDFE;color:#534AB7;">Công nghệ</span>
+              <button class="btn-remove-saved" title="Bỏ lưu"><i class="bi bi-bookmark-fill"></i></button>
+            </div>
+            <h3 class="saved-headline"><a href="article.html">Meta ra mắt kính AR thế hệ mới tại CES 2026</a></h3>
+            <p class="saved-summary">Thiết bị hỗ trợ hiển thị thực tế tăng cường với độ trễ dưới 5ms. Dự kiến lên kệ quý 3 năm nay với giá 299 USD — rẻ hơn 40% so với thế hệ trước.</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="source-dot">VN</div>
+              <div class="source-name">VnExpress</div>
+              <div class="source-time ms-2 border-start ps-2">Đã lưu 2 giờ trước</div>
+            </div>
+          </div>
+
+          <div class="saved-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="card-cat" style="background:#eaf6ec;color:#1d9e75;">Kinh tế</span>
+              <button class="btn-remove-saved" title="Bỏ lưu"><i class="bi bi-bookmark-fill"></i></button>
+            </div>
+            <h3 class="saved-headline"><a href="article.html">G20 cam kết 500 tỷ USD cho chuyển đổi năng lượng sạch toàn cầu</a></h3>
+            <p class="saved-summary">Các nhà lãnh đạo G20 đã đạt được thỏa thuận lịch sử nhằm hỗ trợ các nước đang phát triển trong việc xây dựng cơ sở hạ tầng năng lượng tái tạo.</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="source-dot">TT</div>
+              <div class="source-name">Tuổi Trẻ</div>
+              <div class="source-time ms-2 border-start ps-2">Đã lưu hôm qua</div>
+            </div>
+          </div>
+
+          <div class="saved-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <span class="card-cat" style="background:#fdecea;color:#c41230;">Thể thao</span>
+              <button class="btn-remove-saved" title="Bỏ lưu"><i class="bi bi-bookmark-fill"></i></button>
+            </div>
+            <h3 class="saved-headline"><a href="article.html">Đội tuyển Việt Nam thắng 2-0 trong trận giao hữu quốc tế</a></h3>
+            <p class="saved-summary">Cú đúp của tiền đạo trẻ Nguyễn Văn A trong hiệp hai đã mang về chiến thắng thuyết phục cho đội tuyển quốc gia trước đối thủ đến từ Tây Á.</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="source-dot">TN</div>
+              <div class="source-name">Thanh Niên</div>
+              <div class="source-time ms-2 border-start ps-2">Đã lưu 3 ngày trước</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-lg-5 col-xl-4">
+        <div class="sidebar">
+
+          <div class="sidebar-block">
+            <div class="sidebar-heading">Đọc nhiều nhất</div>
+            <div class="most-read-item"><div class="mr-num">1</div><div class="mr-title"><a href="article.html">G20 cam kết 500 tỷ USD cho chuyển đổi năng lượng sạch toàn cầu</a></div></div>
+            <div class="most-read-item"><div class="mr-num">2</div><div class="mr-title"><a href="article.html">VN-Index tăng mạnh, nhóm ngân hàng dẫn đầu phiên sáng</a></div></div>
+            <div class="most-read-item"><div class="mr-num">3</div><div class="mr-title"><a href="article.html">Meta ra mắt kính AR thế hệ mới giá 299 USD tại CES 2026</a></div></div>
+            <div class="most-read-item"><div class="mr-num">4</div><div class="mr-title"><a href="article.html">Đội tuyển Việt Nam thắng 2-0 trong trận giao hữu quốc tế</a></div></div>
+            <div class="most-read-item"><div class="mr-num">5</div><div class="mr-title"><a href="article.html">TP.HCM thí điểm tuyến xe buýt điện đầu tiên tại quận 1</a></div></div>
+          </div>
+
+          <div class="sidebar-block">
+            <div class="sidebar-heading">Mới nhất</div>
+            <div class="latest-item"><div class="latest-title"><a href="article.html">Giá vàng trong nước tăng lên 92 triệu đồng/lượng</a></div><div class="latest-meta">Kinh tế · 10 phút trước</div></div>
+            <div class="latest-item"><div class="latest-title"><a href="article.html">Apple chuẩn bị ra mắt iPhone 17 với chip A19 Pro</a></div><div class="latest-meta">Công nghệ · 25 phút trước</div></div>
+            <div class="latest-item"><div class="latest-title"><a href="article.html">Hà Nội mở rộng vùng cấm xe máy tại 4 quận nội thành</a></div><div class="latest-meta">Đời sống · 40 phút trước</div></div>
+            <div class="latest-item"><div class="latest-title"><a href="article.html">Xuất khẩu dệt may tháng 4 tăng 18% so với cùng kỳ</a></div><div class="latest-meta">Kinh tế · 1 giờ trước</div></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-logo">Thoáng<span>.</span>vn</div>
+    <p style="font-size:12px;margin-top:4px;">Tin tức nhanh — Đọc ngay — Hiểu liền</p>
+    <div class="footer-links">
+      <a href="index.html">Trang chủ</a>
+      <a href="article.html">Bài viết</a>
+      <a href="saved.html">Đã lưu</a>
+      <a href="about.html">Giới thiệu</a>
+      <a href="#">Liên hệ</a>
+    </div>
+    <div class="footer-copy">&copy; 2025 Thoáng.vn — Dự án môn Lập trình Web · UEH</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="scripts/script.js"></script>
+</body>
+</html>
