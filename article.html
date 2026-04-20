@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thoáng.vn — Bài viết</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy:  #1a2744;
+      --red:   #c41230;
+      --gold:  #f5c518;
+      --bg:    #f4f4f0;
+      --white: #ffffff;
+      --border:#d9d9d3;
+      --text:  #1a1a1a;
+      --muted: #767676;
+      --soft:  #f8f8f5;
+      --shadow-sm: 0 4px 14px rgba(0,0,0,.05);
+      --shadow-md: 0 10px 28px rgba(0,0,0,.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background:
+        linear-gradient(to bottom, #f4f4f0 0%, #f4f4f0 70%, #f0efe9 100%);
+      color: var(--text);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      background: var(--navy);
+      border-bottom: 3px solid var(--gold);
+      padding: 6px 0;
+      font-size: 12px;
+      color: #cdd3e0;
+    }
+
+    /* MASTHEAD */
+    .masthead {
+      background: var(--navy);
+      padding: 16px 0 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .masthead::after {
+      content: "";
+      position: absolute;
+      right: -100px;
+      top: -100px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(245,197,24,.12) 0%, rgba(245,197,24,0) 70%);
+      pointer-events: none;
+    }
+
+    .masthead-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    .masthead-logo span {
+      color: var(--gold);
+    }
+
+    .masthead-tagline {
+      font-size: 11px;
+      color: #9daabf;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-top: 3px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .masthead-search input {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      border-radius: 3px;
+      padding: 5px 12px;
+      font-size: 13px;
+      width: 180px;
+    }
+
+    .masthead-search input::placeholder {
+      color: #9daabf;
+    }
+
+    .masthead-search input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    /* PRIMARY NAV */
+    .primary-nav {
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,.1);
+      border-bottom: 4px solid var(--gold);
+      box-shadow: 0 1px 0 rgba(255,255,255,.04) inset;
+    }
+
+    .primary-nav .nav-link {
+      color: #fff !important;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 16px !important;
+      border-bottom: 3px solid transparent;
+      transition: all .15s;
+    }
+
+    .primary-nav .nav-link:hover,
+    .primary-nav .nav-link.active {
+      border-bottom-color: var(--gold);
+      color: var(--gold) !important;
+    }
+
+    /* SECONDARY NAV */
+    .secondary-nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .secondary-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .secondary-nav a {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--text);
+      padding: 7px 13px;
+      border-right: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .secondary-nav a:hover {
+      background: var(--bg);
+    }
+
+    .secondary-nav a.active {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    /* PAGE */
+    .article-page {
+      padding: 34px 0 64px;
+      position: relative;
+    }
+
+    .article-page::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 180px;
+      background: linear-gradient(to bottom, rgba(26,39,68,.03), rgba(26,39,68,0));
+      pointer-events: none;
+    }
+
+    .breadcrumb-thoang {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .breadcrumb-thoang a {
+      color: var(--muted);
+    }
+
+    .breadcrumb-thoang a:hover {
+      color: var(--navy);
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 18px;
+      transition: transform .15s ease, color .15s ease;
+    }
+
+    .back-home:hover {
+      color: var(--red);
+      transform: translateX(-2px);
+    }
+
+    /* MAIN ARTICLE */
+    .article-main {
+      background: var(--white);
+      border: 1px solid rgba(217,217,211,.9);
+      border-radius: 20px;
+      padding: 34px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .article-main::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--red), var(--gold), var(--navy));
+    }
+
+    .article-category {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      background: #eeedfe;
+      color: #534ab7;
+      border: 1px solid #dddafc;
+      box-shadow: 0 2px 8px rgba(83,74,183,.08);
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      line-height: 1.22;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: -.02em;
+    }
+
+    .article-subtitle {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #555;
+      margin-bottom: 22px;
+      max-width: 95%;
+      border-left: 3px solid var(--gold);
+      padding-left: 14px;
+    }
+
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 0 20px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .meta-item {
+      font-size: 12.5px;
+      color: var(--muted);
+      background: var(--soft);
+      border: 1px solid #ecece6;
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .meta-item strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .hero-wrap {
+      margin-bottom: 26px;
+    }
+
+    .article-cover-wrap {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .article-cover {
+      width: 100%;
+      height: 440px;
+      object-fit: cover;
+      display: block;
+      transition: transform .45s ease;
+    }
+
+    .article-cover-wrap:hover .article-cover {
+      transform: scale(1.03);
+    }
+
+    .cover-badge {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      background: rgba(26,39,68,.88);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .article-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.6;
+      padding-left: 2px;
+    }
+
+    .article-content p {
+      font-size: 15px;
+      line-height: 1.95;
+      color: #2f2f2f;
+      margin-bottom: 18px;
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      line-height: 1.4;
+      color: var(--navy);
+      margin: 32px 0 14px;
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .article-content h2::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 5px;
+      height: 22px;
+      border-radius: 4px;
+      background: var(--gold);
+    }
+
+    .article-highlight {
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 16px;
+      align-items: start;
+      background: linear-gradient(135deg, #fafaf7, #f4f4ef);
+      border: 1px solid #ecece4;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    .highlight-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--red);
+      padding-top: 4px;
+    }
+
+    .highlight-text {
+      font-size: 14px;
+      line-height: 1.85;
+      color: #444;
+      font-style: italic;
+    }
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .article-tag {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 999px;
+      transition: all .15s ease;
+    }
+
+    .article-tag:hover {
+      color: var(--navy);
+      border-color: var(--navy);
+      transform: translateY(-1px);
+    }
+
+    .article-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .btn-thoang {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      padding: 11px 17px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .15s ease;
+      box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
+    }
+
+    .btn-thoang:hover {
+      background: var(--bg);
+      border-color: var(--text);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .btn-thoang-primary {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+      box-shadow: 0 10px 20px rgba(26,39,68,.16);
+    }
+
+    .btn-thoang-primary:hover {
+      background: #0f1a35;
+      border-color: #0f1a35;
+      color: #fff;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      border-left: 1px solid var(--border);
+      padding-left: 24px;
+    }
+
+    .sidebar-block {
+      margin-bottom: 26px;
+    }
+
+    .sidebar-heading {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--navy);
+      border-top: 3px solid var(--navy);
+      padding-top: 6px;
+      margin-bottom: 14px;
+    }
+
+    .side-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .latest-item {
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .latest-item:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .latest-title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.55;
+      margin-bottom: 4px;
+    }
+
+    .latest-title a {
+      color: var(--text);
+      transition: color .15s ease;
+    }
+
+    .latest-title a:hover {
+      color: var(--navy);
+    }
+
+    .latest-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .summary-list {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 0;
+    }
+
+    .summary-list li {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.7;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .summary-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 18px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .summary-list li:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .summary-list li:first-child::before {
+      top: 8px;
+    }
+
+    .follow-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .follow-link:hover {
+      color: var(--red);
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--navy);
+      color: #9daabf;
+      padding: 28px 0 16px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .footer-logo span {
+      color: var(--gold);
+    }
+
+    footer a {
+      color: #9daabf;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 14px;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: #5d6a80;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 991px) {
+      .sidebar {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 24px;
+        margin-top: 24px;
+      }
+
+      .article-title {
+        font-size: 2.05rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .masthead-logo {
+        font-size: 2rem;
+      }
+
+      .masthead-search {
+        display: none;
+      }
+
+      .article-main {
+        padding: 22px;
+        border-radius: 16px;
+      }
+
+      .article-title {
+        font-size: 1.75rem;
+      }
+
+      .article-subtitle {
+        max-width: 100%;
+      }
+
+      .article-cover {
+        height: 260px;
+      }
+
+      .article-highlight {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <span>Thứ Sáu, 11 tháng 4, 2025</span>
+    </div>
+  </div>
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="container d-flex justify-content-between align-items-end">
+      <div>
+        <div class="masthead-logo">Thoáng<span>.</span>vn</div>
+        <div class="masthead-tagline">Lướt qua là nắm ngay</div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="masthead-search">
+          <input type="text" placeholder="Tìm kiếm..." />
+        </div>
+
+        <a href="saved.html" class="nav-link text-white" style="font-size:13px;">
+          <i class="bi bi-bookmark me-1"></i>Đã lưu
+        </a>
+
+        <a href="about.html" class="nav-link text-white" style="font-size:13px;">
+          <i class="bi bi-info-circle me-1"></i>Giới thiệu
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIMARY NAV -->
+  <div class="primary-nav">
+    <div class="container">
+      <ul class="nav">
+        <li class="nav-item"><a class="nav-link active" href="index.html">Tin mới</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Thế giới</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Kinh tế</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Công nghệ</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Thể thao</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Đời sống</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Về chúng tôi</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECONDARY NAV -->
+  <div class="secondary-nav">
+    <div class="container p-0">
+      <a href="index.html" class="active">Tất cả</a>
+      <a href="#">Công nghệ</a>
+      <a href="#">Kinh tế</a>
+      <a href="#">Thế giới</a>
+      <a href="#">Thể thao</a>
+      <a href="#">Đời sống</a>
+      <a href="#">Giáo dục</a>
+    </div>
+  </div>
+
+  <!-- PAGE -->
+  <div class="article-page">
+    <div class="container">
+      <div class="breadcrumb-thoang">
+        <a href="index.html">Trang chủ</a> / <span>Bài viết</span>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <a href="index.html" class="back-home">
+            <i class="bi bi-arrow-left"></i>
+            Quay lại trang chủ
+          </a>
+
+          <article class="article-main">
+            <span class="article-category">Công nghệ</span>
+
+            <h1 class="article-title">
+              Meta ra mắt kính AR thế hệ mới tại CES 2026: Xóa nhòa ranh giới thực ảo
+            </h1>
+
+            <p class="article-subtitle">
+              Tại CES 2026, Meta gây chú ý khi giới thiệu mẫu kính AR “Orion Pro” với thiết kế siêu mỏng, màn hình holographic thế hệ mới và độ trễ dưới 5ms. Thiết bị được kỳ vọng sẽ giúp công nghệ thực tế tăng cường tiếp cận gần hơn với người dùng phổ thông.
+            </p>
+
+            <div class="article-meta">
+              <div class="meta-item"><strong>Nguồn:</strong> VnExpress</div>
+              <div class="meta-item"><strong>Chuyên mục:</strong> Công nghệ</div>
+              <div class="meta-item"><strong>Đăng:</strong> 2 phút trước</div>
+              <div class="meta-item"><strong>Đọc trong:</strong> ~3 phút</div>
+            </div>
+
+            <div class="hero-wrap">
+              <div class="article-cover-wrap">
+                <img
+                  class="article-cover"
+                  src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop"
+                  alt="Meta ra mắt kính AR thế hệ mới"
+                />
+                <div class="cover-badge">
+                  <i class="bi bi-lightning-charge-fill me-1"></i>Tin công nghệ nổi bật
+                </div>
+              </div>
+
+              <div class="article-caption">
+                Mẫu kính AR mới của Meta được giới thiệu tại CES 2026 với định hướng phổ cập công nghệ thực tế tăng cường đến người dùng đại chúng.
+              </div>
+            </div>
+
+            <div class="article-content">
+              <p>
+                Meta vừa chính thức trình làng mẫu kính thực tế tăng cường mới mang tên Orion Pro tại triển lãm CES 2026. So với các thế hệ trước, sản phẩm lần này cho thấy tham vọng rõ ràng hơn trong việc đưa AR ra khỏi phạm vi thử nghiệm công nghệ và tiến gần hơn tới đời sống hằng ngày.
+              </p>
+
+              <p>
+                Theo phần trình diễn, Orion Pro sở hữu thiết kế mỏng nhẹ hơn đáng kể, ngoại hình gần giống một mẫu kính thông thường thay vì dáng vẻ cồng kềnh thường thấy ở nhiều thiết bị AR trước đây. Đây được xem là thay đổi quan trọng, bởi yếu tố hình thức luôn là một trong những rào cản lớn nhất khiến công nghệ đeo thông minh khó phổ biến rộng rãi.
+              </p>
+
+              <h2>Màn hình holographic và độ trễ cực thấp</h2>
+
+              <p>
+                Điểm nổi bật nhất trên Orion Pro là hệ thống hiển thị holographic thế hệ thứ hai. Meta cho biết thiết bị có thể tái tạo lớp thông tin ảo rõ nét ngay trong không gian thật, đồng thời duy trì độ trễ dưới 5ms. Thông số này giúp giảm đáng kể hiện tượng khó chịu khi sử dụng lâu và cải thiện cảm giác phản hồi trong các thao tác điều khiển bằng cử chỉ.
+              </p>
+
+              <div class="article-highlight">
+                <div class="highlight-label">Điểm nhấn</div>
+                <div class="highlight-text">
+                  “Nếu muốn AR trở thành thiết bị tiêu dùng thực sự, nó phải nhẹ hơn, nhanh hơn và dễ dùng hơn điện thoại trong những tình huống cụ thể.”
+                </div>
+              </div>
+
+              <p>
+                Bên cạnh đó, Meta cũng nhấn mạnh khả năng ứng dụng thực tế của sản phẩm như hiển thị thông báo, chỉ đường trực tiếp, dịch nội dung theo thời gian thực, xem thông tin môi trường xung quanh hoặc hỗ trợ làm việc với các lớp dữ liệu ảo chồng lên không gian thật.
+              </p>
+
+              <h2>Giá bán dễ tiếp cận hơn</h2>
+
+              <p>
+                Với mức giá dự kiến 299 USD, Orion Pro được đánh giá là có tính cạnh tranh cao trong nhóm thiết bị AR cao cấp phổ thông. So với mặt bằng chung của thị trường, đây là mức giá tương đối dễ tiếp cận nếu xét đến những gì Meta công bố về phần cứng và trải nghiệm sử dụng.
+              </p>
+
+              <p>
+                Mức giá này cũng cho thấy chiến lược của Meta đang chuyển dịch theo hướng mở rộng tệp người dùng thay vì chỉ tập trung vào nhóm đam mê công nghệ. Nếu được tối ưu tốt về phần mềm và hệ sinh thái ứng dụng, Orion Pro có thể trở thành sản phẩm tiên phong trong làn sóng AR tiêu dùng mới.
+              </p>
+
+              <h2>Cuộc đua AR đang nóng lên</h2>
+
+              <p>
+                Sự xuất hiện của Orion Pro diễn ra trong bối cảnh thị trường thiết bị đeo thông minh đang cạnh tranh ngày càng mạnh. Nhiều ông lớn công nghệ đã và đang đẩy mạnh đầu tư vào kính thông minh, thực tế tăng cường và các nền tảng tương tác không màn hình truyền thống.
+              </p>
+
+              <p>
+                Giới quan sát nhận định rằng nếu Meta thương mại hóa sản phẩm đúng tiến độ trong quý 3 năm nay, Orion Pro không chỉ là một bản nâng cấp phần cứng, mà còn có thể là cột mốc cho thấy AR đang dần bước sang giai đoạn trưởng thành hơn: thực dụng hơn, dễ tiếp cận hơn và gắn với nhu cầu thật của người dùng hơn.
+              </p>
+            </div>
+
+            <div class="article-tags">
+              <span class="article-tag">#Meta</span>
+              <span class="article-tag">#AR</span>
+              <span class="article-tag">#CES2026</span>
+              <span class="article-tag">#OrionPro</span>
+              <span class="article-tag">#CôngNghệ</span>
+            </div>
+
+            <div class="article-actions">
+              <a href="index.html" class="btn-thoang">
+                <i class="bi bi-arrow-left me-2"></i>Về trang chủ
+              </a>
+              <a href="saved.html" class="btn-thoang btn-thoang-primary">
+                <i class="bi bi-bookmark me-2"></i>Lưu bài viết
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="sidebar">
+            <div class="sidebar-block">
+              <div class="sidebar-heading">Tin liên quan</div>
+              <div class="side-card">
+                <div class="latest-item">
+                  <div class="latest-title">
+                    <a href="article.html">Apple chuẩn bị ra mắt iPhone 17 với chip A19 Pro</a>
+                  </div>
+                  <div class="latest-meta">Công nghệ · 25 phút trước</div>
+                </div>
+
+                <div class="latest-item">
+                  <div class="latest-title">
+                    <a href="article.html">Meta đầu tư mạnh vào nền tảng AI cho thiết bị đeo</a>
+                  </div>
+                  <div class="latest-meta">Công nghệ · 40 phút trước</div>
+                </div>
+
+                <div class="latest-item">
+                  <div class="latest-title">
+                    <a href="article.html">Samsung thử nghiệm kính thông minh hỗ trợ dịch trực tiếp</a>
+                  </div>
+                  <div class="latest-meta">Công nghệ · 1 giờ trước</div>
+                </div>
+
+                <div class="latest-item">
+                  <div class="latest-title">
+                    <a href="article.html">Thị trường AR/VR tăng tốc trở lại sau giai đoạn chững</a>
+                  </div>
+                  <div class="latest-meta">Thế giới · 2 giờ trước</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-block">
+              <div class="sidebar-heading">Tóm tắt nhanh</div>
+              <div class="side-card">
+                <ul class="summary-list">
+                  <li>Meta giới thiệu kính AR Orion Pro tại CES 2026.</li>
+                  <li>Thiết kế mỏng nhẹ, dễ tiếp cận hơn thế hệ cũ.</li>
+                  <li>Màn hình holographic thế hệ 2, độ trễ dưới 5ms.</li>
+                  <li>Giá dự kiến 299 USD, hướng đến người dùng phổ thông.</li>
+                  <li>Được kỳ vọng mở rộng thị trường AR tiêu dùng.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="sidebar-block">
+              <div class="sidebar-heading">Theo dõi thêm</div>
+              <div class="side-card">
+                <div class="latest-title mb-2">
+                  <a href="index.html">Xem thêm các tin mới nhất trên Thoáng.vn</a>
+                </div>
+                <div class="latest-meta">Cập nhật liên tục các tin ngắn, dễ đọc, dễ nắm bắt.</div>
+                <a href="index.html" class="follow-link">
+                  Xem trang chủ <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">Thoáng<span>.</span>vn</div>
+      <p style="font-size:12px;margin-top:4px;">Tin tức nhanh — Đọc ngay — Hiểu liền</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="article.html">Bài viết</a>
+        <a href="saved.html">Đã lưu</a>
+        <a href="about.html">Giới thiệu</a>
+        <a href="#">Liên hệ</a>
+      </div>
+      <div class="footer-copy">&copy; 2025 Thoáng.vn — Dự án môn Lập trình Web · UEH</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
