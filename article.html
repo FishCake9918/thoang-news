@@ -21,7 +21,7 @@
       --muted: #767676;
       --soft:  #f8f8f5;
       --shadow-sm: 0 4px 14px rgba(0,0,0,.05);
-      --shadow-md: 0 10px 28px rgba(0,0,0,.08);
+      --shadow-md: 0 10px 28px rgba(65, 49, 49, 0.08);
     }
 
     *, *::before, *::after {
@@ -36,9 +36,9 @@
 
     body {
       font-family: 'Be Vietnam Pro', sans-serif;
-      background:
-        linear-gradient(to bottom, #f4f4f0 0%, #f4f4f0 70%, #f0efe9 100%);
+      background: linear-gradient(to bottom, #f4f4f0 0%, #f4f4f0 70%, #f0efe9 100%);
       color: var(--text);
+      transition: background .2s ease, color .2s ease;
     }
 
     a {
@@ -228,6 +228,7 @@
       box-shadow: var(--shadow-md);
       position: relative;
       overflow: hidden;
+      transition: background .2s ease, border-color .2s ease;
     }
 
     .article-main::before {
@@ -300,6 +301,51 @@
       font-weight: 600;
     }
 
+    /* ARTICLE TOOLS */
+    .article-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 24px;
+      padding: 12px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: background .2s ease, border-color .2s ease;
+    }
+
+    .tool-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .article-tool-btn {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .article-tool-btn:hover {
+      background: var(--bg);
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+
+    .article-tool-btn.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
     .hero-wrap {
       margin-bottom: 26px;
     }
@@ -346,8 +392,14 @@
       padding-left: 2px;
     }
 
-    .article-content p {
+    /* FONT SIZE FIX */
+    .article-content {
       font-size: 15px;
+      transition: font-size .15s ease;
+    }
+
+    .article-content p {
+      font-size: inherit;
       line-height: 1.95;
       color: #2f2f2f;
       margin-bottom: 18px;
@@ -494,6 +546,7 @@
       border-radius: 16px;
       padding: 16px;
       box-shadow: var(--shadow-sm);
+      transition: background .2s ease, border-color .2s ease;
     }
 
     .latest-item {
@@ -525,6 +578,24 @@
     .latest-meta {
       font-size: 11px;
       color: var(--muted);
+    }
+
+    .summary-toggle {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--navy);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all .15s ease;
+    }
+
+    .summary-toggle:hover {
+      background: var(--bg);
+      border-color: var(--navy);
     }
 
     .summary-list {
@@ -577,6 +648,153 @@
       color: var(--red);
     }
 
+    /* BACK TO TOP BUTTON */
+    .back-to-top {
+      position: fixed;
+      right: 22px;
+      bottom: 24px;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #fff;
+      font-size: 18px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(26,39,68,.25);
+      z-index: 999;
+      transition: all .2s ease;
+    }
+
+    .back-to-top:hover {
+      background: #0f1a35;
+      transform: translateY(-2px);
+    }
+
+    .back-to-top.show {
+      display: flex;
+    }
+
+    /* DARK MODE */
+    body.dark-mode {
+      background: #101624;
+      color: #e8edf5;
+    }
+
+    body.dark-mode .article-page {
+      background: #101624;
+    }
+
+    body.dark-mode .article-main,
+    body.dark-mode .side-card,
+    body.dark-mode .article-tools {
+      background: #172033;
+      border-color: #2d3850;
+    }
+
+    body.dark-mode .article-title,
+    body.dark-mode .article-content h2,
+    body.dark-mode .latest-title a,
+    body.dark-mode .breadcrumb-thoang a,
+    body.dark-mode .back-home,
+    body.dark-mode .sidebar-heading {
+      color: #ffffff;
+    }
+
+    body.dark-mode .article-subtitle,
+    body.dark-mode .article-content p,
+    body.dark-mode .highlight-text,
+    body.dark-mode .summary-list li,
+    body.dark-mode .latest-meta,
+    body.dark-mode .breadcrumb-thoang,
+    body.dark-mode .meta-item,
+    body.dark-mode .tool-label,
+    body.dark-mode .article-caption {
+      color: #c8d0df;
+    }
+
+    body.dark-mode .meta-item,
+    body.dark-mode .article-tag,
+    body.dark-mode .summary-toggle,
+    body.dark-mode .article-tool-btn,
+    body.dark-mode .btn-thoang {
+      background: #202b42;
+      border-color: #34405a;
+      color: #e8edf5;
+    }
+
+    body.dark-mode .article-tool-btn:hover,
+    body.dark-mode .summary-toggle:hover,
+    body.dark-mode .btn-thoang:hover {
+      background: #293754;
+      border-color: var(--gold);
+      color: #ffffff;
+    }
+
+    body.dark-mode .article-highlight {
+      background: #202b42;
+      border-color: #34405a;
+    }
+
+    body.dark-mode .article-cover-wrap {
+      border-color: #34405a;
+    }
+
+    body.dark-mode .sidebar {
+      border-left-color: #34405a;
+    }
+
+    body.dark-mode .latest-item,
+    body.dark-mode .summary-list li,
+    body.dark-mode .article-meta,
+    body.dark-mode .article-tags {
+      border-color: #34405a;
+    }
+
+    body.dark-mode .secondary-nav {
+      background: #172033;
+      border-bottom-color: #34405a;
+    }
+
+    body.dark-mode .secondary-nav a {
+      color: #e8edf5;
+      border-right-color: #34405a;
+    }
+
+    body.dark-mode .secondary-nav a:hover {
+      background: #202b42;
+    }
+
+    body.dark-mode .secondary-nav a.active {
+      color: var(--gold);
+    }
+
+    body.dark-mode .article-content h2::before,
+    body.dark-mode .summary-list li::before {
+      background: var(--gold);
+    }
+
+    body.dark-mode .article-highlight {
+      box-shadow: none;
+    }
+/* FIX META ITEM TRONG DARK MODE - DỊU HƠN */
+body.dark-mode .article-meta {
+  border-top-color: rgba(255, 255, 255, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.35);
+}
+
+body.dark-mode .meta-item {
+  background: #172033;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+}
+
+body.dark-mode .meta-item strong {
+  color: #ffffff !important;
+}
     /* FOOTER */
     footer {
       background: var(--navy);
@@ -629,6 +847,10 @@
         margin-top: 24px;
       }
 
+      body.dark-mode .sidebar {
+        border-top-color: #34405a;
+      }
+
       .article-title {
         font-size: 2.05rem;
       }
@@ -664,11 +886,16 @@
         grid-template-columns: 1fr;
         gap: 8px;
       }
+
+      .back-to-top {
+        right: 16px;
+        bottom: 18px;
+      }
     }
   </style>
 </head>
-<body>
 
+<body>
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="container d-flex justify-content-between align-items-center">
@@ -760,6 +987,29 @@
               <div class="meta-item"><strong>Đọc trong:</strong> ~3 phút</div>
             </div>
 
+            <!-- ARTICLE TOOLS -->
+            <div class="article-tools">
+              <span class="tool-label">Cỡ chữ:</span>
+
+              <button type="button" class="article-tool-btn" onclick="changeFontSize(-1)">
+                <i class="bi bi-dash-lg me-1"></i>A-
+              </button>
+
+              <button type="button" class="article-tool-btn" onclick="resetFontSize()">
+                A
+              </button>
+
+              <button type="button" class="article-tool-btn" onclick="changeFontSize(1)">
+                <i class="bi bi-plus-lg me-1"></i>A+
+              </button>
+
+              <span class="tool-label ms-2">Giao diện:</span>
+
+              <button type="button" class="article-tool-btn" onclick="toggleTheme()" id="themeToggleBtn">
+                <i class="bi bi-moon-stars me-1"></i>Nền tối
+              </button>
+            </div>
+
             <div class="hero-wrap">
               <div class="article-cover-wrap">
                 <img
@@ -777,7 +1027,7 @@
               </div>
             </div>
 
-            <div class="article-content">
+            <div class="article-content" id="articleContent">
               <p>
                 Meta vừa chính thức trình làng mẫu kính thực tế tăng cường mới mang tên Orion Pro tại triển lãm CES 2026. So với các thế hệ trước, sản phẩm lần này cho thấy tham vọng rõ ràng hơn trong việc đưa AR ra khỏi phạm vi thử nghiệm công nghệ và tiến gần hơn tới đời sống hằng ngày.
               </p>
@@ -836,8 +1086,9 @@
               <a href="index.html" class="btn-thoang">
                 <i class="bi bi-arrow-left me-2"></i>Về trang chủ
               </a>
+
               <a href="saved.html" class="btn-thoang btn-thoang-primary">
-                <i class="bi bi-bookmark me-2"></i>Lưu bài viết
+                <i class="bi bi-bookmark me-2"></i>Đã lưu
               </a>
             </div>
           </article>
@@ -847,6 +1098,7 @@
           <div class="sidebar">
             <div class="sidebar-block">
               <div class="sidebar-heading">Tin liên quan</div>
+
               <div class="side-card">
                 <div class="latest-item">
                   <div class="latest-title">
@@ -880,7 +1132,12 @@
 
             <div class="sidebar-block">
               <div class="sidebar-heading">Tóm tắt nhanh</div>
-              <div class="side-card">
+
+              <button type="button" class="summary-toggle" onclick="toggleSummary()" id="summaryToggleBtn">
+                <i class="bi bi-eye-slash me-1"></i>Ẩn tóm tắt
+              </button>
+
+              <div class="side-card" id="summaryBox">
                 <ul class="summary-list">
                   <li>Meta giới thiệu kính AR Orion Pro tại CES 2026.</li>
                   <li>Thiết kế mỏng nhẹ, dễ tiếp cận hơn thế hệ cũ.</li>
@@ -893,11 +1150,16 @@
 
             <div class="sidebar-block">
               <div class="sidebar-heading">Theo dõi thêm</div>
+
               <div class="side-card">
                 <div class="latest-title mb-2">
                   <a href="index.html">Xem thêm các tin mới nhất trên Thoáng.vn</a>
                 </div>
-                <div class="latest-meta">Cập nhật liên tục các tin ngắn, dễ đọc, dễ nắm bắt.</div>
+
+                <div class="latest-meta">
+                  Cập nhật liên tục các tin ngắn, dễ đọc, dễ nắm bắt.
+                </div>
+
                 <a href="index.html" class="follow-link">
                   Xem trang chủ <i class="bi bi-arrow-right"></i>
                 </a>
@@ -909,11 +1171,20 @@
     </div>
   </div>
 
+  <!-- BACK TO TOP BUTTON -->
+  <button type="button" class="back-to-top" id="backToTopBtn" onclick="scrollToTop()" title="Lên đầu trang">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
   <!-- FOOTER -->
   <footer>
     <div class="container">
       <div class="footer-logo">Thoáng<span>.</span>vn</div>
-      <p style="font-size:12px;margin-top:4px;">Tin tức nhanh — Đọc ngay — Hiểu liền</p>
+
+      <p style="font-size:12px;margin-top:4px;">
+        Tin tức nhanh — Đọc ngay — Hiểu liền
+      </p>
+
       <div class="footer-links">
         <a href="index.html">Trang chủ</a>
         <a href="article.html">Bài viết</a>
@@ -921,10 +1192,121 @@
         <a href="about.html">Giới thiệu</a>
         <a href="#">Liên hệ</a>
       </div>
-      <div class="footer-copy">&copy; 2025 Thoáng.vn — Dự án môn Lập trình Web · UEH</div>
+
+      <div class="footer-copy">
+        &copy; 2025 Thoáng.vn — Dự án môn Lập trình Web · UEH
+      </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let currentFontSize = Number(localStorage.getItem("articleFontSize")) || 15;
+    let currentTheme = localStorage.getItem("articleTheme") || "light";
+
+    function applyFontSize() {
+      const articleContent = document.getElementById("articleContent");
+
+      if (!articleContent) {
+        return;
+      }
+
+      articleContent.style.fontSize = currentFontSize + "px";
+      localStorage.setItem("articleFontSize", currentFontSize);
+    }
+
+    function changeFontSize(step) {
+      currentFontSize = currentFontSize + step;
+
+      if (currentFontSize < 13) {
+        currentFontSize = 13;
+      }
+
+      if (currentFontSize > 20) {
+        currentFontSize = 20;
+      }
+
+      applyFontSize();
+    }
+
+    function resetFontSize() {
+      currentFontSize = 15;
+      applyFontSize();
+    }
+
+    function applyTheme() {
+      const themeBtn = document.getElementById("themeToggleBtn");
+
+      if (currentTheme === "dark") {
+        document.body.classList.add("dark-mode");
+
+        if (themeBtn) {
+          themeBtn.innerHTML = '<i class="bi bi-sun me-1"></i>Nền sáng';
+        }
+      } else {
+        document.body.classList.remove("dark-mode");
+
+        if (themeBtn) {
+          themeBtn.innerHTML = '<i class="bi bi-moon-stars me-1"></i>Nền tối';
+        }
+      }
+
+      localStorage.setItem("articleTheme", currentTheme);
+    }
+
+    function toggleTheme() {
+      if (currentTheme === "dark") {
+        currentTheme = "light";
+      } else {
+        currentTheme = "dark";
+      }
+
+      applyTheme();
+    }
+
+    function toggleSummary() {
+      const summaryBox = document.getElementById("summaryBox");
+      const summaryBtn = document.getElementById("summaryToggleBtn");
+
+      if (!summaryBox || !summaryBtn) {
+        return;
+      }
+
+      if (summaryBox.style.display === "none") {
+        summaryBox.style.display = "block";
+        summaryBtn.innerHTML = '<i class="bi bi-eye-slash me-1"></i>Ẩn tóm tắt';
+      } else {
+        summaryBox.style.display = "none";
+        summaryBtn.innerHTML = '<i class="bi bi-eye me-1"></i>Hiện tóm tắt';
+      }
+    }
+
+    const backToTopBtn = document.getElementById("backToTopBtn");
+
+    window.addEventListener("scroll", function () {
+      if (!backToTopBtn) {
+        return;
+      }
+
+      if (window.scrollY > 350) {
+        backToTopBtn.classList.add("show");
+      } else {
+        backToTopBtn.classList.remove("show");
+      }
+    });
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      applyFontSize();
+      applyTheme();
+    });
+  </script>
 </body>
 </html>
