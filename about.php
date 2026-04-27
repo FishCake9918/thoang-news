@@ -300,7 +300,7 @@ $status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
 <div class="masthead">
   <div class="container d-flex justify-content-between align-items-end">
     <div>
-      <a href="index.html" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
       <div class="masthead-tagline">Lướt qua là nắm ngay</div>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -332,7 +332,7 @@ $status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
 <div class="primary-nav">
   <div class="container">
     <ul class="nav">
-      <li class="nav-item"><a class="nav-link" href="index.html">Tin mới</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php">Tin mới</a></li>
       <li class="nav-item"><a class="nav-link" href="#">Thế giới</a></li>
       <li class="nav-item"><a class="nav-link" href="#">Kinh tế</a></li>
       <li class="nav-item"><a class="nav-link" href="#">Công nghệ</a></li>
@@ -614,7 +614,7 @@ $status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
           </div>
           <div class="sidebar-block">
             <div class="sidebar-heading">Khám phá thêm</div>
-            <div class="quick-fact"><i class="bi bi-house"></i><span><a href="index.html" style="color:var(--navy);text-decoration:none">Trang chủ — Đọc tin mới nhất</a></span></div>
+            <div class="quick-fact"><i class="bi bi-house"></i><span><a href="index.php" style="color:var(--navy);text-decoration:none">Trang chủ — Đọc tin mới nhất</a></span></div>
             <div class="quick-fact"><i class="bi bi-bookmark"></i><span><a href="saved.html" style="color:var(--navy);text-decoration:none">Tin đã lưu của bạn</a></span></div>
             <div class="quick-fact"><i class="bi bi-newspaper"></i><span><a href="article.html" style="color:var(--navy);text-decoration:none">Đọc bài viết đầy đủ</a></span></div>
           </div>
@@ -631,7 +631,7 @@ $status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
     <div class="footer-logo">Thoáng<span>.</span>vn</div>
     <p style="font-size:12px;margin-top:4px">Tin tức nhanh — Đọc ngay — Hiểu liền</p>
     <div class="footer-links">
-      <a href="index.html">Trang chủ</a>
+      <a href="index.php">Trang chủ</a>
       <a href="article.html">Bài viết</a>
       <a href="saved.html">Đã lưu</a>
       <a href="about.php">Giới thiệu</a>
