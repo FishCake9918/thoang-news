@@ -1,5 +1,5 @@
 <?php
-session_start(); // Khởi tạo Session ID cho khách
+session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header('Content-Type: application/json; charset=utf-8');
@@ -9,19 +9,23 @@ if (!isset($pdo)) {
     exit(json_encode(["error" => "Lỗi cấu hình Database."]));
 }
 
-$guest_id = session_id(); // Lấy mã phiên làm việc duy nhất của trình duyệt
+$guest_id = session_id(); 
 $category = $_GET['category'] ?? 'all';
 
-// LEFT JOIN để biết bài nào đã được khách này lưu (is_saved = 1)
-$sql = "SELECT n.*, IF(b.id IS NOT NULL, 1, 0) as is_saved 
-        FROM news n 
-        LEFT JOIN bookmarks b ON n.id = b.news_id AND b.session_id = :session_id";
+// Bổ sung JOIN bảng categories để lấy mã danh mục (slug) cho JS
+$sql = "SELECT n.*, 
+               c.slug as category, 
+               n.source as source_name,
+               IF(b.id IS NOT NULL, 1, 0) as is_saved 
+        FROM articles n
+        LEFT JOIN categories c ON n.category_id = c.id
+        LEFT JOIN bookmarks b ON n.id = b.article_id AND b.session_id = :session_id";
 
 $params = [':session_id' => $guest_id];
 
-// Lọc theo danh mục
+// Lọc theo danh mục dùng cột slug
 if ($category !== 'all') {
-    $sql .= " WHERE n.category = :category";
+    $sql .= " WHERE c.slug = :category";
     $params[':category'] = $category;
 }
 

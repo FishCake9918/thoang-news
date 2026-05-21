@@ -17,18 +17,18 @@ if ($news_id <= 0) {
 }
 
 try {
-    // Kiểm tra trạng thái hiện tại
-    $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND news_id = :news_id");
+    // Sửa toàn bộ news_id thành article_id cho khớp Database
+    $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
     $stmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
     
     if ($stmt->fetch()) {
         // Đã lưu -> Thực hiện Xóa
-        $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND news_id = :news_id");
+        $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
         $delStmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
         echo json_encode(['status' => 'success', 'action' => 'removed']);
     } else {
         // Chưa lưu -> Thực hiện Thêm
-        $insStmt = $pdo->prepare("INSERT INTO bookmarks (session_id, news_id) VALUES (:session_id, :news_id)");
+        $insStmt = $pdo->prepare("INSERT INTO bookmarks (session_id, article_id) VALUES (:session_id, :news_id)");
         $insStmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
         echo json_encode(['status' => 'success', 'action' => 'saved']);
     }
