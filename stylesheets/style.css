@@ -1,8 +1,8 @@
 /* ==========================================================================
-   THOANG.VN — GLOBAL STYLESHEET
+   THOANG.VN â€” GLOBAL STYLESHEET
    ========================================================================== */
 
-/* ── 1. BIẾN MÀU SẮC VÀ RESET CƠ BẢN ── */
+/* â”€â”€ 1. BIáº¾N MÃ€U Sáº®C VÃ€ RESET CÆ  Báº¢N â”€â”€ */
 :root {
   --navy: #1a2744;
   --red: #c41230;
@@ -29,7 +29,7 @@ body {
   flex-direction: column;
 }
 
-/* ── 2. HEADER, NAV & FOOTER (DÙNG CHUNG) ── */
+/* â”€â”€ 2. HEADER, NAV & FOOTER (DÃ™NG CHUNG) â”€â”€ */
 .top-bar { background: var(--navy); border-bottom: 3px solid var(--gold); padding: 6px 0; font-size: 12px; color: #cdd3e0; }
 .top-bar a { color: #cdd3e0; text-decoration: none; }
 .top-bar a:hover { color: #fff; }
@@ -69,7 +69,7 @@ footer a:hover { color: #fff; }
 .footer-links { display: flex; gap: 20px; flex-wrap: wrap; margin: 14px 0; border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
 .footer-copy { font-size: 11px; color: #5d6a80; margin-top: 10px; }
 
-/* ── 3. THÀNH PHẦN FORM VÀ UI CHUNG ── */
+/* â”€â”€ 3. THÃ€NH PHáº¦N FORM VÃ€ UI CHUNG â”€â”€ */
 .form-label { font-size: 12px; font-weight: 600; color: #444; letter-spacing: 0.04em; text-transform: uppercase; }
 .form-label-sm { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #444; margin-bottom: 4px; }
 .form-control, .form-select { border-radius: 4px; border: 1px solid var(--border); font-size: 13.5px; padding: 10px 12px; width: 100%; }
@@ -83,7 +83,7 @@ footer a:hover { color: #fff; }
 .sidebar-block { margin-bottom: 28px; }
 .sidebar-heading { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); border-top: 3px solid var(--navy); padding-top: 6px; margin-bottom: 14px; }
 
-/* ── 4. ĐĂNG NHẬP & ĐĂNG KÝ (AUTH) ── */
+/* â”€â”€ 4. ÄÄ‚NG NHáº¬P & ÄÄ‚NG KÃ (AUTH) â”€â”€ */
 .auth-card { background: #fff; border: 1px solid var(--border); border-top: 4px solid var(--navy); padding: 36px 40px; width: 100%; max-width: 440px; }
 .auth-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
 .auth-sub { font-size: 13px; color: #767676; margin-bottom: 28px; }
@@ -95,7 +95,7 @@ footer a:hover { color: #fff; }
 .strength-bar { height: 3px; background: var(--border); margin-top: 6px; overflow: hidden; }
 .strength-bar-fill { height: 100%; width: 0; transition: width .3s, background .3s; }
 
-/* ── 5. TRANG CHỦ (INDEX) & SWIPE CARDS ── */
+/* â”€â”€ 5. TRANG CHá»¦ (INDEX) & SWIPE CARDS â”€â”€ */
 .stack-wrap { width: 100%; max-width: 100%; position: relative; margin: 0 auto; }
 .progress-label { font-size: 11px; color: var(--muted); }
 .thoang-progress { height: 3px; background: var(--border); border-radius: 2px; flex: 1; overflow: hidden; }
@@ -130,7 +130,7 @@ footer a:hover { color: #fff; }
 .mr-title { font-size: 13px; font-weight: 600; line-height: 1.4; }
 .mr-title a { color: var(--text); text-decoration: none; }
 
-/* ── 6. CHI TIẾT BÀI VIẾT (ARTICLE) ── */
+/* â”€â”€ 6. CHI TIáº¾T BÃ€I VIáº¾T (ARTICLE) â”€â”€ */
 .article-body { padding: 40px 0 80px; background: var(--bg); flex-grow: 1; }
 .article-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,.04); }
 .article-cat { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 12px; border-radius: 4px; margin-bottom: 20px; background: #EEEDFE; color: #534AB7; }
@@ -144,7 +144,7 @@ footer a:hover { color: #fff; }
 .btn-back { background: none; border: 1px solid var(--border); color: var(--text); padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s; margin-top: 40px; }
 .btn-back:hover { background: var(--bg); border-color: var(--text); color: var(--navy); }
 
-/* ── 7. TRANG ĐÃ LƯU (SAVED) ── */
+/* â”€â”€ 7. TRANG ÄÃƒ LÆ¯U (SAVED) â”€â”€ */
 .saved-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; transition: box-shadow 0.2s, transform 0.2s; }
 .saved-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,.05); transform: translateY(-2px); }
 .saved-headline { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; line-height: 1.3; margin: 10px 0; }
@@ -184,7 +184,7 @@ footer a:hover { color: #fff; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; }
 
-/* ── 8. CMS VIẾT BÀI (VIETBAI) ── */
+/* â”€â”€ 8. CMS VIáº¾T BÃ€I (VIETBAI) â”€â”€ */
 .cms-card { background: var(--white); border: 1px solid var(--border); border-top: 4px solid var(--navy) !important; border-radius: 8px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
 .cms-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
 .cms-sub { font-size: 13px; color: var(--muted); margin-bottom: 30px; }
@@ -193,7 +193,7 @@ footer a:hover { color: #fff; }
 .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 12px 30px; font-size: 13px; font-weight: 600; border-radius: 4px; text-decoration: none; text-align: center; display: inline-block; transition: background .15s; }
 .btn-cancel:hover { background: var(--bg); color: var(--text); }
 
-/* ── 9. TRANG GIỚI THIỆU (ABOUT) ── */
+/* â”€â”€ 9. TRANG GIá»šI THIá»†U (ABOUT) â”€â”€ */
 .about-hero { background: var(--navy); padding: 56px 0 48px; margin-bottom: 36px; position: relative; overflow: hidden; }
 .about-hero::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: var(--gold); }
 .about-hero-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
@@ -301,3 +301,13 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
   .stat-cell:last-child { border-bottom: none; }
   .fb-subject { display: none; }
 }
+
+
+/* â”€â”€ Bá»” SUNG Tá»ª INDEX.PHP: BREAKING BAR & LATEST LIST â”€â”€ */
+.breaking-bar { background: var(--red); color: #fff; font-size: 12.5px; font-weight: 600; padding: 7px 0; }
+.breaking-bar .label { background: #fff; color: var(--red); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; margin-right: 10px; }
+
+.latest-item { padding: 9px 0; border-top: 1px solid var(--border); }
+.latest-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.latest-title a { color: var(--text); text-decoration: none; }
+.latest-meta { font-size: 11px; color: var(--muted); }
