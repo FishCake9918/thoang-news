@@ -7,7 +7,7 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 if (isLoggedIn()) {
-    header('Location: index.html');
+    header('Location: index.php');
     exit;
 }
 
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
   <div class="masthead">
     <div class="container">
-      <a href="index.html" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
     </div>
   </div>
 
@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Đã có tài khoản? <a href="login.php" class="link-gold">Đăng nhập</a>
       </div>
       <div class="text-center mt-2" style="font-size:13px;">
-        <a href="index.html" style="color:#767676;text-decoration:none">
+        <a href="index.php" style="color:#767676;text-decoration:none">
           <i class="bi bi-arrow-left me-1"></i>Quay về trang chủ
         </a>
       </div>

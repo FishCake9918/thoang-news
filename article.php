@@ -40,35 +40,11 @@ try {
 
 // Thiết lập tiêu đề trang động theo tên bài viết
 $page_title = htmlspecialchars($article['title']) . ' — Thoáng.vn';
+?>
+<link rel="stylesheet" href="stylesheets/style.css">
+<?php
 include 'partials/header.php';
 ?>
-
-<style>
-  /* Giao diện đồng bộ với tông màu Navy, Gold và Red của dự án */
-  .article-body { padding: 40px 0 80px; background: var(--bg); }
-  .article-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,.04); }
-  
-  /* Badge danh mục động */
-  .article-cat { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 12px; border-radius: 4px; margin-bottom: 20px; background: #EEEDFE; color: #534AB7; }
-  
-  .article-title { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 800; line-height: 1.25; color: var(--text); margin-bottom: 20px; }
-  
-  /* Meta thông tin bài viết */
-  .article-meta { font-size: 13px; color: var(--muted); padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-  .meta-item { display: flex; align-items: center; gap: 6px; }
-  .meta-item i { color: var(--navy); font-size: 14px; }
-  
-  /* Khối tóm tắt bài viết (Summary) */
-  .article-summary { font-size: 16px; font-weight: 500; color: #333; line-height: 1.6; margin-bottom: 30px; padding: 18px 22px; background: #fafafa; border-left: 4px solid var(--navy); border-radius: 0 8px 8px 0; }
-  
-  /* Nội dung chi tiết */
-  .article-content { font-size: 15.5px; color: #222; line-height: 1.9; text-align: justify; }
-  .article-content p { margin-bottom: 20px; }
-  
-  /* Nút quay lại điều hướng nhanh */
-  .btn-back { background: none; border: 1px solid var(--border); color: var(--text); padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s; margin-top: 40px; }
-  .btn-back:hover { background: var(--bg); border-color: var(--text); color: var(--navy); }
-</style>
 
 <div class="article-body">
   <div class="container">

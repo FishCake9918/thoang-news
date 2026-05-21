@@ -7,7 +7,7 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 if (isLoggedIn()) {
-    header('Location: ' . (isset($_GET['redirect']) ? $_GET['redirect'] : 'index.html'));
+    header('Location: ' . (isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php'));
     exit;
 }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['full_name']= $user['full_name'];
                 $_SESSION['role']     = $user['role'];
 
-                $redirect = $_GET['redirect'] ?? ($user['role'] === 'admin' ? 'about.php' : 'index.html');
+                $redirect = $_GET['redirect'] ?? ($user['role'] === 'admin' ? 'about.php' : 'index.php');
                 header("Location: $redirect");
                 exit;
             } else {
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <div class="masthead">
     <div class="container">
-      <a href="index.html" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
     </div>
   </div>
 
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="register.php" class="link-gold">Đăng ký ngay</a>
       </div>
       <div class="text-center mt-2" style="font-size:13px;color:#555">
-        <a href="index.html" style="color:#767676;text-decoration:none">
+        <a href="index.php" style="color:#767676;text-decoration:none">
           <i class="bi bi-arrow-left me-1"></i>Quay về trang chủ
         </a>
       </div>
