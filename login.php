@@ -56,27 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    :root{--navy:#1a2744;--gold:#f5c518;--red:#c41230;--bg:#f4f4f0;--border:#d9d9d3;}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;}
-    .top-bar{background:var(--navy);border-bottom:3px solid var(--gold);padding:6px 0;font-size:12px;color:#cdd3e0;}
-    .masthead{background:var(--navy);padding:16px 0 12px;}
-    .masthead-logo{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:800;color:#fff;letter-spacing:-1px;text-decoration:none;}
-    .masthead-logo span{color:var(--gold);}
-    .auth-card{background:#fff;border:1px solid var(--border);border-top:4px solid var(--navy);padding:36px 40px;width:100%;max-width:440px;}
-    .auth-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--navy);margin-bottom:6px;}
-    .auth-sub{font-size:13px;color:#767676;margin-bottom:28px;}
-    .form-label{font-size:12px;font-weight:600;color:#444;letter-spacing:0.04em;text-transform:uppercase;}
-    .form-control{border-radius:2px;border:1px solid var(--border);font-size:13.5px;padding:9px 12px;}
-    .form-control:focus{border-color:var(--navy);box-shadow:0 0 0 2px rgba(26,39,68,.12);}
-    .btn-login{background:var(--navy);color:#fff;border:none;padding:10px 28px;font-size:13px;font-weight:700;letter-spacing:.04em;width:100%;cursor:pointer;transition:opacity .15s;}
-    .btn-login:hover{opacity:.88;}
-    .divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
-    .link-gold{color:var(--gold);font-weight:600;text-decoration:none;}
-    .link-gold:hover{text-decoration:underline;}
-    footer{background:var(--navy);color:#9daabf;padding:20px 0;font-size:12px;margin-top:auto;}
-  </style>
+    <link rel="stylesheet" href="stylesheets/style.css">
+
 </head>
 <body>
   <div class="top-bar">

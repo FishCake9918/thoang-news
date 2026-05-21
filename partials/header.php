@@ -26,9 +26,12 @@ $nav_items = [
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><?= htmlspecialchars($page_title) ?></title>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
+  
+  <link href="stylesheets/style.css" rel="stylesheet"/>
   <style>
     /* ── BIẾN MÀU TOÀN CỤC — dùng được ở mọi trang ── */
     :root {
@@ -107,11 +110,13 @@ $nav_items = [
       .primary-nav .nav-link { white-space: nowrap; }
     }
   </style>
+  <?php if (!empty($page_css)): ?>
+  <link href="<?= htmlspecialchars($page_css) ?>" rel="stylesheet"/>
+  <?php endif; ?>
 </head>
 <body>
 
 <?php if ($is_admin): ?>
-<!-- ADMIN BAR -->
 <div class="admin-bar">
   <div class="container d-flex align-items-center gap-3">
     <i class="bi bi-shield-fill-check"></i>
@@ -125,7 +130,6 @@ $nav_items = [
 </div>
 <?php endif; ?>
 
-<!-- TOP BAR -->
 <div class="top-bar">
   <div class="container d-flex justify-content-between align-items-center">
     <span><?= viDate() ?></span>
@@ -143,7 +147,6 @@ $nav_items = [
   </div>
 </div>
 
-<!-- MASTHEAD -->
 <div class="masthead">
   <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
     <div>
@@ -155,10 +158,16 @@ $nav_items = [
         <input type="text" placeholder="Tìm kiếm..."/>
       </div>
       <?php if ($is_logged): ?>
+        <?php if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'writer'): ?>
+          <a href="vietbai.php" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
+            <i class="bi bi-pencil-square me-1"></i>Viết bài
+          </a>
+        <?php endif; ?>
+
         <div class="user-badge">
           <i class="bi bi-person-fill"></i>
           <?= htmlspecialchars($cur_user['username']) ?>
-          <span class="role-pill"><?= $is_admin ? 'Admin' : 'User' ?></span>
+          <span class="role-pill"><?= ucfirst($_SESSION['role']) ?></span>
         </div>
         <a href="logout.php" class="auth-link">
           <i class="bi bi-box-arrow-right"></i>Đăng xuất
@@ -175,7 +184,6 @@ $nav_items = [
   </div>
 </div>
 
-<!-- PRIMARY NAV -->
 <div class="primary-nav">
   <div class="container">
     <ul class="nav">
