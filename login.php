@@ -7,7 +7,7 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 if (isLoggedIn()) {
-    header('Location: ' . (isset($_GET['redirect']) ? $_GET['redirect'] : 'index.html'));
+    header('Location: ' . (isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php'));
     exit;
 }
 
