@@ -20,7 +20,6 @@ try {
     // Sửa toàn bộ news_id thành article_id cho khớp Database
     $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
     $stmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
-    
     if ($stmt->fetch()) {
         // Đã lưu -> Thực hiện Xóa
         $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
