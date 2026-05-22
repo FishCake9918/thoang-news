@@ -74,23 +74,6 @@ foreach ($defaults as $key => $def) {
     $sections[$key] = ($row && $v = json_decode($row['section_data'], true)) ? $v : $def;
   } catch (Exception $e) { $sections[$key] = $def; }
 }
-
-// ── Load feedbacks (admin) ────────────────────────────────
-$feedbacks = []; $fcnt = ['pending'=>0,'replied'=>0,'done'=>0];
-if ($is_admin) {
-  try {
-    $st = $pdo->query(
-      "SELECT f.*, u.username as sender_name FROM feedback f
-       LEFT JOIN users u ON f.user_id = u.id
-       ORDER BY FIELD(f.status,'pending','replied','done'), f.created_at DESC"
-    );
-    $feedbacks = $st->fetchAll();
-    foreach ($feedbacks as $fb) $fcnt[$fb['status']]++;
-  } catch (Exception $e) {}
-}
-
-$status_labels = ['pending'=>'Chờ xử lý','replied'=>'Đã trả lời','done'=>'Hoàn tất'];
-$status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
 ?>
 <!doctype html>
 <html lang="vi">
@@ -345,89 +328,6 @@ $status_colors = ['pending'=>'#f0ad4e','replied'=>'#5bc0de','done'=>'#5cb85c'];
           </div>
         </div>
 
-        <!-- ═══ ADMIN: FEEDBACK PANEL ═══ -->
-        <?php if ($is_admin): ?>
-        <div class="feedback-panel mt-4">
-          <span class="section-label">Góp ý từ người dùng</span>
-
-          <!-- Summary stats -->
-          <div class="d-flex gap-3 mb-4 flex-wrap">
-            <div class="feedback-stat-box">
-              <div class="feedback-stat-num" style="color:#f0ad4e"><?= $fcnt['pending'] ?></div>
-              <div class="feedback-stat-label">Chờ xử lý</div>
-            </div>
-            <div class="feedback-stat-box">
-              <div class="feedback-stat-num" style="color:#5bc0de"><?= $fcnt['replied'] ?></div>
-              <div class="feedback-stat-label">Đã trả lời</div>
-            </div>
-            <div class="feedback-stat-box">
-              <div class="feedback-stat-num" style="color:#5cb85c"><?= $fcnt['done'] ?></div>
-              <div class="feedback-stat-label">Hoàn tất</div>
-            </div>
-            <div class="feedback-stat-box">
-              <div class="feedback-stat-num" style="color:var(--navy)"><?= count($feedbacks) ?></div>
-              <div class="feedback-stat-label">Tổng cộng</div>
-            </div>
-          </div>
-
-          <?php if (empty($feedbacks)): ?>
-            <div class="text-center py-4" style="color:var(--muted);font-size:13px;">
-              <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px"></i>
-              Chưa có góp ý nào.
-            </div>
-          <?php else: ?>
-            <div id="feedback-list">
-              <?php foreach ($feedbacks as $fb): ?>
-              <div class="fb-item" id="fb-item-<?= $fb['id'] ?>">
-                <div class="fb-header" onclick="toggleFb(<?= $fb['id'] ?>)">
-                  <span class="fb-status <?= $fb['status'] ?>"><?= $status_labels[$fb['status']] ?></span>
-                  <span class="fb-email"><?= htmlspecialchars($fb['sender_email']) ?></span>
-                  <span class="fb-subject"><?= htmlspecialchars($fb['subject']) ?></span>
-                  <span class="fb-time"><?= date('d/m/Y H:i', strtotime($fb['created_at'])) ?></span>
-                  <i class="bi bi-chevron-down ms-auto" id="fb-icon-<?= $fb['id'] ?>"></i>
-                </div>
-                <div class="fb-body" id="fb-body-<?= $fb['id'] ?>">
-                  <p class="mb-1" style="font-size:11px;color:var(--muted)">
-                    <?= $fb['sender_name'] ? 'Người dùng: <strong>' . htmlspecialchars($fb['sender_name']) . '</strong> · ' : 'Khách vãng lai · ' ?>
-                    <?= htmlspecialchars($fb['subject']) ?> ·
-                    <?= date('d/m/Y H:i', strtotime($fb['created_at'])) ?>
-                  </p>
-                  <div class="fb-message"><?= nl2br(htmlspecialchars($fb['message'])) ?></div>
-                  <?php if ($fb['admin_reply']): ?>
-                    <div class="fb-reply-box">
-                      <strong>Phản hồi của Admin <span style="font-weight:400;text-transform:none;font-size:11px">(<?= $fb['replied_at'] ? date('d/m/Y', strtotime($fb['replied_at'])) : '' ?>)</span></strong>
-                      <?= nl2br(htmlspecialchars($fb['admin_reply'])) ?>
-                    </div>
-                  <?php endif; ?>
-                  <!-- Reply area -->
-                  <div id="reply-area-<?= $fb['id'] ?>" style="<?= $fb['status'] === 'done' ? 'display:none' : '' ?>">
-                    <textarea class="fb-reply-input" id="reply-text-<?= $fb['id'] ?>"
-                      placeholder="Nhập nội dung trả lời..."><?= htmlspecialchars($fb['admin_reply'] ?? '') ?></textarea>
-                  </div>
-                  <div class="fb-actions">
-                    <?php if ($fb['status'] !== 'done'): ?>
-                      <button class="btn-fb btn-fb-reply" onclick="fbReply(<?= $fb['id'] ?>)">
-                        <i class="bi bi-reply me-1"></i>Gửi phản hồi
-                      </button>
-                      <button class="btn-fb btn-fb-done" onclick="fbMarkDone(<?= $fb['id'] ?>)">
-                        <i class="bi bi-check2-circle me-1"></i>Hoàn tất
-                      </button>
-                    <?php else: ?>
-                      <button class="btn-fb btn-fb-pending" onclick="fbMarkPending(<?= $fb['id'] ?>)">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Mở lại
-                      </button>
-                    <?php endif; ?>
-                    <button class="btn-fb btn-fb-del" onclick="fbDelete(<?= $fb['id'] ?>)">
-                      <i class="bi bi-trash me-1"></i>Xoá
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <?php endforeach; ?>
-            </div>
-          <?php endif; ?>
-        </div>
-        <?php endif; ?>
       </div><!-- /main -->
 
       <!-- ── SIDEBAR ── -->
@@ -881,53 +781,6 @@ function saveSection(key) {
       }
     })
     .catch(function(){ showToast('✗ Lỗi kết nối.', false); });
-}
-
-// ══════════════════════════════════════════════════════
-// ADMIN — FEEDBACK PANEL
-// ══════════════════════════════════════════════════════
-function toggleFb(id) {
-  var body = document.getElementById('fb-body-' + id);
-  var icon = document.getElementById('fb-icon-' + id);
-  var open = body.style.display !== 'none' && body.style.display !== '';
-  if (open) {
-    body.style.display = 'none';
-    icon.className = 'bi bi-chevron-down ms-auto';
-  } else {
-    body.style.display = 'block';
-    icon.className = 'bi bi-chevron-up ms-auto';
-  }
-}
-
-function fbAction(id, action, extra) {
-  var fd = new FormData();
-  fd.append('action', action);
-  fd.append('feedback_id', id);
-  if (extra) fd.append('reply', extra);
-
-  fetch('api/feedback_action.php', { method:'POST', body:fd })
-    .then(function(r){ return r.json(); })
-    .then(function(res) {
-      if (res.success) {
-        showToast('✓ ' + res.message, true);
-        setTimeout(function(){ location.reload(); }, 700);
-      } else {
-        showToast('✗ ' + res.message, false);
-      }
-    })
-    .catch(function(){ showToast('✗ Lỗi kết nối.', false); });
-}
-
-function fbReply(id) {
-  var txt = document.getElementById('reply-text-' + id).value.trim();
-  if (!txt) { showToast('Vui lòng nhập nội dung phản hồi.', false); return; }
-  fbAction(id, 'reply', txt);
-}
-function fbMarkDone(id)    { fbAction(id, 'mark_done'); }
-function fbMarkPending(id) { fbAction(id, 'mark_pending'); }
-function fbDelete(id) {
-  if (!confirm('Xoá góp ý này?')) return;
-  fbAction(id, 'delete');
 }
 </script>
 </body>
