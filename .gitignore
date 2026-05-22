@@ -4,3 +4,5 @@ setup.php
 Thumbs.db
 .vscode/
 .idea/
+/uploads/articles/*
+!/uploads/articles/.gitkeep

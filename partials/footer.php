@@ -12,8 +12,6 @@
       <a href="article.php">Bài viết</a>
       <a href="saved.php">Đã lưu</a>
       <a href="about.php">Giới thiệu</a>
-      <a href="login.php">Đăng nhập</a>
-      <a href="register.php">Đăng ký</a>
     </div>
     <div class="footer-copy">© 2026 Thoáng.vn — Dự án môn Lập trình Web · UEH</div>
   </div>

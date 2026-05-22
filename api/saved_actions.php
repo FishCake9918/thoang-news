@@ -1,8 +1,17 @@
 <?php
 session_start();
 require_once '../config/db.php';
+require_once '../config/session.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
+if (!isLoggedIn()) {
+    jsonResponse([
+        'success' => false,
+        'auth_required' => true,
+        'message' => 'Vui lòng đăng nhập hoặc đăng ký để quản lý bài viết đã lưu.'
+    ], 401);
+}
 
 $session_id = session_id();
 $input = json_decode(file_get_contents('php://input'), true);

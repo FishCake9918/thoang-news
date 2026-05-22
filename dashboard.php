@@ -33,7 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'update_article_status') {
             $article_id = intval($_POST['article_id'] ?? 0);
             $new_status = $_POST['status'] ?? 'request';
-            $stmt = $pdo->prepare("UPDATE articles SET status = ? WHERE id = ?");
+            if ($new_status === 'published') {
+                $stmt = $pdo->prepare("UPDATE articles SET status = ?, published_at = COALESCE(published_at, NOW()), updated_at = NOW() WHERE id = ?");
+            } else {
+                $stmt = $pdo->prepare("UPDATE articles SET status = ?, published_at = NULL, updated_at = NOW() WHERE id = ?");
+            }
             $stmt->execute([$new_status, $article_id]);
         } elseif ($action === 'delete_article') {
             $article_id = intval($_POST['article_id'] ?? 0);
@@ -204,7 +208,7 @@ include 'partials/header.php';
                       <form method="POST" class="d-inline">
                         <input type="hidden" name="action" value="update_role">
                         <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; display: inline-block;">
+                        <select name="role" class="form-select form-select-sm admin-control-select" onchange="this.form.submit()">
                           <option value="user" <?= $u['role'] === 'user' ? 'selected' : '' ?>>User</option>
                           <option value="writer" <?= $u['role'] === 'writer' ? 'selected' : '' ?>>Writer</option>
                           <option value="admin" <?= $u['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
@@ -331,7 +335,7 @@ include 'partials/header.php';
                     <form method="POST" class="d-inline">
                       <input type="hidden" name="action" value="update_article_status">
                       <input type="hidden" name="article_id" value="<?= $a['id'] ?>">
-                      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; display: inline-block;">
+                      <select name="status" class="form-select form-select-sm admin-control-select admin-status-select" onchange="this.form.submit()">
                         <option value="request" <?= $a['status'] === 'request' ? 'selected' : '' ?>>Chờ duyệt</option>
                         <option value="published" <?= $a['status'] === 'published' ? 'selected' : '' ?>>Đã xuất bản</option>
                         <option value="disapproved" <?= $a['status'] === 'disapproved' ? 'selected' : '' ?>>Từ chối</option>
@@ -339,7 +343,7 @@ include 'partials/header.php';
                     </form>
                   </td>
                   <td>
-                    <a href="article.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Xem"><i class="bi bi-eye"></i></a>
+                    <a href="article.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem"><i class="bi bi-eye"></i></a>
                     <form method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
                       <input type="hidden" name="action" value="delete_article">
                       <input type="hidden" name="article_id" value="<?= $a['id'] ?>">

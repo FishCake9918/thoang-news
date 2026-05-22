@@ -3,7 +3,23 @@ session_start();
 require_once 'config/db.php';
 require_once 'config/session.php';
 $page_title = 'Trang chủ — Thoáng.vn';
-$active_nav = 'home';
+$active_nav = $_GET['category'] ?? 'all';
+$allowed_nav = ['all', 'world', 'biz', 'tech', 'sport', 'life', 'edu', 'other'];
+if (!in_array($active_nav, $allowed_nav, true)) {
+    $active_nav = 'all';
+}
+
+$top_articles = [];
+try {
+    $stmt = $pdo->query("
+        SELECT id, title, view_count
+        FROM articles
+        WHERE status = 'published'
+        ORDER BY view_count DESC, published_at DESC, created_at DESC
+        LIMIT 5
+    ");
+    $top_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {}
 include 'partials/header.php';
 ?>
 
@@ -11,18 +27,6 @@ include 'partials/header.php';
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
 <link href="stylesheets/style.css" rel="stylesheet" />
-
-<div class="secondary-nav">
-  <div class="container p-0">
-    <a href="#" class="active" data-cat="all">Tất cả</a>
-    <a href="#" data-cat="tech">Công nghệ</a>
-    <a href="#" data-cat="biz">Kinh tế</a>
-    <a href="#" data-cat="world">Thế giới</a>
-    <a href="#" data-cat="sport">Thể thao</a>
-    <a href="#" data-cat="life">Đời sống</a>
-    <a href="#" data-cat="edu">Giáo dục</a>
-  </div>
-</div>
 
 <div class="page-body">
   <div class="container">
@@ -96,8 +100,19 @@ include 'partials/header.php';
           <div class="sidebar-block">
             <div class="sidebar-heading">Đọc nhiều nhất</div>
             <div id="trendingList">
-                <div class="most-read-item"><div class="mr-num">1</div><div class="mr-title"><a href="article.php">G20 cam kết 500 tỷ USD cho chuyển đổi năng lượng sạch</a></div></div>
-                <div class="most-read-item"><div class="mr-num">2</div><div class="mr-title"><a href="article.php">VN-Index tăng mạnh nhờ nhóm ngân hàng</a></div></div>
+              <?php if (empty($top_articles)): ?>
+                <div class="text-muted" style="font-size:13px;">Chưa có bài viết đã xuất bản.</div>
+              <?php else: ?>
+                <?php foreach ($top_articles as $idx => $top): ?>
+                  <div class="most-read-item">
+                    <div class="mr-num"><?= $idx + 1 ?></div>
+                    <div class="mr-title">
+                      <a href="article.php?id=<?= (int)$top['id'] ?>"><?= htmlspecialchars($top['title']) ?></a>
+                      <div class="text-muted mt-1" style="font-size:11px;"><?= number_format((int)$top['view_count']) ?> lượt xem</div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </div>
           </div>
         </div>

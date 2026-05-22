@@ -154,12 +154,14 @@ foreach ($defaults as $key => $def) {
 <div class="primary-nav">
   <div class="container">
     <ul class="nav">
-      <li class="nav-item"><a class="nav-link" href="index.php">Tin mới</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Thế giới</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Kinh tế</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Công nghệ</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Thể thao</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Đời sống</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=all">Tất cả</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=world">Thế giới</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=biz">Kinh tế</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=tech">Công nghệ</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=sport">Thể thao</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=life">Đời sống</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=edu">Giáo dục</a></li>
+      <li class="nav-item"><a class="nav-link" href="index.php?category=other">Khác</a></li>
       <li class="nav-item"><a class="nav-link active" href="about.php">Về chúng tôi</a></li>
     </ul>
   </div>
@@ -559,6 +561,7 @@ foreach ($defaults as $key => $def) {
 <script>
 // ── PHP → JS data bridge ───────────────────────────────
 var IS_ADMIN = <?= $is_admin ? 'true' : 'false' ?>;
+var IS_LOGGED = <?= $is_logged ? 'true' : 'false' ?>;
 var SDATA    = <?= json_encode($sections, JSON_UNESCAPED_UNICODE) ?>;
 
 // ── Toast helper ───────────────────────────────────────
@@ -573,9 +576,40 @@ function showToast(msg, ok) {
 
 // ── CONTACT MODAL ──────────────────────────────────────
 function openContactModal() {
+  if (!IS_LOGGED) {
+    showAuthRequired('Vui lòng đăng nhập hoặc đăng ký để gửi góp ý.');
+    return;
+  }
   var m = document.getElementById('contactModal');
-  if (!m) { alert('Vui lòng đăng nhập để gửi góp ý.'); return; }
+  if (!m) { showAuthRequired('Vui lòng đăng nhập hoặc đăng ký để gửi góp ý.'); return; }
   new bootstrap.Modal(m).show();
+}
+
+function showAuthRequired(message) {
+  var modal = document.getElementById('authRequiredModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'authRequiredModal';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-lock me-2"></i>Yêu cầu đăng nhập</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body"><p class="mb-0" id="authRequiredMessage"></p></div>
+          <div class="modal-footer">
+            <a href="register.php" class="btn btn-outline-secondary btn-sm">Đăng ký</a>
+            <a href="login.php" class="btn btn-primary btn-sm" style="background:var(--navy);border-color:var(--navy)">Đăng nhập</a>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  document.getElementById('authRequiredMessage').textContent = message || 'Vui lòng đăng nhập hoặc đăng ký để sử dụng chức năng này.';
+  new bootstrap.Modal(modal).show();
 }
 
 function submitContact() {
@@ -602,6 +636,10 @@ function submitContact() {
         document.getElementById('c_subject').value = '';
         document.getElementById('c_message').value = '';
       } else {
+        if (res.auth_required) {
+          showAuthRequired(res.message);
+          return;
+        }
         alert.innerHTML = '<div class="alert alert-danger py-2 px-3 mb-3" style="font-size:13px">' + res.message + '</div>';
       }
     })

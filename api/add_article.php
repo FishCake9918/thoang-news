@@ -1,99 +1,116 @@
 <?php
-// ============================================================
-// api/add_article.php — API xử lý thêm bài viết mới (AJAX POST)
-// ============================================================
 session_start();
 require_once '../config/db.php';
 require_once '../config/session.php';
 
-// Ép kiểu phản hồi đầu ra luôn luôn là JSON chuẩn UTF-8
 header('Content-Type: application/json; charset=utf-8');
 
-// Kiểm tra quyền hạn (Chỉ bảo vệ cấp Admin và Writer được quyền gọi API này)
-if (!isLoggedIn() || ($_SESSION['role'] !== 'writer')) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Lỗi bảo mật: Bạn không có quyền truy cập chức năng này.']);
-    exit;
+if (!isLoggedIn() || $_SESSION['role'] !== 'writer') {
+    jsonResponse(['success' => false, 'message' => 'Bạn không có quyền dùng chức năng viết bài.'], 403);
 }
 
-// Kiểm tra phương thức yêu cầu phải là POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Phương thức truyền tải dữ liệu trái phép.']);
-    exit;
+    jsonResponse(['success' => false, 'message' => 'Phương thức gửi dữ liệu không hợp lệ.'], 405);
 }
 
-// Tiếp nhận chuỗi JSON thô gửi từ trình duyệt và giải mã thành mảng
-$rawInput = file_get_contents('php://input');
-$inputData = json_decode($rawInput, true);
-
-if (json_last_error() !== JSON_ERROR_NONE) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Định dạng gói tin dữ liệu không hợp lệ.']);
-    exit;
+$inputData = json_decode(file_get_contents('php://input'), true);
+if (json_last_error() !== JSON_ERROR_NONE || !is_array($inputData)) {
+    jsonResponse(['success' => false, 'message' => 'Định dạng dữ liệu không hợp lệ.'], 400);
 }
 
-// Làm sạch dữ liệu đầu vào chống các lỗ hổng Injection cơ bản
-$title       = isset($inputData['title']) ? trim($inputData['title']) : '';
-$category_id = isset($inputData['category_id']) ? intval($inputData['category_id']) : 0;
-$source      = isset($inputData['source']) && trim($inputData['source']) !== '' ? trim($inputData['source']) : 'Thoáng.vn';
-$summary     = isset($inputData['summary']) ? trim($inputData['summary']) : '';
-$content     = isset($inputData['content']) ? trim($inputData['content']) : '';
-$author_id   = intval($_SESSION['user_id']);
+$title       = trim($inputData['title'] ?? '');
+$category_id = (int)($inputData['category_id'] ?? 0);
+$summary     = trim($inputData['summary'] ?? '');
+$content     = trim($inputData['content'] ?? '');
+$tags        = trim($inputData['tags'] ?? '');
+$image_url   = trim($inputData['image_url'] ?? '');
+$article_id  = (int)($inputData['article_id'] ?? 0);
+$author_id   = (int)$_SESSION['user_id'];
+$author_name = trim($_SESSION['full_name'] ?? '') ?: trim($_SESSION['username'] ?? 'Tác giả');
 
-// Xác thực nghiệp vụ dữ liệu bắt buộc (Validation)
-if (empty($title)) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tiêu đề bài viết.']);
-    exit;
+if ($title === '') {
+    jsonResponse(['success' => false, 'message' => 'Vui lòng nhập tiêu đề bài viết.']);
 }
 if ($category_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng chọn chủ đề danh mục hợp lệ.']);
-    exit;
+    jsonResponse(['success' => false, 'message' => 'Vui lòng chọn danh mục hợp lệ.']);
 }
-if (empty($summary)) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập đoạn tóm tắt bài viết.']);
-    exit;
+if ($summary === '') {
+    jsonResponse(['success' => false, 'message' => 'Vui lòng nhập đoạn tóm tắt bài viết.']);
 }
-if (empty($content)) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập nội dung chi tiết bài viết.']);
-    exit;
+if ($content === '') {
+    jsonResponse(['success' => false, 'message' => 'Vui lòng nhập nội dung chi tiết bài viết.']);
+}
+if ($image_url !== '' && !preg_match('#^uploads/articles/[A-Za-z0-9_.-]+$#', $image_url)) {
+    jsonResponse(['success' => false, 'message' => 'Đường dẫn hình ảnh không hợp lệ.']);
 }
 
 try {
-    // Câu lệnh SQL với thứ tự các cột được sắp xếp rõ ràng, tường minh
+    if ($article_id > 0) {
+        $check = $pdo->prepare("SELECT id, status FROM articles WHERE id = ? AND author_id = ? LIMIT 1");
+        $check->execute([$article_id, $author_id]);
+        $existingArticle = $check->fetch(PDO::FETCH_ASSOC);
+        if (!$existingArticle) {
+            jsonResponse(['success' => false, 'message' => 'Không tìm thấy bài viết hoặc bạn không có quyền chỉnh sửa.'], 404);
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE articles
+            SET category_id = :category_id,
+                title = :title,
+                summary = :summary,
+                content = :content,
+                source = :author_name,
+                tags = :tags,
+                image_url = :image_url,
+                status = 'request',
+                published_at = NULL,
+                updated_at = NOW()
+            WHERE id = :article_id AND author_id = :author_id
+        ");
+
+        $stmt->execute([
+            ':category_id' => $category_id,
+            ':title'       => $title,
+            ':summary'     => $summary,
+            ':content'     => $content,
+            ':author_name' => $author_name,
+            ':tags'        => $tags !== '' ? $tags : null,
+            ':image_url'   => $image_url !== '' ? $image_url : null,
+            ':article_id'  => $article_id,
+            ':author_id'   => $author_id,
+        ]);
+
+        jsonResponse([
+            'success' => true,
+            'message' => 'Bài viết đã được cập nhật và chuyển về trạng thái chờ duyệt.'
+        ]);
+    }
+
     $stmt = $pdo->prepare("
-        INSERT INTO articles (category_id, title, summary, content, source, status, view_count, created_at, updated_at) 
-        VALUES (:category_id, :title, :summary, :content, :source, :status, :view_count, NOW(), NOW())
+        INSERT INTO articles
+            (category_id, author_id, title, summary, content, source, tags, image_url, status, view_count, created_at, updated_at)
+        VALUES
+            (:category_id, :author_id, :title, :summary, :content, :author_name, :tags, :image_url, 'request', 0, NOW(), NOW())
     ");
-    
-    // Sử dụng liên kết tham số bằng tên (Named Parameters) để đảm bảo dữ liệu không bao giờ bị truyền lệch cột
-    $result = $stmt->execute([
+
+    $stmt->execute([
         ':category_id' => $category_id,
+        ':author_id'   => $author_id,
         ':title'       => $title,
         ':summary'     => $summary,
         ':content'     => $content,
-        ':source'      => $source,
-        ':status'      => 'published',
-        ':view_count'  => 0
+        ':author_name' => $author_name,
+        ':tags'        => $tags !== '' ? $tags : null,
+        ':image_url'   => $image_url !== '' ? $image_url : null,
     ]);
 
-    if ($result) {
-        echo json_encode([
-            'success' => true, 
-            'message' => 'Bài viết đã được xuất bản thành công! Bạn có thể ra trang chủ để kiểm tra.'
-        ], JSON_UNESCAPED_UNICODE);
-    } else {
-        echo json_encode([
-            'success' => false, 
-            'message' => 'Không thể ghi nhận thông tin bài viết vào cơ sở dữ liệu.'
-        ], JSON_UNESCAPED_UNICODE);
-    }
-
+    jsonResponse([
+        'success' => true,
+        'message' => 'Bài viết đã được gửi và đang chờ Admin duyệt.'
+    ]);
 } catch (PDOException $e) {
-    // Trả về thông báo lỗi chi tiết của MySQL để dễ dàng bắt bệnh nếu có lỗi phát sinh
-    echo json_encode([
-        'success' => false, 
+    jsonResponse([
+        'success' => false,
         'message' => 'Lỗi CSDL: ' . $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ], 500);
 }
-?>

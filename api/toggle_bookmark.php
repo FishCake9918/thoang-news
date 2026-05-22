@@ -1,37 +1,43 @@
 <?php
 session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/db.php';
-if (!isset($pdo)) {
-    exit(json_encode(['status' => 'error', 'message' => 'Lỗi DB']));
+require_once '../config/session.php';
+
+if (!isLoggedIn()) {
+    jsonResponse([
+        'status' => 'auth_required',
+        'message' => 'Vui lòng đăng nhập hoặc đăng ký để lưu bài viết.'
+    ], 401);
 }
 
-$guest_id = session_id(); 
-$news_id = isset($_POST['news_id']) ? intval($_POST['news_id']) : 0;
+$session_id = session_id();
+$news_id = isset($_POST['news_id']) ? (int)$_POST['news_id'] : 0;
 
 if ($news_id <= 0) {
-    exit(json_encode(['status' => 'error', 'message' => 'ID bài báo không hợp lệ']));
+    jsonResponse(['status' => 'error', 'message' => 'ID bài báo không hợp lệ.']);
 }
 
 try {
-    // Sửa toàn bộ news_id thành article_id cho khớp Database
-    $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
-    $stmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
-    if ($stmt->fetch()) {
-        // Đã lưu -> Thực hiện Xóa
-        $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND article_id = :news_id");
-        $delStmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
-        echo json_encode(['status' => 'success', 'action' => 'removed']);
-    } else {
-        // Chưa lưu -> Thực hiện Thêm
-        $insStmt = $pdo->prepare("INSERT INTO bookmarks (session_id, article_id) VALUES (:session_id, :news_id)");
-        $insStmt->execute([':session_id' => $guest_id, ':news_id' => $news_id]);
-        echo json_encode(['status' => 'success', 'action' => 'saved']);
+    $articleStmt = $pdo->prepare("SELECT id FROM articles WHERE id = ? AND status = 'published' LIMIT 1");
+    $articleStmt->execute([$news_id]);
+    if (!$articleStmt->fetch()) {
+        jsonResponse(['status' => 'error', 'message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], 404);
     }
+
+    $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND article_id = :article_id");
+    $stmt->execute([':session_id' => $session_id, ':article_id' => $news_id]);
+
+    if ($stmt->fetch()) {
+        $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND article_id = :article_id");
+        $delStmt->execute([':session_id' => $session_id, ':article_id' => $news_id]);
+        jsonResponse(['status' => 'success', 'action' => 'removed']);
+    }
+
+    $insStmt = $pdo->prepare("INSERT INTO bookmarks (session_id, article_id) VALUES (:session_id, :article_id)");
+    $insStmt->execute([':session_id' => $session_id, ':article_id' => $news_id]);
+    jsonResponse(['status' => 'success', 'action' => 'saved']);
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Lỗi SQL: ' . $e->getMessage()]);
+    jsonResponse(['status' => 'error', 'message' => 'Lỗi SQL: ' . $e->getMessage()], 500);
 }
-?>

@@ -4,14 +4,16 @@ if (!isset($active_nav)) $active_nav = '';
 $is_logged = isLoggedIn();
 $is_admin  = isAdmin();
 $cur_user  = getCurrentUser();
+$current_page = basename($_SERVER['PHP_SELF'] ?? '');
 $nav_items = [
-    'home'  => ['label' => 'Tin mới',      'href' => 'index.php'],
-    'world' => ['label' => 'Thế giới',     'href' => '#'],
-    'biz'   => ['label' => 'Kinh tế',      'href' => '#'],
-    'tech'  => ['label' => 'Công nghệ',    'href' => '#'],
-    'sport' => ['label' => 'Thể thao',     'href' => '#'],
-    'life'  => ['label' => 'Đời sống',     'href' => '#'],
-    'about' => ['label' => 'Về chúng tôi', 'href' => 'about.php'],
+    'all'   => ['label' => 'Tất cả',    'href' => 'index.php?category=all',   'cat' => 'all'],
+    'world' => ['label' => 'Thế giới',  'href' => 'index.php?category=world', 'cat' => 'world'],
+    'biz'   => ['label' => 'Kinh tế',   'href' => 'index.php?category=biz',   'cat' => 'biz'],
+    'tech'  => ['label' => 'Công nghệ', 'href' => 'index.php?category=tech',  'cat' => 'tech'],
+    'sport' => ['label' => 'Thể thao',  'href' => 'index.php?category=sport', 'cat' => 'sport'],
+    'life'  => ['label' => 'Đời sống',  'href' => 'index.php?category=life',  'cat' => 'life'],
+    'edu'   => ['label' => 'Giáo dục',  'href' => 'index.php?category=edu',   'cat' => 'edu'],
+    'other' => ['label' => 'Khác',      'href' => 'index.php?category=other', 'cat' => 'other'],
 ];
 ?>
 <!doctype html>
@@ -80,9 +82,11 @@ $nav_items = [
           <a href="dashboard_writer.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-pen me-1"></i>Trang Tác giả
           </a>
-          <a href="vietbai.php" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
-            <i class="bi bi-pencil-square me-1"></i>Viết bài
-          </a>
+          <?php if ($current_page !== 'dashboard_writer.php'): ?>
+            <a href="vietbai.php" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
+              <i class="bi bi-pencil-square me-1"></i>Viết bài
+            </a>
+          <?php endif; ?>
         <?php endif; ?>
 
         <div class="user-badge">
@@ -111,7 +115,8 @@ $nav_items = [
       <?php foreach ($nav_items as $key => $item): ?>
         <li class="nav-item">
           <a class="nav-link <?= $active_nav === $key ? 'active' : '' ?>"
-             href="<?= $item['href'] ?>">
+             href="<?= $item['href'] ?>"
+             data-cat="<?= htmlspecialchars($item['cat'] ?? $key) ?>">
             <?= $item['label'] ?>
           </a>
         </li>
