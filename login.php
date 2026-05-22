@@ -1,13 +1,15 @@
 <?php
 // ============================================================
-// login.php — Trang đăng nhập
+// login.php — Trang đăng nhập (Đã áp dụng phân quyền điều hướng)
 // ============================================================
 session_start();
 require_once 'config/db.php';
 require_once 'config/session.php';
 
 if (isLoggedIn()) {
-    header('Location: ' . (isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php'));
+    if ($_SESSION['role'] === 'admin') header('Location: dashboard.php');
+    elseif ($_SESSION['role'] === 'writer') header('Location: dashboard_writer.php');
+    else header('Location: index.php');
     exit;
 }
 
@@ -21,9 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Vui lòng điền đầy đủ thông tin.';
     } else {
         try {
-            $stmt = $pdo->prepare(
-                "SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1"
-            );
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1");
             $stmt->execute([$login_id, $login_id]);
             $user = $stmt->fetch();
 
@@ -35,8 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['full_name']= $user['full_name'];
                 $_SESSION['role']     = $user['role'];
 
-                $redirect = $_GET['redirect'] ?? ($user['role'] === 'admin' ? 'about.php' : 'index.php');
-                header("Location: $redirect");
+                // Phân quyền điều hướng trang đích
+                $redirect = 'index.php';
+                if ($user['role'] === 'admin') $redirect = 'dashboard.php';
+                elseif ($user['role'] === 'writer') $redirect = 'dashboard_writer.php';
+                
+                header("Location: " . ($_GET['redirect'] ?? $redirect));
                 exit;
             } else {
                 $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -56,8 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="stylesheets/style.css">
-
+  <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 <body>
   <div class="top-bar">

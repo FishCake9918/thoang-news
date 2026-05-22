@@ -7,7 +7,7 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 // Kiểm tra quyền truy cập nghiêm ngặt (Chỉ Admin hoặc Writer mới được vào)
-if (!isLoggedIn() || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'writer')) {
+if (!isLoggedIn() || ($_SESSION['role'] !== 'writer')) {
     header('Location: index.php');
     exit;
 }

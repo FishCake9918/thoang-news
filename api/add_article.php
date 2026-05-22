@@ -10,7 +10,7 @@ require_once '../config/session.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // Kiểm tra quyền hạn (Chỉ bảo vệ cấp Admin và Writer được quyền gọi API này)
-if (!isLoggedIn() || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'writer')) {
+if (!isLoggedIn() || ($_SESSION['role'] !== 'writer')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Lỗi bảo mật: Bạn không có quyền truy cập chức năng này.']);
     exit;
