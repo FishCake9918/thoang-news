@@ -21,7 +21,7 @@ $sql = "
         c.slug AS category,
         c.name AS category_name,
         n.source AS source_name,
-        " . ($is_logged ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved
+        IF(b.id IS NOT NULL, 1, 0) AS is_saved
     FROM articles n
     LEFT JOIN categories c ON n.category_id = c.id
 ";
@@ -29,16 +29,15 @@ $sql = "
 $params = [];
 
 if ($is_logged) {
-    $sql .= "
-        LEFT JOIN bookmarks b 
-            ON n.id = b.article_id 
-            AND b.session_id = :session_id
-    ";
+    $sql .= " LEFT JOIN bookmarks b ON n.id = b.article_id AND b.user_id = :user_id ";
+    $params[':user_id'] = $_SESSION['user_id'];
+} else {
+    $sql .= " LEFT JOIN bookmarks b ON n.id = b.article_id AND b.session_id = :session_id AND b.user_id IS NULL ";
     $params[':session_id'] = $session_id;
 }
 
 $where = [
-    "n.status = 'Approved'"
+    "n.status IN ('published', 'Approved')"
 ];
 
 if ($category !== 'all') {

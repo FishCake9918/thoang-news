@@ -10,8 +10,16 @@ $session_id = session_id();
 $filter_cat = $_GET['cat'] ?? 'all';
 $search_kw  = trim($_GET['q'] ?? '');
 
-$where = ["b.session_id = ?", "a.status = 'published'"];
-$params = [$session_id];
+$where = ["a.status IN ('published', 'Approved')"];
+$params = [];
+
+if (isLoggedIn()) {
+    $where[] = "b.user_id = ?";
+    $params[] = $_SESSION['user_id'];
+} else {
+    $where[] = "b.session_id = ? AND b.user_id IS NULL";
+    $params[] = $session_id;
+}
 
 if ($filter_cat !== 'all' && $filter_cat !== '') {
     $where[] = "c.slug = ?";

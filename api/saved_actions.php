@@ -5,17 +5,10 @@ require_once '../config/session.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isLoggedIn()) {
-    jsonResponse([
-        'success' => false,
-        'auth_required' => true,
-        'message' => 'Vui lòng đăng nhập hoặc đăng ký để quản lý bài viết đã lưu.'
-    ], 401);
-}
-
 $session_id = session_id();
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
 try {
     switch ($action) {
@@ -26,14 +19,24 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND session_id = ?");
-            $stmt->execute([$article_id, $session_id]);
+            if ($user_id) {
+                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND user_id = ?");
+                $stmt->execute([$article_id, $user_id]);
+            } else {
+                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND session_id = ? AND user_id IS NULL");
+                $stmt->execute([$article_id, $session_id]);
+            }
             echo json_encode(['success' => true]);
             break;
 
         case 'remove_all':
-            $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ?");
-            $stmt->execute([$session_id]);
+            if ($user_id) {
+                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ?");
+                $stmt->execute([$user_id]);
+            } else {
+                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ? AND user_id IS NULL");
+                $stmt->execute([$session_id]);
+            }
             echo json_encode(['success' => true]);
             break;
 

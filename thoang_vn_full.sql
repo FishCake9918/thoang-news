@@ -65,11 +65,15 @@ CREATE TABLE bookmarks (
   id INT AUTO_INCREMENT PRIMARY KEY,
   article_id INT NOT NULL,
   session_id VARCHAR(255) NOT NULL,
+  user_id INT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_session_article (session_id, article_id),
   KEY idx_bookmarks_article (article_id),
   CONSTRAINT fk_bookmarks_articles
     FOREIGN KEY (article_id) REFERENCES articles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_bookmarks_users
+    FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

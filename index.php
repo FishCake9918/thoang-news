@@ -18,7 +18,7 @@ try {
     $stmt = $pdo->query("
         SELECT id, title, view_count
         FROM articles
-        WHERE status = 'Approved'
+        WHERE status IN ('published', 'Approved')
         ORDER BY view_count DESC, published_at DESC, created_at DESC
         LIMIT 5
     ");
