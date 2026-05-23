@@ -2,24 +2,31 @@
 session_start();
 require_once 'config/db.php';
 require_once 'config/session.php';
+
 $page_title = 'Trang chủ — Thoáng.vn';
+
 $active_nav = $_GET['category'] ?? 'all';
 $allowed_nav = ['all', 'world', 'biz', 'tech', 'sport', 'life', 'edu', 'other'];
+
 if (!in_array($active_nav, $allowed_nav, true)) {
     $active_nav = 'all';
 }
 
 $top_articles = [];
+
 try {
     $stmt = $pdo->query("
         SELECT id, title, view_count
         FROM articles
-        WHERE status = 'published'
+        WHERE status = 'Approved'
         ORDER BY view_count DESC, published_at DESC, created_at DESC
         LIMIT 5
     ");
     $top_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {}
+} catch (PDOException $e) {
+    $top_articles = [];
+}
+
 include 'partials/header.php';
 ?>
 
@@ -85,9 +92,11 @@ include 'partials/header.php';
             <button class="btn-act btn-skip-act" id="btnSkip" onclick="skipCard()" title="Bỏ qua">
               <i class="bi bi-x-lg"></i>
             </button>
+
             <button class="btn-act btn-next-act" onclick="skipCard()" title="Tiếp theo">
               <i class="bi bi-arrow-right"></i>
             </button>
+
             <button class="btn-act btn-save-act" id="btnSave" onclick="toggleSave()" title="Lưu lại">
               <i class="bi bi-bookmark" id="saveIcon"></i>
             </button>
@@ -99,21 +108,27 @@ include 'partials/header.php';
         <div class="sidebar">
           <div class="sidebar-block">
             <div class="sidebar-heading">Đọc nhiều nhất</div>
+
             <div id="trendingList">
               <?php if (empty($top_articles)): ?>
-                <div class="text-muted" style="font-size:13px;">Chưa có bài viết đã xuất bản.</div>
+                <div class="text-muted" style="font-size:13px;">Chưa có bài viết đã duyệt.</div>
               <?php else: ?>
                 <?php foreach ($top_articles as $idx => $top): ?>
                   <div class="most-read-item">
                     <div class="mr-num"><?= $idx + 1 ?></div>
                     <div class="mr-title">
-                      <a href="article.php?id=<?= (int)$top['id'] ?>"><?= htmlspecialchars($top['title']) ?></a>
-                      <div class="text-muted mt-1" style="font-size:11px;"><?= number_format((int)$top['view_count']) ?> lượt xem</div>
+                      <a href="article.php?id=<?= (int)$top['id'] ?>">
+                        <?= htmlspecialchars($top['title']) ?>
+                      </a>
+                      <div class="text-muted mt-1" style="font-size:11px;">
+                        <?= number_format((int)$top['view_count']) ?> lượt xem
+                      </div>
                     </div>
                   </div>
                 <?php endforeach; ?>
               <?php endif; ?>
             </div>
+
           </div>
         </div>
       </div>
@@ -123,4 +138,5 @@ include 'partials/header.php';
 </div>
 
 <script src="scripts/script.js"></script>
+
 <?php include 'partials/footer.php'; ?>

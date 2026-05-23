@@ -4,6 +4,7 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
 if ($id <= 0) {
     header('Location: index.php');
     exit;
@@ -25,34 +26,60 @@ try {
         exit;
     }
 
+    /*
+        Người được xem trước bài chưa duyệt:
+        - Admin
+        - Writer là tác giả của bài viết đó
+    */
     $canPreview = isLoggedIn() && (
         $_SESSION['role'] === 'admin' ||
-        ($_SESSION['role'] === 'writer' && (int)($article['author_id'] ?? 0) === (int)$_SESSION['user_id'])
+        (
+            $_SESSION['role'] === 'writer' &&
+            (int)($article['author_id'] ?? 0) === (int)$_SESSION['user_id']
+        )
     );
 
-    if ($article['status'] !== 'published' && !$canPreview) {
+    /*
+        Người đọc thường chỉ được xem bài Approved.
+        Bài request / disapproved không được mở trực tiếp bằng link.
+    */
+    if ($article['status'] !== 'Approved' && !$canPreview) {
         header('Location: index.php');
         exit;
     }
 
-    if ($article['status'] === 'published') {
-        $updateView = $pdo->prepare("UPDATE articles SET view_count = view_count + 1 WHERE id = ?");
+    /*
+        Chỉ tăng lượt xem cho bài đã được duyệt.
+        Bài đang chờ duyệt hoặc bị từ chối không tính view preview.
+    */
+    if ($article['status'] === 'Approved') {
+        $updateView = $pdo->prepare("
+            UPDATE articles 
+            SET view_count = view_count + 1 
+            WHERE id = ?
+        ");
         $updateView->execute([$id]);
+
         $article['view_count'] = (int)$article['view_count'] + 1;
     }
+
 } catch (PDOException $e) {
     die("Lỗi kết nối hoặc xử lý dữ liệu hệ thống: " . $e->getMessage());
 }
 
 $published_time = !empty($article['published_at']) ? $article['published_at'] : $article['created_at'];
 $tags = array_filter(array_map('trim', explode(',', $article['tags'] ?? '')));
+
 $back_url = 'index.php';
+
 if (isLoggedIn() && $_SESSION['role'] === 'admin') {
     $back_url = 'dashboard.php';
 } elseif (isLoggedIn() && $_SESSION['role'] === 'writer') {
     $back_url = 'dashboard_writer.php';
 }
+
 $page_title = htmlspecialchars($article['title']) . ' - Thoáng.vn';
+
 include 'partials/header.php';
 ?>
 
@@ -61,9 +88,17 @@ include 'partials/header.php';
     <div class="row justify-content-center">
       <div class="col-lg-9 col-xl-8">
         <div class="article-card">
-          <?php if ($article['status'] !== 'published'): ?>
+
+          <?php if ($article['status'] !== 'Approved'): ?>
             <div class="alert alert-warning py-2 px-3 mb-4" style="font-size:13px;">
-              <i class="bi bi-eye me-1"></i> Bản xem trước - bài viết này chưa hiển thị với người đọc.
+              <i class="bi bi-eye me-1"></i>
+              Bản xem trước - bài viết này chưa hiển thị với người đọc.
+
+              <?php if ($article['status'] === 'request'): ?>
+                <strong>Trạng thái: Chờ duyệt.</strong>
+              <?php elseif ($article['status'] === 'disapproved'): ?>
+                <strong>Trạng thái: Không được duyệt.</strong>
+              <?php endif; ?>
             </div>
           <?php endif; ?>
 
@@ -77,20 +112,32 @@ include 'partials/header.php';
 
           <?php if (!empty($article['image_url'])): ?>
             <figure class="article-image-wrap">
-              <img src="<?= htmlspecialchars($article['image_url']) ?>" alt="<?= htmlspecialchars($article['title']) ?>" class="article-image" onerror="this.closest('figure').classList.add('is-broken')">
-              <figcaption>Không tải được ảnh. Hãy dùng link trực tiếp tới file ảnh hoặc tải ảnh lên từ máy.</figcaption>
+              <img
+                src="<?= htmlspecialchars($article['image_url']) ?>"
+                alt="<?= htmlspecialchars($article['title']) ?>"
+                class="article-image"
+                onerror="this.closest('figure').classList.add('is-broken')"
+              >
+              <figcaption>
+                Không tải được ảnh. Hãy dùng link trực tiếp tới file ảnh hoặc tải ảnh lên từ máy.
+              </figcaption>
             </figure>
           <?php endif; ?>
 
           <div class="article-meta">
             <div class="meta-item">
               <i class="bi bi-person-fill"></i>
-              <span>Tác giả: <strong><?= htmlspecialchars($article['source'] ?? 'Tác giả Thoáng.vn') ?></strong></span>
+              <span>
+                Tác giả:
+                <strong><?= htmlspecialchars($article['source'] ?? 'Tác giả Thoáng.vn') ?></strong>
+              </span>
             </div>
+
             <div class="meta-item border-start ps-3">
               <i class="bi bi-calendar3"></i>
               <span><?= date('d/m/Y H:i', strtotime($published_time)) ?></span>
             </div>
+
             <div class="meta-item border-start ps-3">
               <i class="bi bi-eye-fill"></i>
               <span><?= number_format((int)$article['view_count']) ?> lượt xem</span>
@@ -118,6 +165,7 @@ include 'partials/header.php';
               <i class="bi bi-arrow-left"></i> Quay lại trang trước
             </a>
           </div>
+
         </div>
       </div>
     </div>

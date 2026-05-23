@@ -30,15 +30,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
                 $stmt->execute([$user_id]);
             }
-        } elseif ($action === 'update_article_status') {
+          } elseif ($action === 'update_article_status') {
             $article_id = intval($_POST['article_id'] ?? 0);
             $new_status = $_POST['status'] ?? 'request';
-            if ($new_status === 'published') {
-                $stmt = $pdo->prepare("UPDATE articles SET status = ?, published_at = COALESCE(published_at, NOW()), updated_at = NOW() WHERE id = ?");
-            } else {
-                $stmt = $pdo->prepare("UPDATE articles SET status = ?, published_at = NULL, updated_at = NOW() WHERE id = ?");
+        
+            $allowed_statuses = ['request', 'Approved', 'disapproved'];
+        
+            if ($article_id <= 0 || !in_array($new_status, $allowed_statuses, true)) {
+                throw new Exception('Trạng thái bài viết không hợp lệ.');
             }
-            $stmt->execute([$new_status, $article_id]);
+        
+            if ($new_status === 'Approved') {
+                $stmt = $pdo->prepare("
+                    UPDATE articles 
+                    SET status = 'Approved',
+                        published_at = NOW(),
+                        updated_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->execute([$article_id]);
+            } else {
+                $stmt = $pdo->prepare("
+                    UPDATE articles 
+                    SET status = ?,
+                        published_at = NULL,
+                        updated_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->execute([$new_status, $article_id]);
+            }
         } elseif ($action === 'delete_article') {
             $article_id = intval($_POST['article_id'] ?? 0);
             $stmt = $pdo->prepare("DELETE FROM articles WHERE id = ?");
@@ -102,8 +122,8 @@ $stats = [
     'total_bookmarks' => 0
 ];
 try {
-    $stats['total_views'] = $pdo->query("SELECT SUM(view_count) FROM articles WHERE status = 'published'")->fetchColumn() ?: 0;
-    $stats['total_articles'] = $pdo->query("SELECT COUNT(id) FROM articles WHERE status = 'published'")->fetchColumn() ?: 0;
+    $stats['total_views'] = $pdo->query("SELECT SUM(view_count) FROM articles WHERE status = 'Approved'")->fetchColumn() ?: 0;
+    $stats['total_articles'] = $pdo->query("SELECT COUNT(id) FROM articles WHERE status = 'Approved'")->fetchColumn() ?: 0;
     $stats['total_users'] = $pdo->query("SELECT COUNT(id) FROM users")->fetchColumn() ?: 0;
     $stats['total_bookmarks'] = $pdo->query("SELECT COUNT(id) FROM bookmarks")->fetchColumn() ?: 0;
 } catch (PDOException $e) {}
@@ -117,7 +137,7 @@ try {
                COUNT(a.id) as article_count, 
                COALESCE(SUM(a.view_count), 0) as total_views
         FROM categories c
-        LEFT JOIN articles a ON c.id = a.category_id AND a.status = 'published'
+        LEFT JOIN articles a ON c.id = a.category_id AND a.status = 'Approved'
         GROUP BY c.id
         ORDER BY total_views DESC
     ");
@@ -130,7 +150,7 @@ try {
     $stmt = $pdo->query("
         SELECT id, title, view_count, created_at
         FROM articles
-        WHERE status = 'published'
+        WHERE status = 'Approved'
         ORDER BY view_count DESC, created_at DESC
         LIMIT 5
     ");
@@ -336,9 +356,9 @@ include 'partials/header.php';
                       <input type="hidden" name="action" value="update_article_status">
                       <input type="hidden" name="article_id" value="<?= $a['id'] ?>">
                       <select name="status" class="form-select form-select-sm admin-control-select admin-status-select" onchange="this.form.submit()">
-                        <option value="request" <?= $a['status'] === 'request' ? 'selected' : '' ?>>Chờ duyệt</option>
-                        <option value="published" <?= $a['status'] === 'published' ? 'selected' : '' ?>>Đã xuất bản</option>
-                        <option value="disapproved" <?= $a['status'] === 'disapproved' ? 'selected' : '' ?>>Từ chối</option>
+                      <option value="request" <?= $a['status'] === 'request' ? 'selected' : '' ?>>Chờ duyệt</option>
+                      <option value="Approved" <?= $a['status'] === 'Approved' ? 'selected' : '' ?>>Đã duyệt</option>
+                      <option value="disapproved" <?= $a['status'] === 'disapproved' ? 'selected' : '' ?>>Không duyệt</option>
                       </select>
                     </form>
                   </td>
