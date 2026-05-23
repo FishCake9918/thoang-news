@@ -28,7 +28,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
+                $old_session_id = session_id();
                 session_regenerate_id(true);
+                $new_session_id = session_id();
+
+                // 1. Nhận diện các bài viết khách vừa lưu và gán cho user
+                $update_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET user_id = ? WHERE session_id = ? AND user_id IS NULL");
+                $update_bookmarks->execute([$user['id'], $old_session_id]);
+                
+                // 2. Gắn session_id mới nhất cho TẤT CẢ các bài đã lưu của user này
+                $sync_user_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET session_id = ? WHERE user_id = ?");
+                $sync_user_bookmarks->execute([$new_session_id, $user['id']]);
+
+                // 3. Dọn dẹp các bản ghi trùng lặp (nếu user lưu cùng 1 bài ở cả tài khoản và lúc chưa đăng nhập)
+                $delete_duplicates = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ? AND session_id != ?");
+                $delete_duplicates->execute([$user['id'], $new_session_id]);
+
+                $delete_old = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ? AND user_id IS NULL");
+                $delete_old->execute([$old_session_id]);
+
                 $_SESSION['user_id']  = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email']    = $user['email'];
