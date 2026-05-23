@@ -69,9 +69,9 @@ $nav_items = [
       <div class="masthead-tagline">Lướt qua là nắm ngay</div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <div class="masthead-search d-none d-md-block">
-        <input type="text" placeholder="Tìm kiếm..."/>
-      </div>
+      <form action="search.php" method="GET" class="masthead-search d-none d-md-block mb-0">
+        <input type="text" name="q" placeholder="Tìm kiếm..." required />
+      </form>
       <?php if ($is_logged): ?>
         
         <?php if ($_SESSION['role'] === 'admin'): ?>
