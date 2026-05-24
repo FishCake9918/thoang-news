@@ -3,46 +3,60 @@ session_start();
 require_once 'config/db.php';
 require_once 'config/session.php';
 
-// Lấy ID bài viết từ URL (Ví dụ: chitiet.php?id=5)
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Nếu ID không hợp lệ, lập tức đẩy về trang chủ
 if ($id <= 0) {
     header('Location: index.php');
     exit;
 }
 
 try {
-    // 1. TỰ ĐỘNG TĂNG LƯỢT XEM (VIEW COUNT) KHI CÓ NGƯỜI ĐỌC
-    $updateView = $pdo->prepare("UPDATE articles SET view_count = view_count + 1 WHERE id = ?");
-    $updateView->execute([$id]);
-
-    // 2. TRUY VẤN LẤY CHI TIẾT BÀI VIẾT KÈM TÊN DANH MỤC
     $stmt = $pdo->prepare("
-        SELECT a.*, c.name as category_name 
-        FROM articles a 
-        LEFT JOIN categories c ON a.category_id = c.id 
-        WHERE a.id = ? AND a.status IN ('published', 'Approved')
+        SELECT a.*, c.name AS category_name
+        FROM articles a
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE a.id = ?
         LIMIT 1
     ");
     $stmt->execute([$id]);
     $article = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Nếu không tìm thấy bài viết hoặc bài viết chưa được xuất bản
     if (!$article) {
         header('Location: index.php');
         exit;
     }
-    
+
+    $canPreview = isLoggedIn() && (
+        ($_SESSION['role'] ?? '') === 'admin' ||
+        (
+            ($_SESSION['role'] ?? '') === 'writer' &&
+            (int)($article['author_id'] ?? 0) === (int)($_SESSION['user_id'] ?? 0)
+        )
+    );
+
+    if ($article['status'] !== 'Approved' && !$canPreview) {
+        header('Location: index.php');
+        exit;
+    }
+
+    if ($article['status'] === 'Approved') {
+        $updateView = $pdo->prepare("
+            UPDATE articles
+            SET view_count = view_count + 1
+            WHERE id = ?
+        ");
+        $updateView->execute([$id]);
+
+        $article['view_count'] = (int)$article['view_count'] + 1;
+    }
+
 } catch (PDOException $e) {
     die("Lỗi kết nối hoặc xử lý dữ liệu hệ thống: " . $e->getMessage());
 }
 
-// Thiết lập tiêu đề trang động theo tên bài viết
+$published_time = !empty($article['published_at']) ? $article['published_at'] : $article['created_at'];
 $page_title = htmlspecialchars($article['title']) . ' — Thoáng.vn';
-?>
-<link rel="stylesheet" href="stylesheets/style.css">
-<?php
+
 include 'partials/header.php';
 ?>
 
@@ -68,7 +82,7 @@ include 'partials/header.php';
             </div>
             <div class="meta-item border-start ps-3">
               <i class="bi bi-calendar3"></i>
-              <span><?= date('d/m/Y H:i', strtotime($article['created_at'])) ?></span>
+              <span><?= date('d/m/Y H:i', strtotime($published_time)) ?></span>
             </div>
             <div class="meta-item border-start ps-3">
               <i class="bi bi-eye-fill"></i>

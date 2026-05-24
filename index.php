@@ -15,13 +15,13 @@ if (!in_array($active_nav, $allowed_nav, true)) {
 $top_articles = [];
 
 try {
-    $stmt = $pdo->query("
-        SELECT id, title, view_count
-        FROM articles
-        WHERE status IN ('published', 'Approved')
-        ORDER BY view_count DESC, published_at DESC, created_at DESC
-        LIMIT 5
-    ");
+  $stmt = $pdo->query("
+  SELECT id, title, view_count
+  FROM articles
+  WHERE status = 'Approved'
+  ORDER BY view_count DESC, published_at DESC, created_at DESC
+  LIMIT 5
+");
     $top_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $top_articles = [];

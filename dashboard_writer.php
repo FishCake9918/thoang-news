@@ -1,38 +1,54 @@
 <?php
 session_start();
+
 require_once 'config/db.php';
 require_once 'config/session.php';
 
-if (!isLoggedIn() || ($_SESSION['role'] !== 'writer' && $_SESSION['role'] !== 'admin')) {
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'writer') {
     header('Location: login.php');
     exit;
 }
 
-$author_id = (int)$_SESSION['user_id'];
+$author_id = (int)($_SESSION['user_id'] ?? 0);
 $error = '';
+
+function shortText(string $text, int $limit = 120): string
+{
+    $text = trim(strip_tags($text));
+
+    if (function_exists('mb_strimwidth')) {
+        return mb_strimwidth($text, 0, $limit, '...', 'UTF-8');
+    }
+
+    return strlen($text) > $limit
+        ? substr($text, 0, $limit - 3) . '...'
+        : $text;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $article_id = (int)($_POST['article_id'] ?? 0);
 
     try {
-        if ($action === 'delete_article' && $article_id > 0) {
-            $stmt = $pdo->prepare("DELETE FROM articles WHERE id = ? AND author_id = ?");
-            $stmt->execute([$article_id, $author_id]);
-        }
+        if ($action === 'delete_article') {
+            if ($article_id <= 0) {
+                throw new Exception('Bài viết không hợp lệ.');
+            }
 
-        header('Location: dashboard_writer.php');
-        exit;
-    } catch (PDOException $e) {
+            $stmt = $pdo->prepare("
+                DELETE FROM articles
+                WHERE id = ?
+                  AND author_id = ?
+            ");
+            $stmt->execute([$article_id, $author_id]);
+
+            header('Location: dashboard_writer.php');
+            exit;
+        }
+    } catch (Exception $e) {
         $error = 'Lỗi xử lý: ' . $e->getMessage();
     }
 }
-
-$status_labels = [
-    'request' => 'Chờ duyệt',
-    'Approved' => 'Đã duyệt',
-    'disapproved' => 'Không được duyệt',
-];
 
 $articles_by_status = [
     'request' => [],
@@ -40,13 +56,13 @@ $articles_by_status = [
     'disapproved' => [],
 ];
 
-function shortText(string $text, int $limit = 120): string {
-    if (function_exists('mb_strimwidth')) {
-        return mb_strimwidth($text, 0, $limit, '...', 'UTF-8');
-    }
-
-    return strlen($text) > $limit ? substr($text, 0, $limit - 3) . '...' : $text;
-}
+$stats = [
+    'total' => 0,
+    'request' => 0,
+    'Approved' => 0,
+    'disapproved' => 0,
+    'total_views' => 0,
+];
 
 try {
     $stmt = $pdo->prepare("
@@ -60,16 +76,21 @@ try {
             a.updated_at,
             a.published_at,
             a.tags,
+            a.source,
             c.name AS category_name
         FROM articles a
         LEFT JOIN categories c ON a.category_id = c.id
         WHERE a.author_id = ?
-        ORDER BY FIELD(a.status, 'request', 'Approved', 'disapproved'), a.updated_at DESC
+        ORDER BY 
+            FIELD(a.status, 'request', 'Approved', 'disapproved'),
+            a.updated_at DESC,
+            a.created_at DESC
     ");
 
     $stmt->execute([$author_id]);
+    $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $article) {
+    foreach ($articles as $article) {
         if ($article['status'] === 'Approved') {
             $key = 'Approved';
         } elseif ($article['status'] === 'disapproved') {
@@ -79,6 +100,10 @@ try {
         }
 
         $articles_by_status[$key][] = $article;
+
+        $stats['total']++;
+        $stats[$key]++;
+        $stats['total_views'] += (int)$article['view_count'];
     }
 } catch (PDOException $e) {
     $error = 'Không thể tải danh sách bài viết: ' . $e->getMessage();
@@ -93,25 +118,58 @@ include 'partials/header.php';
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
-        <h3 class="mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--navy);">
-          Quản lý bài viết tác giả
+        <h3 class="mb-1" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);">
+          Không gian viết bài
         </h3>
         <div class="text-muted" style="font-size:13px;">
-          Theo dõi trạng thái duyệt, lượt xem và chỉnh sửa bài của bạn.
+          Theo dõi trạng thái duyệt, chỉnh sửa và quản lý bài viết của bạn.
         </div>
       </div>
+
+      <a href="vietbai.php" class="btn btn-sm" style="background:var(--navy);color:#fff;font-weight:700;">
+        <i class="bi bi-pencil-square me-1"></i> Viết bài mới
+      </a>
     </div>
 
-    <?php if ($error): ?>
+    <?php if (!empty($error)): ?>
       <div class="alert alert-danger">
         <?= htmlspecialchars($error) ?>
       </div>
     <?php endif; ?>
 
-    <ul class="nav nav-tabs mb-3" id="writerArticleTabs" role="tablist">
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+          <div class="text-muted" style="font-size:13px;">Tổng bài viết</div>
+          <h4 class="mb-0"><?= number_format($stats['total']) ?></h4>
+        </div>
+      </div>
 
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+          <div class="text-muted" style="font-size:13px;">Chờ duyệt</div>
+          <h4 class="mb-0 text-warning"><?= number_format($stats['request']) ?></h4>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+          <div class="text-muted" style="font-size:13px;">Đã duyệt</div>
+          <h4 class="mb-0 text-success"><?= number_format($stats['Approved']) ?></h4>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+          <div class="text-muted" style="font-size:13px;">Tổng lượt xem</div>
+          <h4 class="mb-0"><?= number_format($stats['total_views']) ?></h4>
+        </div>
+      </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3" id="writerArticleTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-pane" type="button" role="tab">
+        <button class="nav-link active" id="request-tab" data-bs-toggle="tab" data-bs-target="#request-pane" type="button" role="tab">
           Chờ duyệt
           <span class="badge text-bg-warning ms-1">
             <?= count($articles_by_status['request']) ?>
@@ -129,157 +187,160 @@ include 'partials/header.php';
       </li>
 
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-pane" type="button" role="tab">
+        <button class="nav-link" id="disapproved-tab" data-bs-toggle="tab" data-bs-target="#disapproved-pane" type="button" role="tab">
           Không được duyệt
           <span class="badge text-bg-secondary ms-1">
             <?= count($articles_by_status['disapproved']) ?>
           </span>
         </button>
       </li>
-
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content" id="writerArticleTabsContent">
       <?php
       $panes = [
-          'pending' => [
-              'status' => 'request',
+          'request' => [
+              'pane_id' => 'request-pane',
               'label' => 'Danh sách bài viết chờ duyệt',
-              'active' => true
+              'active' => true,
           ],
-          'approved' => [
-              'status' => 'Approved',
+          'Approved' => [
+              'pane_id' => 'approved-pane',
               'label' => 'Danh sách bài viết đã được duyệt',
-              'active' => false
+              'active' => false,
           ],
-          'rejected' => [
-              'status' => 'disapproved',
+          'disapproved' => [
+              'pane_id' => 'disapproved-pane',
               'label' => 'Danh sách bài viết không được duyệt',
-              'active' => false
+              'active' => false,
           ],
       ];
-
-      foreach ($panes as $pane_id => $pane):
-          $items = $articles_by_status[$pane['status']];
       ?>
 
-      <div class="tab-pane fade <?= $pane['active'] ? 'show active' : '' ?>" id="<?= $pane_id ?>-pane" role="tabpanel" tabindex="0">
-        <div class="card shadow-sm border-0 p-4 bg-white">
+      <?php foreach ($panes as $status_key => $pane): ?>
+        <?php $items = $articles_by_status[$status_key]; ?>
 
-          <span class="section-label">
-            <?= htmlspecialchars($pane['label']) ?>
-          </span>
+        <div class="tab-pane fade <?= $pane['active'] ? 'show active' : '' ?>" id="<?= $pane['pane_id'] ?>" role="tabpanel">
+          <div class="card shadow-sm border-0 p-4 bg-white">
 
-          <?php if (empty($items)): ?>
-            <div class="empty-state py-4">
-              <i class="bi bi-file-earmark-text"></i>
-              Chưa có bài viết nào trong nhóm này.
-            </div>
-          <?php else: ?>
+            <span class="section-label">
+              <?= htmlspecialchars($pane['label']) ?>
+            </span>
 
-            <div class="table-responsive mt-3">
-              <table class="table table-hover align-middle" style="font-size:14px;">
-                <thead class="table-light">
-                  <tr>
-                    <th>Bài viết</th>
-                    <th>Danh mục</th>
-                    <th>Trạng thái</th>
-                    <th class="text-center">Lượt xem</th>
-                    <th>Thời gian</th>
-                    <th class="text-end">Hành động</th>
-                  </tr>
-                </thead>
+            <?php if (empty($items)): ?>
+              <div class="empty-state py-4">
+                <i class="bi bi-file-earmark-text"></i>
+                Chưa có bài viết nào trong nhóm này.
+              </div>
+            <?php else: ?>
 
-                <tbody>
-                <?php foreach ($items as $article): ?>
-                  <tr>
-                    <td style="min-width:300px;">
-                      <strong>
-                        <?= htmlspecialchars($article['title']) ?>
-                      </strong>
+              <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle" style="font-size:14px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Bài viết</th>
+                      <th>Danh mục</th>
+                      <th>Trạng thái</th>
+                      <th class="text-center">Lượt xem</th>
+                      <th>Thời gian</th>
+                      <th class="text-end">Hành động</th>
+                    </tr>
+                  </thead>
 
-                      <div class="text-muted mt-1" style="font-size:12px;line-height:1.5;">
-                        <?= htmlspecialchars(shortText($article['summary'] ?? '')) ?>
-                      </div>
+                  <tbody>
+                    <?php foreach ($items as $article): ?>
+                      <?php
+                      $statusLabel = 'Chờ duyệt';
+                      $statusClass = 'text-bg-warning';
 
-                      <?php if (!empty($article['tags'])): ?>
-                        <div class="mt-2">
-                          <?php foreach (array_filter(array_map('trim', explode(',', $article['tags']))) as $tag): ?>
-                            <span class="card-tag">
-                              <?= htmlspecialchars($tag) ?>
-                            </span>
-                          <?php endforeach; ?>
-                        </div>
-                      <?php endif; ?>
-                    </td>
+                      if ($article['status'] === 'Approved') {
+                          $statusLabel = 'Đã duyệt';
+                          $statusClass = 'text-bg-success';
+                      } elseif ($article['status'] === 'disapproved') {
+                          $statusLabel = 'Không được duyệt';
+                          $statusClass = 'text-bg-secondary';
+                      }
+                      ?>
 
-                    <td>
-                      <?= htmlspecialchars($article['category_name'] ?? 'Chưa phân loại') ?>
-                    </td>
+                      <tr>
+                        <td style="min-width:320px;">
+                          <strong>
+                            <?= htmlspecialchars($article['title']) ?>
+                          </strong>
 
-                    <td>
-                      <?php if ($article['status'] === 'request'): ?>
-                        <span class="badge text-bg-warning">Chờ duyệt</span>
-                      <?php elseif ($article['status'] === 'Approved'): ?>
-                        <span class="badge text-bg-success">Đã duyệt</span>
-                      <?php elseif ($article['status'] === 'disapproved'): ?>
-                        <span class="badge text-bg-secondary">Không được duyệt</span>
-                      <?php endif; ?>
-                    </td>
+                          <div class="text-muted mt-1" style="font-size:12px;line-height:1.5;">
+                            <?= htmlspecialchars(shortText($article['summary'] ?? '', 140)) ?>
+                          </div>
 
-                    <td class="text-center">
-                      <span class="badge bg-light text-dark border">
-                        <i class="bi bi-eye me-1"></i>
-                        <?= number_format((int)$article['view_count']) ?>
-                      </span>
-                    </td>
+                          <?php if (!empty($article['tags'])): ?>
+                            <div class="mt-2">
+                              <?php foreach (array_filter(array_map('trim', explode(',', $article['tags']))) as $tag): ?>
+                                <span class="card-tag">
+                                  <?= htmlspecialchars($tag) ?>
+                                </span>
+                              <?php endforeach; ?>
+                            </div>
+                          <?php endif; ?>
+                        </td>
 
-                    <td style="font-size:12px;color:var(--muted);min-width:160px;">
-                      Tạo: <?= date('d/m/Y H:i', strtotime($article['created_at'])) ?><br>
+                        <td>
+                          <?= htmlspecialchars($article['category_name'] ?? 'Chưa phân loại') ?>
+                        </td>
 
-                      <?php if ($article['status'] === 'Approved' && !empty($article['published_at'])): ?>
-                        Đăng: <?= date('d/m/Y H:i', strtotime($article['published_at'])) ?>
-                      <?php else: ?>
-                        Cập nhật: <?= date('d/m/Y H:i', strtotime($article['updated_at'])) ?>
-                      <?php endif; ?>
-                    </td>
+                        <td>
+                          <span class="badge <?= $statusClass ?>">
+                            <?= htmlspecialchars($statusLabel) ?>
+                          </span>
+                        </td>
 
-                    <td class="text-end" style="min-width:130px;">
-                      <a href="article.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
-                        <i class="bi bi-eye"></i>
-                      </a>
+                        <td class="text-center">
+                          <span class="badge bg-light text-dark border">
+                            <i class="bi bi-eye me-1"></i>
+                            <?= number_format((int)$article['view_count']) ?>
+                          </span>
+                        </td>
 
-                      <a href="vietbai.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Chỉnh sửa">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
+                        <td style="font-size:12px;color:var(--muted);min-width:170px;">
+                          Tạo: <?= date('d/m/Y H:i', strtotime($article['created_at'])) ?><br>
 
-                      <form method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
-                        <input type="hidden" name="action" value="delete_article">
-                        <input type="hidden" name="article_id" value="<?= (int)$article['id'] ?>">
+                          <?php if ($article['status'] === 'Approved' && !empty($article['published_at'])): ?>
+                            Đăng: <?= date('d/m/Y H:i', strtotime($article['published_at'])) ?>
+                          <?php else: ?>
+                            Cập nhật: <?= date('d/m/Y H:i', strtotime($article['updated_at'])) ?>
+                          <?php endif; ?>
+                        </td>
 
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
+                        <td class="text-end admin-actions-cell">
+                          <div class="admin-action-group">
+                            <a href="article.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
+                              <i class="bi bi-eye"></i>
+                            </a>
 
-          <?php endif; ?>
+                            <a href="vietbai.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Chỉnh sửa">
+                              <i class="bi bi-pencil-square"></i> <span>Sửa</span>
+                            </a>
 
+                            <form method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                              <input type="hidden" name="action" value="delete_article">
+                              <input type="hidden" name="article_id" value="<?= (int)$article['id'] ?>">
+
+                              <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+
+            <?php endif; ?>
+
+          </div>
         </div>
-      </div>
-
       <?php endforeach; ?>
-    </div>
-
-    <div class="d-flex justify-content-center mt-5">
-      <a href="vietbai.php" class="btn" style="background: var(--navy); color: #fff; font-weight: 700; padding: 10px 24px;">
-        <i class="bi bi-pencil-square me-1"></i> Viết bài
-      </a>
     </div>
 
   </div>

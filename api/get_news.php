@@ -29,15 +29,24 @@ $sql = "
 $params = [];
 
 if ($is_logged) {
-    $sql .= " LEFT JOIN bookmarks b ON n.id = b.article_id AND b.user_id = :user_id ";
-    $params[':user_id'] = $_SESSION['user_id'];
+    $sql .= "
+        LEFT JOIN bookmarks b 
+            ON n.id = b.article_id 
+            AND b.user_id = :user_id
+    ";
+    $params[':user_id'] = (int)$_SESSION['user_id'];
 } else {
-    $sql .= " LEFT JOIN bookmarks b ON n.id = b.article_id AND b.session_id = :session_id AND b.user_id IS NULL ";
+    $sql .= "
+        LEFT JOIN bookmarks b 
+            ON n.id = b.article_id 
+            AND b.session_id = :session_id 
+            AND b.user_id IS NULL
+    ";
     $params[':session_id'] = $session_id;
 }
 
 $where = [
-    "n.status IN ('published', 'Approved')"
+    "n.status = 'Approved'"
 ];
 
 if ($category !== 'all') {

@@ -10,7 +10,7 @@ $session_id = session_id();
 $filter_cat = $_GET['cat'] ?? 'all';
 $search_kw  = trim($_GET['q'] ?? '');
 
-$where = ["a.status IN ('published', 'Approved')"];
+$where = ["a.status = 'Approved'"];
 $params = [];
 
 if (isLoggedIn()) {

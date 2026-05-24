@@ -26,7 +26,7 @@ if ($search_kw !== '') {
             c.color_text
         FROM articles a
         LEFT JOIN categories c ON c.id = a.category_id
-        WHERE a.status IN ('published', 'Approved')
+        WHERE a.status = 'Approved'
           AND (a.title LIKE ? OR a.summary LIKE ? OR a.content LIKE ?)
         ORDER BY a.published_at DESC, a.created_at DESC
     ";

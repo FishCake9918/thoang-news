@@ -28,7 +28,7 @@ if ($news_id <= 0) {
 }
 
 try {
-    $articleStmt = $pdo->prepare("SELECT id FROM articles WHERE id = ? AND status IN ('published', 'Approved') LIMIT 1");
+    $articleStmt = $pdo->prepare("SELECT id FROM articles WHERE id = ? AND status = 'Approved' LIMIT 1");
     $articleStmt->execute([$news_id]);
     if (!$articleStmt->fetch()) {
         jsonResponse(['status' => 'error', 'success' => false, 'message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], 404);
