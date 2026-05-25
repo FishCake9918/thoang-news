@@ -11,6 +11,20 @@ $search_kw  = trim($_GET['q'] ?? '');
 $search_results = [];
 $total = 0;
 
+function searchTextContains(string $haystack, string $needle): bool
+{
+    if (function_exists('mb_strtolower') && function_exists('mb_strpos')) {
+        return mb_strpos(
+            mb_strtolower($haystack, 'UTF-8'),
+            mb_strtolower($needle, 'UTF-8'),
+            0,
+            'UTF-8'
+        ) !== false;
+    }
+
+    return strpos(strtolower($haystack), strtolower($needle)) !== false;
+}
+
 if ($search_kw !== '') {
     $sql = "
         SELECT
@@ -27,15 +41,19 @@ if ($search_kw !== '') {
         FROM articles a
         LEFT JOIN categories c ON c.id = a.category_id
         WHERE a.status = 'Approved'
-          AND (a.title LIKE ? OR a.summary LIKE ? OR a.content LIKE ?)
+          AND (a.title LIKE ? OR a.summary LIKE ?)
         ORDER BY a.published_at DESC, a.created_at DESC
     ";
 
     try {
         $stmt = $pdo->prepare($sql);
         $like_kw = "%$search_kw%";
-        $stmt->execute([$like_kw, $like_kw, $like_kw]);
-        $search_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute([$like_kw, $like_kw]);
+        $candidate_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $search_results = array_values(array_filter($candidate_results, function ($article) use ($search_kw) {
+            return searchTextContains($article['title'] ?? '', $search_kw)
+                || searchTextContains($article['summary'] ?? '', $search_kw);
+        }));
         $total = count($search_results);
     } catch (PDOException $e) {
         $search_results = [];
