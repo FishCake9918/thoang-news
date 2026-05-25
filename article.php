@@ -90,6 +90,19 @@ include 'partials/header.php';
             </div>
           </div>
           
+          <?php if (!empty($article['image_url'])): ?>
+            <figure class="article-image-wrap">
+              <img
+                class="article-image"
+                src="<?= htmlspecialchars($article['image_url']) ?>"
+                alt="<?= htmlspecialchars($article['title']) ?>"
+                loading="lazy"
+                onerror="this.closest('.article-image-wrap').classList.add('is-broken')"
+              >
+              <figcaption>Không thể hiển thị hình ảnh bài viết.</figcaption>
+            </figure>
+          <?php endif; ?>
+
           <div class="article-summary">
             <?= nl2br(htmlspecialchars($article['summary'])) ?>
           </div>
