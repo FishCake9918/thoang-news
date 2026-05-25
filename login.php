@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// login.php — Trang đăng nhập (Đã áp dụng phân quyền điều hướng)
+// login.php — Trang đăng nhập (Đã áp dụng phân quyền & xác thực)
 // ============================================================
 session_start();
 require_once 'config/db.php';
@@ -28,38 +28,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
-                $old_session_id = session_id();
-                session_regenerate_id(true);
-                $new_session_id = session_id();
-
-                // 1. Nhận diện các bài viết khách vừa lưu và gán cho user
-                $update_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET user_id = ? WHERE session_id = ? AND user_id IS NULL");
-                $update_bookmarks->execute([$user['id'], $old_session_id]);
                 
-                // 2. Gắn session_id mới nhất cho TẤT CẢ các bài đã lưu của user này
-                $sync_user_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET session_id = ? WHERE user_id = ?");
-                $sync_user_bookmarks->execute([$new_session_id, $user['id']]);
+                // KIỂM TRA TRẠNG THÁI XÁC THỰC EMAIL
+                if (isset($user['is_verified']) && $user['is_verified'] == 0) {
+                    $error = 'Tài khoản của bạn chưa kích hoạt. Vui lòng kiểm tra email để xác thực trước khi đăng nhập.';
+                } else {
+                    $old_session_id = session_id();
+                    session_regenerate_id(true);
+                    $new_session_id = session_id();
 
-                // 3. Dọn dẹp các bản ghi trùng lặp (nếu user lưu cùng 1 bài ở cả tài khoản và lúc chưa đăng nhập)
-                $delete_duplicates = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ? AND session_id != ?");
-                $delete_duplicates->execute([$user['id'], $new_session_id]);
+                    // 1. Nhận diện các bài viết khách vừa lưu và gán cho user
+                    $update_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET user_id = ? WHERE session_id = ? AND user_id IS NULL");
+                    $update_bookmarks->execute([$user['id'], $old_session_id]);
+                    
+                    // 2. Gắn session_id mới nhất cho TẤT CẢ các bài đã lưu của user này
+                    $sync_user_bookmarks = $pdo->prepare("UPDATE IGNORE bookmarks SET session_id = ? WHERE user_id = ?");
+                    $sync_user_bookmarks->execute([$new_session_id, $user['id']]);
 
-                $delete_old = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ? AND user_id IS NULL");
-                $delete_old->execute([$old_session_id]);
+                    // 3. Dọn dẹp các bản ghi trùng lặp (nếu user lưu cùng 1 bài ở cả tài khoản và lúc chưa đăng nhập)
+                    $delete_duplicates = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ? AND session_id != ?");
+                    $delete_duplicates->execute([$user['id'], $new_session_id]);
 
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['email']    = $user['email'];
-                $_SESSION['full_name']= $user['full_name'];
-                $_SESSION['role']     = $user['role'];
+                    $delete_old = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ? AND user_id IS NULL");
+                    $delete_old->execute([$old_session_id]);
 
-                // Phân quyền điều hướng trang đích
-                $redirect = 'index.php';
-                if ($user['role'] === 'admin') $redirect = 'dashboard.php';
-                elseif ($user['role'] === 'writer') $redirect = 'dashboard_writer.php';
-                
-                header("Location: " . ($_GET['redirect'] ?? $redirect));
-                exit;
+                    $_SESSION['user_id']  = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['email']    = $user['email'];
+                    $_SESSION['full_name']= $user['full_name'];
+                    $_SESSION['role']     = $user['role'];
+
+                    // Phân quyền điều hướng trang đích
+                    $redirect = 'index.php';
+                    if ($user['role'] === 'admin') $redirect = 'dashboard.php';
+                    elseif ($user['role'] === 'writer') $redirect = 'dashboard_writer.php';
+                    
+                    header("Location: " . ($_GET['redirect'] ?? $redirect));
+                    exit;
+                }
             } else {
                 $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
             }
@@ -82,7 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <div class="top-bar">
-    <div class="container"><span><?= viDate() ?></span></div>
+    <div class="container">
+        <span><?php if (function_exists('viDate')) echo viDate(); ?></span>
+    </div>
   </div>
 
   <div class="masthead">
@@ -109,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  value="<?= htmlspecialchars($_POST['login_id'] ?? '') ?>"
                  placeholder="admin hoặc email@example.com" autofocus required/>
         </div>
-        <div class="mb-4">
+        <div class="mb-2">
           <label class="form-label">Mật khẩu</label>
           <div class="position-relative">
             <input type="password" name="password" id="pwdField" class="form-control pe-5"
@@ -120,6 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
           </div>
         </div>
+        
+        <div class="text-end mb-4" style="font-size: 12px;">
+            <a href="forgot_password.php" class="text-secondary text-decoration-none">Quên mật khẩu?</a>
+        </div>
+
         <button type="submit" class="btn-login">
           <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
         </button>
