@@ -4,6 +4,8 @@ require_once 'config/db.php';
 require_once 'config/session.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$comment_error = '';
+$comments = [];
 
 if ($id <= 0) {
     header('Location: index.php');
@@ -40,6 +42,29 @@ try {
     }
 
     if ($article['status'] === 'Approved') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_comment') {
+            if (!isLoggedIn()) {
+                header('Location: login.php');
+                exit;
+            }
+
+            $comment_content = trim($_POST['comment_content'] ?? '');
+            if ($comment_content === '') {
+                $comment_error = 'Vui lòng nhập nội dung bình luận.';
+            } elseif (strlen($comment_content) > 1000) {
+                $comment_error = 'Bình luận không được vượt quá 1000 ký tự.';
+            } else {
+                $commentStmt = $pdo->prepare("
+                    INSERT INTO comments (article_id, user_id, content, created_at)
+                    VALUES (?, ?, ?, NOW())
+                ");
+                $commentStmt->execute([$id, (int)$_SESSION['user_id'], $comment_content]);
+
+                header('Location: article.php?id=' . $id . '#comments');
+                exit;
+            }
+        }
+
         $updateView = $pdo->prepare("
             UPDATE articles
             SET view_count = view_count + 1
@@ -48,6 +73,16 @@ try {
         $updateView->execute([$id]);
 
         $article['view_count'] = (int)$article['view_count'] + 1;
+
+        $commentsStmt = $pdo->prepare("
+            SELECT c.*, u.username, u.full_name
+            FROM comments c
+            INNER JOIN users u ON c.user_id = u.id
+            WHERE c.article_id = ?
+            ORDER BY c.created_at DESC, c.id DESC
+        ");
+        $commentsStmt->execute([$id]);
+        $comments = $commentsStmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 } catch (PDOException $e) {
@@ -110,6 +145,62 @@ include 'partials/header.php';
           <div class="article-content">
             <?= nl2br($article['content']) ?> 
           </div>
+
+          <?php if ($article['status'] === 'Approved'): ?>
+            <section class="article-comments" id="comments">
+              <div class="comments-head">
+                <div>
+                  <div class="comments-eyebrow">Bình luận</div>
+                  <h2><?= count($comments) ?> bình luận</h2>
+                </div>
+              </div>
+
+              <?php if (isLoggedIn()): ?>
+                <form method="POST" class="comment-form">
+                  <input type="hidden" name="action" value="add_comment">
+                  <?php if ($comment_error !== ''): ?>
+                    <div class="comment-error"><?= htmlspecialchars($comment_error) ?></div>
+                  <?php endif; ?>
+                  <textarea name="comment_content" rows="4" maxlength="1000" placeholder="Viết bình luận của bạn..." required><?= htmlspecialchars($_POST['comment_content'] ?? '') ?></textarea>
+                  <div class="comment-form-actions">
+                    <span>Đăng với tên <?= htmlspecialchars(($_SESSION['full_name'] ?? '') ?: ($_SESSION['username'] ?? 'người dùng')) ?></span>
+                    <button type="submit">Gửi bình luận</button>
+                  </div>
+                </form>
+              <?php else: ?>
+                <div class="comment-login-note">
+                  Vui lòng <a href="login.php">đăng nhập</a> để bình luận về bài viết này.
+                </div>
+              <?php endif; ?>
+
+              <div class="comment-list">
+                <?php if (empty($comments)): ?>
+                  <div class="comment-empty">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến.</div>
+                <?php else: ?>
+                  <?php foreach ($comments as $comment): ?>
+                    <?php
+                      $commentName = trim($comment['full_name'] ?? '') ?: ($comment['username'] ?? 'Người dùng');
+                      $commentInitial = function_exists('mb_substr')
+                          ? mb_substr($commentName, 0, 1, 'UTF-8')
+                          : substr($commentName, 0, 1);
+                    ?>
+                    <article class="comment-item">
+                      <div class="comment-avatar"><?= htmlspecialchars(strtoupper($commentInitial)) ?></div>
+                      <div class="comment-main">
+                        <div class="comment-meta">
+                          <strong><?= htmlspecialchars($commentName) ?></strong>
+                          <span><?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></span>
+                        </div>
+                        <div class="comment-content">
+                          <?= nl2br(htmlspecialchars($comment['content'])) ?>
+                        </div>
+                      </div>
+                    </article>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </div>
+            </section>
+          <?php endif; ?>
           
           <div class="border-top mt-5">
             <a href="javascript:history.back()" class="btn-back">
