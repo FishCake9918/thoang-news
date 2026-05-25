@@ -658,7 +658,7 @@ include 'partials/header.php';
                     "<?= nl2br(htmlspecialchars($c['content'])) ?>"
                   </div>
                   <div style="font-size:12px; color:var(--muted);">
-                    Trong bài: <a href="article.php?id=<?= (int)$c['article_id'] ?>#comments" target="_blank" style="text-decoration:none; color:var(--red);">
+                    Trong bài: <a href="article.php?id=<?= (int)$c['article_id'] ?>&from=dashboard#comments" style="text-decoration:none; color:var(--red);">
                       <?= htmlspecialchars($c['title']) ?>
                     </a>
                   </div>
