@@ -64,6 +64,8 @@ $stats = [
     'total_views' => 0,
 ];
 
+$cat_views_data = [];
+
 try {
     $stmt = $pdo->prepare("
         SELECT 
@@ -93,6 +95,11 @@ try {
     foreach ($articles as $article) {
         if ($article['status'] === 'Approved') {
             $key = 'Approved';
+            $cname = $article['category_name'] ?? 'Chưa phân loại';
+            if (!isset($cat_views_data[$cname])) {
+                $cat_views_data[$cname] = 0;
+            }
+            $cat_views_data[$cname] += (int)$article['view_count'];
         } elseif ($article['status'] === 'disapproved') {
             $key = 'disapproved';
         } else {
@@ -163,6 +170,26 @@ include 'partials/header.php';
         <div class="card border-0 shadow-sm p-3">
           <div class="text-muted" style="font-size:13px;">Tổng lượt xem</div>
           <h4 class="mb-0"><?= number_format($stats['total_views']) ?></h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIỂU ĐỒ TRỰC QUAN -->
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card shadow-sm border-0 p-4 bg-white h-100">
+          <span class="section-label">Lượt xem theo danh mục (Đã duyệt)</span>
+          <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+            <canvas id="writerCatViewsChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4 bg-white h-100">
+          <span class="section-label">Trạng thái bài viết</span>
+          <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+            <canvas id="writerStatusChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -345,5 +372,88 @@ include 'partials/header.php';
 
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script>
+Chart.register(ChartDataLabels);
+
+// Biểu đồ lượt xem theo danh mục
+const writerCatNames = <?= json_encode(array_keys($cat_views_data)) ?>;
+const writerCatViews = <?= json_encode(array_values($cat_views_data)) ?>;
+
+if (document.getElementById('writerCatViewsChart')) {
+  new Chart(document.getElementById('writerCatViewsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: writerCatNames,
+      datasets: [{
+        data: writerCatViews,
+        backgroundColor: ['#534AB7', '#155724', '#721c24', '#856404', '#0c5460', '#383d41', '#374151', '#e83e8c', '#fd7e14', '#20c997'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        datalabels: {
+          color: '#fff',
+          font: { weight: 'bold', size: 11 },
+          formatter: (value, ctx) => {
+            let sum = 0;
+            let dataArr = ctx.chart.data.datasets[0].data;
+            dataArr.map(data => { sum += Number(data); });
+            if (sum === 0 || value == 0) return '';
+            return (value * 100 / sum).toFixed(1) + "%";
+          }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+// Biểu đồ trạng thái bài viết
+const writerStatusLabels = ['Đã duyệt', 'Chờ duyệt', 'Không duyệt'];
+const writerStatusData = [
+  <?= (int)$stats['Approved'] ?>,
+  <?= (int)$stats['request'] ?>,
+  <?= (int)$stats['disapproved'] ?>
+];
+
+if (document.getElementById('writerStatusChart')) {
+  new Chart(document.getElementById('writerStatusChart'), {
+    type: 'pie',
+    data: {
+      labels: writerStatusLabels,
+      datasets: [{
+        data: writerStatusData,
+        backgroundColor: ['#198754', '#ffc107', '#6c757d'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        datalabels: {
+          color: '#fff',
+          font: { weight: 'bold', size: 11 },
+          formatter: (value, ctx) => {
+            let sum = 0;
+            let dataArr = ctx.chart.data.datasets[0].data;
+            dataArr.map(data => { sum += Number(data); });
+            if (sum === 0 || value == 0) return '';
+            return (value * 100 / sum).toFixed(1) + "%";
+          }
+        }
+      }
+    }
+  });
+}
+</script>
 
 <?php include 'partials/footer.php'; ?>
