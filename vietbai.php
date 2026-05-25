@@ -92,9 +92,9 @@ include 'partials/header.php';
             </div>
 
             <div class="mb-4">
-              <label class="form-label">Hình ảnh bài viết</label>
+              <label class="form-label">Ảnh thumbnail bài viết</label>
               <input type="file" id="image_file" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif" />
-              <div class="text-muted mt-2" style="font-size:12px;">Chọn ảnh từ máy tính. Hỗ trợ JPG, PNG, WEBP, GIF và tối đa 3MB.</div>
+              <div class="text-muted mt-2" style="font-size:12px;">Ảnh này dùng làm thumbnail ở trang chủ và ảnh đại diện đầu bài. Hỗ trợ JPG, PNG, WEBP, GIF và tối đa 3MB.</div>
               <div id="imagePreviewWrap" class="mt-3" style="<?= empty($article['image_url']) ? 'display:none;' : '' ?>">
                 <img id="imagePreview" src="<?= htmlspecialchars($article['image_url'] ?? '') ?>" alt="Ảnh bài viết" style="width:100%;max-height:280px;object-fit:cover;border:1px solid var(--border);border-radius:6px;">
               </div>
@@ -108,6 +108,24 @@ include 'partials/header.php';
             <div class="mb-4">
               <label class="form-label">Nội dung chi tiết bài viết <span class="text-danger">*</span></label>
               <textarea id="content" class="form-control" rows="10" placeholder="Nhập nội dung bài viết đầy đủ tại đây..." required><?= htmlspecialchars($article['content']) ?></textarea>
+              <div class="content-image-tool mt-3">
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-5">
+                    <label class="form-label mb-1">Ảnh trong nội dung</label>
+                    <input type="file" id="content_image_file" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif" />
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label mb-1">Chú thích ảnh</label>
+                    <input type="text" id="content_image_caption" class="form-control" placeholder="Nhập chú thích hiển thị dưới ảnh..." />
+                  </div>
+                  <div class="col-md-2 d-grid">
+                    <button type="button" class="btn btn-outline-secondary" onclick="insertContentImage()">
+                      <i class="bi bi-image me-1"></i> Chèn
+                    </button>
+                  </div>
+                </div>
+                <div class="text-muted mt-2" style="font-size:12px;">Đặt con trỏ tại đoạn muốn chèn ảnh, chọn ảnh và nhập chú thích.</div>
+              </div>
             </div>
 
             <div class="d-flex gap-3 justify-content-end pt-3 border-top flex-wrap">
@@ -146,6 +164,10 @@ async function uploadSelectedImage() {
   const file = input.files && input.files[0];
   if (!file) return null;
 
+  return uploadArticleImage(file);
+}
+
+async function uploadArticleImage(file) {
   const formData = new FormData();
   formData.append('image', file);
   const response = await fetch('api/upload_article_image.php', {
@@ -153,6 +175,47 @@ async function uploadSelectedImage() {
     body: formData
   });
   return response.json();
+}
+
+function escapeHtml(value) {
+  return value.replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }[char]));
+}
+
+async function insertContentImage() {
+  const input = document.getElementById('content_image_file');
+  const captionInput = document.getElementById('content_image_caption');
+  const content = document.getElementById('content');
+  const file = input.files && input.files[0];
+
+  if (!file) {
+    showAlert('danger', 'Vui lòng chọn ảnh cần chèn vào nội dung.');
+    return;
+  }
+
+  const uploaded = await uploadArticleImage(file);
+  if (!uploaded || !uploaded.success) {
+    showAlert('danger', uploaded?.message || 'Không thể tải ảnh lên.');
+    return;
+  }
+
+  const caption = captionInput.value.trim();
+  const captionHtml = caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : '';
+  const figureHtml = `\n\n<figure class="article-inline-image"><img src="${uploaded.url}" alt="${escapeHtml(caption || 'Ảnh bài viết')}" loading="lazy">${captionHtml}</figure>\n\n`;
+  const start = content.selectionStart;
+  const end = content.selectionEnd;
+
+  content.value = content.value.slice(0, start) + figureHtml + content.value.slice(end);
+  content.focus();
+  content.selectionStart = content.selectionEnd = start + figureHtml.length;
+  input.value = '';
+  captionInput.value = '';
+  showAlert('success', 'Đã chèn ảnh vào nội dung bài viết.');
 }
 
 async function handleFormSubmit(e) {

@@ -62,6 +62,10 @@ include 'partials/header.php';
               <span class="card-read-time" id="cardReadTime">~ 30 giây</span>
             </div>
 
+            <figure class="card-image-wrap d-none" id="cardImageWrap">
+              <img id="cardImage" class="card-image" src="" alt="" draggable="false">
+            </figure>
+
             <h2 class="card-headline" id="cardTitle">Đang tải tin tức...</h2>
             <p class="card-summary" id="cardSummary"></p>
 
