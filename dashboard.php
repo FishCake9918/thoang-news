@@ -112,6 +112,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: dashboard.php');
             exit;
         }
+        
+        if ($action === 'delete_comment') {
+            $comment_id = (int)($_POST['comment_id'] ?? 0);
+
+            if ($comment_id <= 0) {
+                throw new Exception('Bình luận không hợp lệ.');
+            }
+
+            $stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
+            $stmt->execute([$comment_id]);
+
+            header('Location: dashboard.php');
+            exit;
+        }
 
     } catch (Throwable $e) {
         $error = 'Lỗi xử lý: ' . $e->getMessage();
@@ -287,6 +301,58 @@ try {
     $top_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $top_articles = [];
+}
+
+// Hiệu suất Writer
+$writer_stats = [];
+try {
+    $stmt = $pdo->query("
+        SELECT u.username, u.full_name,
+               SUM(CASE WHEN a.status = 'Approved' THEN 1 ELSE 0 END) as approved_count,
+               SUM(CASE WHEN a.status = 'request' THEN 1 ELSE 0 END) as pending_count,
+               SUM(CASE WHEN a.status = 'disapproved' THEN 1 ELSE 0 END) as disapproved_count
+        FROM users u
+        JOIN articles a ON u.id = a.author_id
+        WHERE u.role IN ('writer', 'admin')
+        GROUP BY u.id, u.username, u.full_name
+        ORDER BY approved_count DESC
+    ");
+    $writer_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $writer_stats = [];
+}
+
+// Top 5 bài viết được lưu nhiều nhất
+$top_bookmarked = [];
+try {
+    $stmt = $pdo->query("
+        SELECT a.id, a.title, COUNT(b.id) as saves_count
+        FROM articles a
+        JOIN bookmarks b ON a.id = b.article_id
+        WHERE a.status = 'Approved'
+        GROUP BY a.id, a.title
+        ORDER BY saves_count DESC
+        LIMIT 5
+    ");
+    $top_bookmarked = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $top_bookmarked = [];
+}
+
+// 5 bình luận mới nhất
+$recent_comments = [];
+try {
+    $stmt = $pdo->query("
+        SELECT c.id, c.content, c.created_at, u.username, a.title, a.id as article_id
+        FROM comments c
+        JOIN users u ON c.user_id = u.id
+        JOIN articles a ON c.article_id = a.id
+        ORDER BY c.created_at DESC
+        LIMIT 5
+    ");
+    $recent_comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $recent_comments = [];
 }
 
 $status_labels = [
@@ -559,6 +625,48 @@ include 'partials/header.php';
             </div>
           <?php endif; ?>
         </div>
+        
+        <!-- BÌNH LUẬN MỚI NHẤT -->
+        <div class="card shadow-sm border-0 p-4 bg-white mt-4">
+          <span class="section-label">Bình luận mới nhất</span>
+          <div class="list-group list-group-flush mt-2">
+            <?php if (empty($recent_comments)): ?>
+              <div class="text-center py-4" style="color:var(--muted);font-size:13px;">
+                Chưa có bình luận nào.
+              </div>
+            <?php else: ?>
+              <?php foreach ($recent_comments as $c): ?>
+                <div class="list-group-item px-0 py-3 border-bottom">
+                  <div class="d-flex justify-content-between mb-1">
+                    <strong style="font-size:13px; color:var(--navy);">
+                      <i class="bi bi-person-circle me-1"></i><?= htmlspecialchars($c['username']) ?>
+                    </strong>
+                    <div class="d-flex align-items-center gap-2">
+                      <span style="font-size:11px; color:var(--muted);">
+                        <?= date('d/m/Y H:i', strtotime($c['created_at'])) ?>
+                      </span>
+                      <form method="POST" class="d-inline m-0" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bình luận này?');">
+                        <input type="hidden" name="action" value="delete_comment">
+                        <input type="hidden" name="comment_id" value="<?= (int)$c['id'] ?>">
+                        <button type="submit" class="btn btn-sm text-danger p-0 border-0 bg-transparent" title="Xóa bình luận">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  <div style="font-size:13px; color:#444; margin-bottom:6px;">
+                    "<?= nl2br(htmlspecialchars($c['content'])) ?>"
+                  </div>
+                  <div style="font-size:12px; color:var(--muted);">
+                    Trong bài: <a href="article.php?id=<?= (int)$c['article_id'] ?>#comments" target="_blank" style="text-decoration:none; color:var(--red);">
+                      <?= htmlspecialchars($c['title']) ?>
+                    </a>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </div>
+        </div>
 
       </div>
 
@@ -783,6 +891,86 @@ include 'partials/header.php';
                         <div style="font-weight:700;color:#d9534f;font-size:13px;" title="<?= number_format((int)$ta['view_count']) ?> lượt xem">
                           <?= number_format((int)$ta['view_count']) ?>
                           <i class="bi bi-eye ms-1" style="font-size:10px;color:var(--muted);"></i>
+                        </div>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- THỐNG KÊ CHI TIẾT 2 -->
+        <div class="row">
+          <!-- Hiệu suất tác giả -->
+          <div class="col-md-6 mt-4">
+            <div class="card shadow-sm border-0 p-4 bg-white h-100">
+              <span class="section-label">Hiệu suất tác giả</span>
+
+              <div class="table-responsive mt-2">
+                <table class="table table-borderless align-middle" style="font-size:13px;">
+                  <thead class="table-light" style="border-bottom:2px solid var(--border)">
+                    <tr>
+                      <th>Tác giả</th>
+                      <th class="text-center" title="Đã duyệt"><i class="bi bi-check-circle text-success"></i></th>
+                      <th class="text-center" title="Chờ duyệt"><i class="bi bi-clock text-warning"></i></th>
+                      <th class="text-center" title="Không duyệt"><i class="bi bi-x-circle text-secondary"></i></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <?php if (empty($writer_stats)): ?>
+                      <tr>
+                        <td colspan="4" class="text-center text-muted py-3">
+                          Chưa có dữ liệu.
+                        </td>
+                      </tr>
+                    <?php else: ?>
+                      <?php foreach ($writer_stats as $w): ?>
+                        <tr style="border-bottom:1px solid var(--border)">
+                          <td>
+                            <strong><?= htmlspecialchars($w['full_name'] ?: $w['username']) ?></strong>
+                          </td>
+                          <td class="text-center fw-bold text-success"><?= (int)$w['approved_count'] ?></td>
+                          <td class="text-center fw-bold text-warning"><?= (int)$w['pending_count'] ?></td>
+                          <td class="text-center fw-bold text-secondary"><?= (int)$w['disapproved_count'] ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top lưu nhiều -->
+          <div class="col-md-6 mt-4">
+            <div class="card shadow-sm border-0 p-4 bg-white h-100">
+              <span class="section-label">Top 5 bài được lưu</span>
+
+              <div class="list-group list-group-flush mt-2">
+                <?php if (empty($top_bookmarked)): ?>
+                  <div class="text-center text-muted py-3" style="font-size:13px;">
+                    Chưa có bài viết nào được lưu.
+                  </div>
+                <?php else: ?>
+                  <?php foreach ($top_bookmarked as $idx => $tb): ?>
+                    <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+                      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--border);min-width:22px;text-align:center;">
+                        <?= $idx + 1 ?>
+                      </div>
+
+                      <div class="flex-grow-1 text-truncate">
+                        <a href="article.php?id=<?= (int)$tb['id'] ?>" target="_blank" style="font-weight:600;font-size:13px;color:var(--navy);text-decoration:none;" title="<?= htmlspecialchars($tb['title']) ?>">
+                          <?= htmlspecialchars($tb['title']) ?>
+                        </a>
+                      </div>
+
+                      <div class="text-end" style="min-width:55px;">
+                        <div style="font-weight:700;color:#f0ad4e;font-size:13px;" title="<?= number_format((int)$tb['saves_count']) ?> lượt lưu">
+                          <?= number_format((int)$tb['saves_count']) ?>
+                          <i class="bi bi-bookmark-heart ms-1" style="font-size:10px;color:var(--muted);"></i>
                         </div>
                       </div>
                     </div>
