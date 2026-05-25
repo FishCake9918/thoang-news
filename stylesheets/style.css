@@ -491,3 +491,26 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     border-color: var(--text); 
     color: var(--navy); 
 }
+
+/* ==========================================================================
+   HIỆU ỨNG NHẤP NHÁY (BLINK) CHO MENU "NÓNG"
+   ========================================================================== */
+@keyframes blink-fire {
+  0% { opacity: 1; transform: scale(1); color: #ff3b30; }
+  50% { opacity: 0.6; transform: scale(1.15); color: #ff9800; }
+  100% { opacity: 1; transform: scale(1); color: #ff3b30; }
+}
+
+.blink-icon {
+  animation: blink-fire 1.5s infinite ease-in-out;
+  display: inline-block;
+  margin-left: 2px;
+}
+
+.nav-link.nav-hot {
+  color: #ff3b30 !important;
+}
+
+.nav-link.nav-hot:hover, .nav-link.nav-hot.active {
+  border-bottom-color: #ff3b30 !important;
+}

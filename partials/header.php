@@ -6,6 +6,7 @@ $is_admin  = isAdmin();
 $cur_user  = getCurrentUser();
 $current_page = basename($_SERVER['PHP_SELF'] ?? '');
 $nav_items = [
+    'hot'   => ['label' => 'Nóng <i class="bi bi-fire blink-icon"></i>', 'href' => 'index.php?category=hot', 'cat' => 'hot'],
     'all'   => ['label' => 'Tất cả',    'href' => 'index.php?category=all',   'cat' => 'all'],
     'world' => ['label' => 'Thế giới',  'href' => 'index.php?category=world', 'cat' => 'world'],
     'biz'   => ['label' => 'Kinh tế',   'href' => 'index.php?category=biz',   'cat' => 'biz'],
@@ -115,7 +116,7 @@ $nav_items = [
     <ul class="nav">
       <?php foreach ($nav_items as $key => $item): ?>
         <li class="nav-item">
-          <a class="nav-link <?= $active_nav === $key ? 'active' : '' ?>"
+          <a class="nav-link <?= $active_nav === $key ? 'active' : '' ?> <?= $key === 'hot' ? 'nav-hot' : '' ?>"
              href="<?= $item['href'] ?>"
              data-cat="<?= htmlspecialchars($item['cat'] ?? $key) ?>">
             <?= $item['label'] ?>
