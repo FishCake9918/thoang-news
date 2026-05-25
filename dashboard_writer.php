@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 session_start();
 
@@ -457,3 +458,6 @@ if (document.getElementById('writerStatusChart')) {
 </script>
 
 <?php include 'partials/footer.php'; ?>
+=======
+w
+>>>>>>> dda34cb9a5235058463cb77a0febaafdee2ffa71

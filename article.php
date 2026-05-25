@@ -42,6 +42,42 @@ try {
     }
 
     if ($article['status'] === 'Approved') {
+        // Xử lý xoá bình luận
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_comment') {
+            if (!isLoggedIn()) {
+                header('Location: login.php');
+                exit;
+            }
+
+            $comment_id = (int)($_POST['comment_id'] ?? 0);
+
+            if ($comment_id > 0) {
+                // Admin được xoá mọi bình luận.
+                // Người dùng thường chỉ được xoá bình luận của chính mình.
+                if (($_SESSION['role'] ?? '') === 'admin') {
+                    $deleteStmt = $pdo->prepare("
+                        DELETE FROM comments
+                        WHERE id = ? AND article_id = ?
+                    ");
+                    $deleteStmt->execute([$comment_id, $id]);
+                } else {
+                    $deleteStmt = $pdo->prepare("
+                        DELETE FROM comments
+                        WHERE id = ? AND article_id = ? AND user_id = ?
+                    ");
+                    $deleteStmt->execute([
+                        $comment_id,
+                        $id,
+                        (int)($_SESSION['user_id'] ?? 0)
+                    ]);
+                }
+            }
+
+            header('Location: article.php?id=' . $id . '#comments');
+            exit;
+        }
+
+        // Xử lý thêm bình luận
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_comment') {
             if (!isLoggedIn()) {
                 header('Location: login.php');
@@ -94,6 +130,26 @@ $page_title = htmlspecialchars($article['title']) . ' — Thoáng.vn';
 
 include 'partials/header.php';
 ?>
+
+<style>
+  .delete-comment-form {
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  .btn-delete-comment {
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .btn-delete-comment:hover {
+    text-decoration: underline;
+  }
+</style>
 
 <div class="article-body">
   <div class="container">
@@ -190,6 +246,21 @@ include 'partials/header.php';
                         <div class="comment-meta">
                           <strong><?= htmlspecialchars($commentName) ?></strong>
                           <span><?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></span>
+
+                          <?php
+                            $canDeleteComment = isLoggedIn() && (
+                                ($_SESSION['role'] ?? '') === 'admin' ||
+                                (int)($comment['user_id'] ?? 0) === (int)($_SESSION['user_id'] ?? 0)
+                            );
+                          ?>
+
+                          <?php if ($canDeleteComment): ?>
+                            <form method="POST" class="delete-comment-form" onsubmit="return confirm('Bạn có chắc muốn xoá bình luận này không?');">
+                              <input type="hidden" name="action" value="delete_comment">
+                              <input type="hidden" name="comment_id" value="<?= (int)$comment['id'] ?>">
+                              <button type="submit" class="btn-delete-comment">Xoá</button>
+                            </form>
+                          <?php endif; ?>
                         </div>
                         <div class="comment-content">
                           <?= nl2br(htmlspecialchars($comment['content'])) ?>
