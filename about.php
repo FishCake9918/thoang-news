@@ -322,9 +322,11 @@ foreach ($defaults as $key => $def) {
               <a href="<?= htmlspecialchars($sections['cta']['btn1_url']) ?>" class="btn-cta-gold" id="cta-btn1">
                 <i class="bi bi-play-fill me-1"></i><?= htmlspecialchars($sections['cta']['btn1_text']) ?>
               </a>
-              <button class="btn-cta-outline" id="cta-btn2" onclick="openContactModal()">
-                <i class="bi bi-envelope me-1"></i><?= htmlspecialchars($sections['cta']['btn2_text']) ?>
-              </button>
+              <?php if (!$is_admin): ?>
+                <button class="btn-cta-outline" id="cta-btn2" onclick="openContactModal()">
+                  <i class="bi bi-envelope me-1"></i><?= htmlspecialchars($sections['cta']['btn2_text']) ?>
+                </button>
+              <?php endif; ?>
             </div>
           </div>
         </div>

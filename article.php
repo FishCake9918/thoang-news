@@ -7,7 +7,62 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $comment_error = '';
 $comments = [];
 
+function is_ajax_request(): bool {
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+function comment_display_name(array $comment): string {
+    return trim($comment['full_name'] ?? '') ?: ($comment['username'] ?? 'Người dùng');
+}
+
+function render_comment_item(array $comment): string {
+    $commentName = comment_display_name($comment);
+    $commentInitial = function_exists('mb_substr')
+        ? mb_substr($commentName, 0, 1, 'UTF-8')
+        : substr($commentName, 0, 1);
+
+    $canDeleteComment = isLoggedIn() && (
+        ($_SESSION['role'] ?? '') === 'admin' ||
+        (int)($comment['user_id'] ?? 0) === (int)($_SESSION['user_id'] ?? 0)
+    );
+
+    ob_start();
+    ?>
+    <article class="comment-item" id="comment-<?= (int)$comment['id'] ?>">
+      <div class="comment-avatar"><?= htmlspecialchars(strtoupper($commentInitial)) ?></div>
+      <div class="comment-main">
+        <div class="comment-meta">
+          <strong><?= htmlspecialchars($commentName) ?></strong>
+          <span><?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></span>
+
+          <?php if ($canDeleteComment): ?>
+            <form method="POST" class="delete-comment-form" style="display:inline;">
+              <input type="hidden" name="action" value="delete_comment">
+              <input type="hidden" name="comment_id" value="<?= (int)$comment['id'] ?>">
+              <button type="submit" class="btn-delete-comment">Xoá</button>
+            </form>
+          <?php endif; ?>
+        </div>
+        <div class="comment-content">
+          <?= nl2br(htmlspecialchars($comment['content'])) ?>
+        </div>
+      </div>
+    </article>
+    <?php
+    return trim(ob_get_clean());
+}
+
+function send_json(array $data, int $status = 200): void {
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if ($id <= 0) {
+    if (is_ajax_request()) {
+        send_json(['success' => false, 'message' => 'Bài viết không hợp lệ.'], 400);
+    }
     header('Location: index.php');
     exit;
 }
@@ -24,6 +79,9 @@ try {
     $article = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$article) {
+        if (is_ajax_request()) {
+            send_json(['success' => false, 'message' => 'Không tìm thấy bài viết.'], 404);
+        }
         header('Location: index.php');
         exit;
     }
@@ -37,64 +95,112 @@ try {
     );
 
     if ($article['status'] !== 'Approved' && !$canPreview) {
+        if (is_ajax_request()) {
+            send_json(['success' => false, 'message' => 'Bạn không có quyền xem bài viết này.'], 403);
+        }
         header('Location: index.php');
         exit;
     }
 
     if ($article['status'] === 'Approved') {
-        // Xử lý xoá bình luận
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_comment') {
-            if (!isLoggedIn()) {
-                header('Location: login.php');
-                exit;
-            }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
 
-            $comment_id = (int)($_POST['comment_id'] ?? 0);
+            if ($action === 'add_comment') {
+                if (!isLoggedIn()) {
+                    if (is_ajax_request()) {
+                        send_json(['success' => false, 'message' => 'Bạn cần đăng nhập để bình luận.'], 401);
+                    }
+                    header('Location: login.php');
+                    exit;
+                }
 
-            if ($comment_id > 0) {
-                // Admin được xoá mọi bình luận.
-                // Người dùng thường chỉ được xoá bình luận của chính mình.
-                if (($_SESSION['role'] ?? '') === 'admin') {
-                    $deleteStmt = $pdo->prepare("
-                        DELETE FROM comments
-                        WHERE id = ? AND article_id = ?
-                    ");
-                    $deleteStmt->execute([$comment_id, $id]);
+                $comment_content = trim($_POST['comment_content'] ?? '');
+
+                if ($comment_content === '') {
+                    $comment_error = 'Vui lòng nhập nội dung bình luận.';
+                    if (is_ajax_request()) {
+                        send_json(['success' => false, 'message' => $comment_error], 422);
+                    }
+                } elseif (strlen($comment_content) > 1000) {
+                    $comment_error = 'Bình luận không được vượt quá 1000 ký tự.';
+                    if (is_ajax_request()) {
+                        send_json(['success' => false, 'message' => $comment_error], 422);
+                    }
                 } else {
-                    $deleteStmt = $pdo->prepare("
-                        DELETE FROM comments
-                        WHERE id = ? AND article_id = ? AND user_id = ?
+                    $commentStmt = $pdo->prepare("
+                        INSERT INTO comments (article_id, user_id, content, created_at)
+                        VALUES (?, ?, ?, NOW())
                     ");
-                    $deleteStmt->execute([
-                        $comment_id,
-                        $id,
-                        (int)($_SESSION['user_id'] ?? 0)
-                    ]);
+                    $commentStmt->execute([$id, (int)$_SESSION['user_id'], $comment_content]);
+                    $newCommentId = (int)$pdo->lastInsertId();
+
+                    $newCommentStmt = $pdo->prepare("
+                        SELECT c.*, u.username, u.full_name
+                        FROM comments c
+                        INNER JOIN users u ON c.user_id = u.id
+                        WHERE c.id = ? AND c.article_id = ?
+                        LIMIT 1
+                    ");
+                    $newCommentStmt->execute([$newCommentId, $id]);
+                    $newComment = $newCommentStmt->fetch(PDO::FETCH_ASSOC);
+
+                    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM comments WHERE article_id = ?");
+                    $countStmt->execute([$id]);
+                    $commentCount = (int)$countStmt->fetchColumn();
+
+                    if (is_ajax_request()) {
+                        send_json([
+                            'success' => true,
+                            'message' => 'Đã gửi bình luận.',
+                            'html' => $newComment ? render_comment_item($newComment) : '',
+                            'count' => $commentCount
+                        ]);
+                    }
+
+                    header('Location: article.php?id=' . $id . '#comments');
+                    exit;
                 }
             }
 
-            header('Location: article.php?id=' . $id . '#comments');
-            exit;
-        }
+            if ($action === 'delete_comment') {
+                if (!isLoggedIn()) {
+                    if (is_ajax_request()) {
+                        send_json(['success' => false, 'message' => 'Bạn cần đăng nhập để xoá bình luận.'], 401);
+                    }
+                    header('Location: login.php');
+                    exit;
+                }
 
-        // Xử lý thêm bình luận
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_comment') {
-            if (!isLoggedIn()) {
-                header('Location: login.php');
-                exit;
-            }
+                $comment_id = (int)($_POST['comment_id'] ?? 0);
+                if ($comment_id <= 0) {
+                    if (is_ajax_request()) {
+                        send_json(['success' => false, 'message' => 'Bình luận không hợp lệ.'], 400);
+                    }
+                    header('Location: article.php?id=' . $id . '#comments');
+                    exit;
+                }
 
-            $comment_content = trim($_POST['comment_content'] ?? '');
-            if ($comment_content === '') {
-                $comment_error = 'Vui lòng nhập nội dung bình luận.';
-            } elseif (strlen($comment_content) > 1000) {
-                $comment_error = 'Bình luận không được vượt quá 1000 ký tự.';
-            } else {
-                $commentStmt = $pdo->prepare("
-                    INSERT INTO comments (article_id, user_id, content, created_at)
-                    VALUES (?, ?, ?, NOW())
-                ");
-                $commentStmt->execute([$id, (int)$_SESSION['user_id'], $comment_content]);
+                if (($_SESSION['role'] ?? '') === 'admin') {
+                    $deleteStmt = $pdo->prepare("DELETE FROM comments WHERE id = ? AND article_id = ?");
+                    $deleteStmt->execute([$comment_id, $id]);
+                } else {
+                    $deleteStmt = $pdo->prepare("DELETE FROM comments WHERE id = ? AND article_id = ? AND user_id = ?");
+                    $deleteStmt->execute([$comment_id, $id, (int)$_SESSION['user_id']]);
+                }
+
+                $countStmt = $pdo->prepare("SELECT COUNT(*) FROM comments WHERE article_id = ?");
+                $countStmt->execute([$id]);
+                $commentCount = (int)$countStmt->fetchColumn();
+
+                if (is_ajax_request()) {
+                    send_json([
+                        'success' => true,
+                        'message' => 'Đã xoá bình luận.',
+                        'comment_id' => $comment_id,
+                        'count' => $commentCount
+                    ]);
+                }
 
                 header('Location: article.php?id=' . $id . '#comments');
                 exit;
@@ -122,35 +228,22 @@ try {
     }
 
 } catch (PDOException $e) {
+    if (is_ajax_request()) {
+        send_json(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
+    }
     die("Lỗi kết nối hoặc xử lý dữ liệu hệ thống: " . $e->getMessage());
 }
 
 $published_time = !empty($article['published_at']) ? $article['published_at'] : $article['created_at'];
 $page_title = htmlspecialchars($article['title']) . ' — Thoáng.vn';
 
+$back_url = 'index.php';
+if (($_GET['from'] ?? '') === 'dashboard') {
+    $back_url = 'dashboard.php';
+}
+
 include 'partials/header.php';
 ?>
-
-<style>
-  .delete-comment-form {
-    display: inline-block;
-    margin-left: 10px;
-  }
-
-  .btn-delete-comment {
-    border: none;
-    background: transparent;
-    color: #dc2626;
-    font-size: 13px;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .btn-delete-comment:hover {
-    text-decoration: underline;
-  }
-</style>
-
 <div class="article-body">
   <div class="container">
     <div class="row justify-content-center">
@@ -207,20 +300,18 @@ include 'partials/header.php';
               <div class="comments-head">
                 <div>
                   <div class="comments-eyebrow">Bình luận</div>
-                  <h2><?= count($comments) ?> bình luận</h2>
+                  <h2><span id="comment-count"><?= count($comments) ?></span> bình luận</h2>
                 </div>
               </div>
 
               <?php if (isLoggedIn()): ?>
-                <form method="POST" class="comment-form">
+                <form method="POST" class="comment-form" id="comment-form">
                   <input type="hidden" name="action" value="add_comment">
-                  <?php if ($comment_error !== ''): ?>
-                    <div class="comment-error"><?= htmlspecialchars($comment_error) ?></div>
-                  <?php endif; ?>
+                  <div class="comment-error" id="comment-error" style="<?= $comment_error !== '' ? '' : 'display:none;' ?>"><?= htmlspecialchars($comment_error) ?></div>
                   <textarea name="comment_content" rows="4" maxlength="1000" placeholder="Viết bình luận của bạn..." required><?= htmlspecialchars($_POST['comment_content'] ?? '') ?></textarea>
                   <div class="comment-form-actions">
                     <span>Đăng với tên <?= htmlspecialchars(($_SESSION['full_name'] ?? '') ?: ($_SESSION['username'] ?? 'người dùng')) ?></span>
-                    <button type="submit">Gửi bình luận</button>
+                    <button type="submit" id="comment-submit-btn">Gửi bình luận</button>
                   </div>
                 </form>
               <?php else: ?>
@@ -229,44 +320,12 @@ include 'partials/header.php';
                 </div>
               <?php endif; ?>
 
-              <div class="comment-list">
+              <div class="comment-list" id="comment-list">
                 <?php if (empty($comments)): ?>
-                  <div class="comment-empty">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến.</div>
+                  <div class="comment-empty" id="comment-empty">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến.</div>
                 <?php else: ?>
                   <?php foreach ($comments as $comment): ?>
-                    <?php
-                      $commentName = trim($comment['full_name'] ?? '') ?: ($comment['username'] ?? 'Người dùng');
-                      $commentInitial = function_exists('mb_substr')
-                          ? mb_substr($commentName, 0, 1, 'UTF-8')
-                          : substr($commentName, 0, 1);
-                    ?>
-                    <article class="comment-item">
-                      <div class="comment-avatar"><?= htmlspecialchars(strtoupper($commentInitial)) ?></div>
-                      <div class="comment-main">
-                        <div class="comment-meta">
-                          <strong><?= htmlspecialchars($commentName) ?></strong>
-                          <span><?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></span>
-
-                          <?php
-                            $canDeleteComment = isLoggedIn() && (
-                                ($_SESSION['role'] ?? '') === 'admin' ||
-                                (int)($comment['user_id'] ?? 0) === (int)($_SESSION['user_id'] ?? 0)
-                            );
-                          ?>
-
-                          <?php if ($canDeleteComment): ?>
-                            <form method="POST" class="delete-comment-form" onsubmit="return confirm('Bạn có chắc muốn xoá bình luận này không?');">
-                              <input type="hidden" name="action" value="delete_comment">
-                              <input type="hidden" name="comment_id" value="<?= (int)$comment['id'] ?>">
-                              <button type="submit" class="btn-delete-comment">Xoá</button>
-                            </form>
-                          <?php endif; ?>
-                        </div>
-                        <div class="comment-content">
-                          <?= nl2br(htmlspecialchars($comment['content'])) ?>
-                        </div>
-                      </div>
-                    </article>
+                    <?= render_comment_item($comment) ?>
                   <?php endforeach; ?>
                 <?php endif; ?>
               </div>
@@ -274,7 +333,7 @@ include 'partials/header.php';
           <?php endif; ?>
           
           <div class="border-top mt-5">
-            <a href="javascript:history.back()" class="btn-back">
+            <a href="<?= htmlspecialchars($back_url) ?>" class="btn-back">
               <i class="bi bi-arrow-left"></i> Quay lại trang trước
             </a>
           </div>
@@ -283,5 +342,171 @@ include 'partials/header.php';
     </div>
   </div>
 </div>
+
+<style>
+.btn-delete-comment {
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-delete-comment:hover {
+    text-decoration: underline;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const commentForm = document.getElementById('comment-form');
+  const commentList = document.getElementById('comment-list');
+  const commentCount = document.getElementById('comment-count');
+  const commentError = document.getElementById('comment-error');
+  const submitBtn = document.getElementById('comment-submit-btn');
+
+  function showError(message) {
+    if (!commentError) return;
+    commentError.textContent = message;
+    commentError.style.display = 'block';
+  }
+
+  function hideError() {
+    if (!commentError) return;
+    commentError.textContent = '';
+    commentError.style.display = 'none';
+  }
+
+  function updateEmptyState() {
+    if (!commentList) return;
+    const hasComment = commentList.querySelector('.comment-item');
+    let emptyBox = document.getElementById('comment-empty');
+
+    if (hasComment && emptyBox) {
+      emptyBox.remove();
+    }
+
+    if (!hasComment && !emptyBox) {
+      commentList.innerHTML = '<div class="comment-empty" id="comment-empty">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến.</div>';
+    }
+  }
+
+  if (commentForm) {
+    commentForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      hideError();
+
+      const formData = new FormData(commentForm);
+      const textarea = commentForm.querySelector('textarea[name="comment_content"]');
+      const content = textarea ? textarea.value.trim() : '';
+
+      if (!content) {
+        showError('Vui lòng nhập nội dung bình luận.');
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang gửi...';
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          showError(data.message || 'Không thể gửi bình luận.');
+          return;
+        }
+
+        const emptyBox = document.getElementById('comment-empty');
+        if (emptyBox) emptyBox.remove();
+
+        if (data.html && commentList) {
+          commentList.insertAdjacentHTML('afterbegin', data.html);
+        }
+
+        if (commentCount && typeof data.count !== 'undefined') {
+          commentCount.textContent = data.count;
+        }
+
+        commentForm.reset();
+        updateEmptyState();
+      } catch (error) {
+        showError('Có lỗi xảy ra, vui lòng thử lại.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Gửi bình luận';
+        }
+      }
+    });
+  }
+
+  if (commentList) {
+    commentList.addEventListener('submit', async function (e) {
+      const deleteForm = e.target.closest('.delete-comment-form');
+      if (!deleteForm) return;
+
+      e.preventDefault();
+
+      if (!confirm('Bạn có chắc muốn xoá bình luận này không?')) {
+        return;
+      }
+
+      const formData = new FormData(deleteForm);
+      const commentItem = deleteForm.closest('.comment-item');
+      const deleteBtn = deleteForm.querySelector('button[type="submit"]');
+
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Đang xoá...';
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          alert(data.message || 'Không thể xoá bình luận.');
+          return;
+        }
+
+        if (commentItem) {
+          commentItem.remove();
+        }
+
+        if (commentCount && typeof data.count !== 'undefined') {
+          commentCount.textContent = data.count;
+        }
+
+        updateEmptyState();
+      } catch (error) {
+        alert('Có lỗi xảy ra, vui lòng thử lại.');
+      } finally {
+        if (deleteBtn) {
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Xoá';
+        }
+      }
+    });
+  }
+});
+</script>
 
 <?php include 'partials/footer.php'; ?>
