@@ -63,6 +63,24 @@ function renderCard() {
   document.getElementById('cardCat').style.color = style.color;
   document.getElementById('cardTitle').textContent = a.title;
   document.getElementById('cardSummary').textContent = a.summary;
+
+  const imageWrap = document.getElementById('cardImageWrap');
+  const image = document.getElementById('cardImage');
+  if (a.image_url) {
+    image.src = a.image_url;
+    image.alt = a.title || 'Ảnh bài viết';
+    imageWrap.classList.remove('d-none');
+    image.onerror = () => {
+      imageWrap.classList.add('d-none');
+      image.removeAttribute('src');
+    };
+  } else {
+    imageWrap.classList.add('d-none');
+    image.removeAttribute('src');
+    image.alt = '';
+    image.onerror = null;
+  }
+
   document.getElementById('cardSource').textContent = sourceName;
   document.getElementById('cardSourceInit').textContent = sourceName.charAt(0).toUpperCase();
   document.getElementById('cardTime').textContent = formatTimeAgo(a.published_at || a.created_at);
