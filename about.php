@@ -398,6 +398,22 @@ foreach ($defaults as $key => $def) {
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
+        <?php if (!isLoggedIn()): ?>
+          <div class="text-center py-3">
+            <i class="bi bi-lock" style="font-size:2rem;color:var(--navy);"></i>
+            <p style="font-size:13px;color:var(--muted);margin:14px 0 18px;">
+              Bạn cần đăng nhập hoặc đăng ký để gửi góp ý cho Thoáng.vn.
+            </p>
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+              <a href="login.php" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
+                <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+              </a>
+              <a href="register.php" class="auth-link register" style="text-decoration:none;">
+                <i class="bi bi-person-plus"></i> Đăng ký
+              </a>
+            </div>
+          </div>
+        <?php else: ?>
         <p style="font-size:13px;color:var(--muted);margin-bottom:20px">
           Ý kiến của bạn giúp Thoáng.vn phát triển tốt hơn. Chúng tôi sẽ phản hồi sớm nhất có thể.
         </p>
@@ -421,6 +437,7 @@ foreach ($defaults as $key => $def) {
         <button class="btn-save-section w-100" onclick="submitContact()">
           <i class="bi bi-send me-2"></i>Gửi góp ý
         </button>
+        <?php endif; ?>
       </div>
     </div>
   </div>

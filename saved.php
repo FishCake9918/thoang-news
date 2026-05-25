@@ -10,16 +10,40 @@ $session_id = session_id();
 $filter_cat = $_GET['cat'] ?? 'all';
 $search_kw  = trim($_GET['q'] ?? '');
 
+if (!isLoggedIn()) {
+    $page_css = 'stylesheets/style.css';
+    include 'partials/header.php';
+    ?>
+    <div class="page-body">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-7 col-xl-6">
+            <div class="empty-state" style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:36px 24px;">
+              <i class="bi bi-lock"></i>
+              <p>Bạn cần đăng nhập hoặc đăng ký để xem các bài viết đã lưu.</p>
+              <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
+                <a href="login.php" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
+                  <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                </a>
+                <a href="register.php" class="auth-link register" style="text-decoration:none;">
+                  <i class="bi bi-person-plus"></i> Đăng ký
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php
+    include 'partials/footer.php';
+    exit;
+}
+
 $where = ["a.status = 'Approved'"];
 $params = [];
 
-if (isLoggedIn()) {
-    $where[] = "b.user_id = ?";
-    $params[] = $_SESSION['user_id'];
-} else {
-    $where[] = "b.session_id = ? AND b.user_id IS NULL";
-    $params[] = $session_id;
-}
+$where[] = "b.user_id = ?";
+$params[] = $_SESSION['user_id'];
 
 if ($filter_cat !== 'all' && $filter_cat !== '') {
     $where[] = "c.slug = ?";
