@@ -27,6 +27,21 @@ try {
     $top_articles = [];
 }
 
+$latest_articles = [];
+
+try {
+  $stmt = $pdo->query("
+  SELECT id, title, created_at, published_at
+  FROM articles
+  WHERE status = 'Approved'
+  ORDER BY published_at DESC, created_at DESC
+  LIMIT 5
+");
+    $latest_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $latest_articles = [];
+}
+
 include 'partials/header.php';
 ?>
 
@@ -110,6 +125,43 @@ include 'partials/header.php';
 
       <div class="col-lg-5 col-xl-4">
         <div class="sidebar">
+
+          <!-- BÀI VIẾT MỚI NHẤT -->
+          <div class="sidebar-block">
+            <div class="sidebar-heading">Mới cập nhật</div>
+
+            <div id="latestList">
+              <?php if (empty($latest_articles)): ?>
+                <div class="text-muted" style="font-size:13px;">Chưa có bài viết mới.</div>
+              <?php else: ?>
+                <?php foreach ($latest_articles as $latest): ?>
+                  <?php 
+                    $pub_time = strtotime($latest['published_at'] ?: $latest['created_at']);
+                    $diff = $pub_time ? time() - $pub_time : 0;
+                    if ($diff < 3600) {
+                        $relative_time = max(1, floor($diff / 60)) . ' phút trước';
+                    } elseif ($diff < 86400) {
+                        $relative_time = floor($diff / 3600) . ' giờ trước';
+                    } else {
+                        $relative_time = floor($diff / 86400) . ' ngày trước';
+                    }
+                  ?>
+                  <div class="most-read-item" style="gap:8px;">
+                    <i class="bi bi-clock text-muted mt-1" style="font-size:13px;"></i>
+                    <div class="mr-title">
+                      <a href="article.php?id=<?= (int)$latest['id'] ?>" style="font-weight: 500;">
+                        <?= htmlspecialchars($latest['title']) ?>
+                      </a>
+                      <div class="text-muted mt-1" style="font-size:11px;">
+                        <?= htmlspecialchars($relative_time) ?>
+                      </div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+
           <div class="sidebar-block">
             <div class="sidebar-heading">Đọc nhiều nhất</div>
 
