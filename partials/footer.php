@@ -1,7 +1,5 @@
 <?php
-// ============================================================
-// partials/footer.php — Footer dùng chung cho toàn bộ trang
-// ============================================================
+// partials/footer.php
 ?>
 <footer class="site-footer">
   <div class="container">
@@ -16,6 +14,21 @@
     <div class="footer-copy">© 2026 Thoáng.vn — Dự án môn Lập trình Web · UEH</div>
   </div>
 </footer>
+
+<div id="floatingAd" class="floating-ad">
+  <div class="floating-ad-head">
+    <span>Quảng cáo</span>
+    <div class="floating-ad-actions">
+      <button id="minimizeAd" type="button">−</button>
+      <button id="closeAd" type="button">×</button>
+    </div>
+  </div>
+
+  <div class="floating-ad-body">
+    <img id="adImage" src="images/ad1.jpg" alt="Quảng cáo bóng đá">
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

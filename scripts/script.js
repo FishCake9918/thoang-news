@@ -370,3 +370,60 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, 50);
 });
+/* =================================
+   FLOATING FOOTBALL ADS
+================================= */
+
+const adImages = [
+  "images/ad1.jpg",
+  "images/ad2.jpg",
+  "images/ad3.jpg",
+  "images/ad4.jpg",
+  "images/ad5.jpg",
+  "images/ad6.jpg"
+];
+
+document.addEventListener("DOMContentLoaded", function () {
+  const ad = document.getElementById("floatingAd");
+  const adImage = document.getElementById("adImage");
+  const minimizeBtn = document.getElementById("minimizeAd");
+  const closeBtn = document.getElementById("closeAd");
+
+  if (!ad) return;
+
+  let adIndex = 0;
+
+  if (adImage) {
+    setInterval(() => {
+      adImage.style.opacity = "0";
+
+      setTimeout(() => {
+        adIndex = (adIndex + 1) % adImages.length;
+        adImage.src = adImages[adIndex];
+        adImage.style.opacity = "1";
+      }, 350);
+    }, 15000);
+  }
+
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener("click", () => {
+      ad.classList.add("minimized");
+      minimizeBtn.textContent = "+";
+
+      setTimeout(() => {
+        ad.classList.remove("minimized");
+        minimizeBtn.textContent = "−";
+      }, 8000);
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      ad.style.display = "none";
+
+      setTimeout(() => {
+        ad.style.display = "block";
+      }, 10000);
+    });
+  }
+});

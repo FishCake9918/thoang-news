@@ -390,22 +390,6 @@ include 'partials/header.php';
     </div>
   </div>
 </div>
-
-<style>
-.btn-delete-comment {
-    border: none;
-    background: transparent;
-    color: #dc2626;
-    font-size: 13px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.btn-delete-comment:hover {
-    text-decoration: underline;
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const commentForm = document.getElementById('comment-form');
