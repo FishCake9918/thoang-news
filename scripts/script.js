@@ -390,10 +390,17 @@ const adImages = [
 document.addEventListener("DOMContentLoaded", function () {
   const ad = document.getElementById("floatingAd");
   const adImage = document.getElementById("adImage");
+  const minimizeBtn = document.getElementById("minimizeAd");
+  const closeBtn = document.getElementById("closeAd");
  
- 
+  
   if (!ad) return;
 
+  ad.style.display = "none";
+
+  setTimeout(() => {
+    ad.style.display = "block";
+  }, 5000);
   let adIndex = 0;
 
   if (adImage) {
@@ -409,64 +416,27 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-document.addEventListener("click", function (e) {
-  const ad = document.getElementById("floatingAd");
-  if (!ad) return;
+let floatingAdMinimizeTimer = null;
 
-  if (e.target.id === "minimizeAd") {
-    ad.classList.add("minimized");
-    e.target.textContent = "+";
-
-    setTimeout(() => {
-      ad.classList.remove("minimized");
-      e.target.textContent = "−";
-    }, 8000);
-  }
-
-  if (e.target.id === "closeAd") {
-    ad.style.display = "none";
-
-    setTimeout(() => {
-      ad.style.display = "block";
-    }, 10000);
-  }
-});
-
-function minimizeFloatingAd() {
-  const ad = document.getElementById("floatingAd");
-  const btn = document.getElementById("minimizeAd");
-  if (!ad || !btn) return;
-
-  ad.classList.add("minimized");
-  btn.textContent = "+";
-
-  setTimeout(() => {
-    ad.classList.remove("minimized");
-    btn.textContent = "−";
-  }, 8000);
-}
-
-function closeFloatingAd() {
-  const ad = document.getElementById("floatingAd");
-  if (!ad) return;
-
-  ad.style.display = "none";
-
-  setTimeout(() => {
-    ad.style.display = "block";
-  }, 10000);
-  
-}
 window.minimizeFloatingAd = function () {
   const ad = document.getElementById("floatingAd");
   const btn = document.getElementById("minimizeAd");
 
   if (!ad || !btn) return;
 
+  clearTimeout(floatingAdMinimizeTimer);
+
+  if (ad.classList.contains("minimized")) {
+    ad.classList.remove("minimized");
+    btn.textContent = "−";
+    return;
+  
+  }
+  
   ad.classList.add("minimized");
   btn.textContent = "+";
 
-  setTimeout(() => {
+  floatingAdMinimizeTimer = setTimeout(() => {
     ad.classList.remove("minimized");
     btn.textContent = "−";
   }, 8000);

@@ -701,3 +701,6 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     position: relative;
     z-index: 2147483647 !important;
   }
+  #floatingAd {
+    display: none;
+  }
