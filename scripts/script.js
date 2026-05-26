@@ -91,7 +91,7 @@ function renderCard() {
   const cur = currentIdx + 1;
   const total = allNews.length;
   document.getElementById('progressLabel').textContent = `${cur} / ${total}`;
-  document.getElementById('progressBar').style.width = `${Math.round((cur / total) * 100)}%`;
+  startHomeReadingTimer();
 
   document.getElementById('back1').style.display = total - currentIdx > 1 ? '' : 'none';
   document.getElementById('back2').style.display = total - currentIdx > 2 ? '' : 'none';
@@ -286,4 +286,87 @@ document.addEventListener('DOMContentLoaded', () => {
     activeLink.classList.add('active');
   }
   loadNews(initialCat);
+});
+
+/* =========================
+   HOME + ARTICLE READING TIMER 30S
+========================= */
+
+let homeReadingTimer = null;
+
+function startHomeReadingTimer() {
+  const bar = document.getElementById('progressBar');
+  const card = document.getElementById('frontCard');
+
+  if (!bar || !card) return;
+
+  clearInterval(homeReadingTimer);
+
+  const duration = 30;
+  const startTime = Date.now();
+
+  bar.style.width = '0%';
+
+  homeReadingTimer = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    bar.style.width = percent + '%';
+
+    if (elapsed >= duration) {
+      clearInterval(homeReadingTimer);
+
+      card.classList.add('auto-next-out');
+
+      setTimeout(() => {
+        card.classList.remove('auto-next-out');
+        skipCard('left');
+      }, 650);
+    }
+  }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const progress = document.getElementById("articleReadingProgress");
+  if (!progress) return;
+
+  const countdownText = document.getElementById("readingCountdown");
+  const nextArticle = document.getElementById("nextArticleAuto");
+  const articleCard = document.querySelector(".article-card");
+
+  const duration = 30;
+  const startTime = Date.now();
+
+  progress.style.width = "0%";
+
+  const articleTimer = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    progress.style.width = percent + "%";
+
+    if (countdownText) {
+      countdownText.textContent = Math.max(Math.ceil(duration - elapsed), 0);
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(articleTimer);
+
+      if (countdownText) {
+        countdownText.textContent = "Đang chuyển bài...";
+      }
+
+      if (articleCard) {
+        articleCard.classList.add("auto-next-out");
+      }
+
+      setTimeout(() => {
+        if (nextArticle) {
+          window.location.href = nextArticle.href;
+        } else {
+          window.location.href = "index.php";
+        }
+      }, 650);
+    }
+  }, 50);
 });
