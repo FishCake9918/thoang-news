@@ -689,3 +689,15 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
 .btn-delete-comment:hover {
     text-decoration: underline;
 }
+#floatingAd {
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
+  }
+  
+  #minimizeAd,
+  #closeAd {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative;
+    z-index: 2147483647 !important;
+  }

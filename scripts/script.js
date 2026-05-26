@@ -279,12 +279,19 @@ function dragEnd() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const frontCard = document.getElementById('frontCard');
+
+  // Không phải trang chủ thì không chạy loadNews
+  if (!frontCard) return;
+
   const initialCat = new URLSearchParams(window.location.search).get('category') || 'all';
   const activeLink = document.querySelector(`.primary-nav .nav-link[data-cat="${initialCat}"]`);
+
   if (activeLink) {
     document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(l => l.classList.remove('active'));
     activeLink.classList.add('active');
   }
+
   loadNews(initialCat);
 });
 
@@ -377,18 +384,14 @@ document.addEventListener("DOMContentLoaded", function () {
 const adImages = [
   "images/ad1.jpg",
   "images/ad2.jpg",
-  "images/ad3.jpg",
-  "images/ad4.jpg",
-  "images/ad5.jpg",
-  "images/ad6.jpg"
+  "images/ad3.jpg"
 ];
 
 document.addEventListener("DOMContentLoaded", function () {
   const ad = document.getElementById("floatingAd");
   const adImage = document.getElementById("adImage");
-  const minimizeBtn = document.getElementById("minimizeAd");
-  const closeBtn = document.getElementById("closeAd");
-
+ 
+ 
   if (!ad) return;
 
   let adIndex = 0;
@@ -404,26 +407,79 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 350);
     }, 15000);
   }
+});
 
-  if (minimizeBtn) {
-    minimizeBtn.addEventListener("click", () => {
-      ad.classList.add("minimized");
-      minimizeBtn.textContent = "+";
+document.addEventListener("click", function (e) {
+  const ad = document.getElementById("floatingAd");
+  if (!ad) return;
 
-      setTimeout(() => {
-        ad.classList.remove("minimized");
-        minimizeBtn.textContent = "−";
-      }, 8000);
-    });
+  if (e.target.id === "minimizeAd") {
+    ad.classList.add("minimized");
+    e.target.textContent = "+";
+
+    setTimeout(() => {
+      ad.classList.remove("minimized");
+      e.target.textContent = "−";
+    }, 8000);
   }
 
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      ad.style.display = "none";
+  if (e.target.id === "closeAd") {
+    ad.style.display = "none";
 
-      setTimeout(() => {
-        ad.style.display = "block";
-      }, 10000);
-    });
+    setTimeout(() => {
+      ad.style.display = "block";
+    }, 10000);
   }
 });
+
+function minimizeFloatingAd() {
+  const ad = document.getElementById("floatingAd");
+  const btn = document.getElementById("minimizeAd");
+  if (!ad || !btn) return;
+
+  ad.classList.add("minimized");
+  btn.textContent = "+";
+
+  setTimeout(() => {
+    ad.classList.remove("minimized");
+    btn.textContent = "−";
+  }, 8000);
+}
+
+function closeFloatingAd() {
+  const ad = document.getElementById("floatingAd");
+  if (!ad) return;
+
+  ad.style.display = "none";
+
+  setTimeout(() => {
+    ad.style.display = "block";
+  }, 10000);
+  
+}
+window.minimizeFloatingAd = function () {
+  const ad = document.getElementById("floatingAd");
+  const btn = document.getElementById("minimizeAd");
+
+  if (!ad || !btn) return;
+
+  ad.classList.add("minimized");
+  btn.textContent = "+";
+
+  setTimeout(() => {
+    ad.classList.remove("minimized");
+    btn.textContent = "−";
+  }, 8000);
+};
+
+window.closeFloatingAd = function () {
+  const ad = document.getElementById("floatingAd");
+
+  if (!ad) return;
+
+  ad.style.display = "none";
+
+  setTimeout(() => {
+    ad.style.display = "block";
+  }, 10000);
+};
