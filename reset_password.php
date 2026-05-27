@@ -22,26 +22,7 @@ try {
     }
 } catch (PDOException $e) { die("Lỗi hệ thống."); }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm'] ?? '';
-    
-    if (strlen($password) < 6) {
-        $error = 'Mật khẩu mới phải có tối thiểu từ 6 ký tự.';
-    } elseif ($password !== $confirm) {
-        $error = 'Mật khẩu xác nhận nhập lại không trùng khớp.';
-    } else {
-        try {
-            $new_hash = password_hash($password, PASSWORD_BCRYPT);
-            // Cập nhật mật khẩu và triệt tiêu luôn token khôi phục
-            $update = $pdo->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?");
-            if ($update->execute([$new_hash, $user['id']])) {
-                $success = 'Đặt lại mật khẩu thành công! Bạn đang được chuyển hướng về trang đăng nhập...';
-                header("refresh:2;url=login.php");
-            }
-        } catch (PDOException $e) { $error = 'Đổi mật khẩu thất bại. Vui lòng thử lại.'; }
-    }
-}
+require_once 'controllers/ResetPasswordController.php';
 ?>
 <!doctype html>
 <html lang="vi">
