@@ -5,7 +5,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../config/db.php';
 require_once '../config/session.php';
 
-$session_id = session_id();
 $category = $_GET['category'] ?? 'all';
 $is_logged = isLoggedIn();
 
@@ -21,7 +20,7 @@ $sql = "
         c.slug AS category,
         c.name AS category_name,
         n.source AS source_name,
-        IF(b.id IS NOT NULL, 1, 0) AS is_saved
+        " . ($is_logged ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved
     FROM articles n
     LEFT JOIN categories c ON n.category_id = c.id
 ";
@@ -35,14 +34,6 @@ if ($is_logged) {
             AND b.user_id = :user_id
     ";
     $params[':user_id'] = (int)$_SESSION['user_id'];
-} else {
-    $sql .= "
-        LEFT JOIN bookmarks b 
-            ON n.id = b.article_id 
-            AND b.session_id = :session_id 
-            AND b.user_id IS NULL
-    ";
-    $params[':session_id'] = $session_id;
 }
 
 $where = [

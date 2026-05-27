@@ -6,6 +6,7 @@ require_once 'config/session.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $comment_error = '';
 $comments = [];
+$nextArticle = null;
 
 function is_ajax_request(): bool {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -124,6 +125,28 @@ try {
         ");
         $commentsStmt->execute([$id]);
         $comments = $commentsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $nextStmt = $pdo->prepare("
+            SELECT id
+            FROM articles
+            WHERE status = 'Approved' AND id > ?
+            ORDER BY id ASC
+            LIMIT 1
+        ");
+        $nextStmt->execute([$id]);
+        $nextArticle = $nextStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$nextArticle) {
+            $firstStmt = $pdo->prepare("
+                SELECT id
+                FROM articles
+                WHERE status = 'Approved' AND id <> ?
+                ORDER BY id ASC
+                LIMIT 1
+            ");
+            $firstStmt->execute([$id]);
+            $nextArticle = $firstStmt->fetch(PDO::FETCH_ASSOC);
+        }
     }
 
 } catch (PDOException $e) {
@@ -143,36 +166,55 @@ if (($_GET['from'] ?? '') === 'dashboard') {
 
 include 'partials/header.php';
 ?>
+
 <div class="article-body">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-9 col-xl-8">
-        
+
         <div class="article-card">
-          
+
           <span class="article-cat">
             <?= htmlspecialchars($article['category_name'] ?? 'Tin tức') ?>
           </span>
-          
+
           <h1 class="article-title">
             <?= htmlspecialchars($article['title']) ?>
           </h1>
-          
+
           <div class="article-meta">
             <div class="meta-item">
               <i class="bi bi-journal-bookmark-fill"></i>
               <span>Nguồn: <strong><?= htmlspecialchars($article['source_name'] ?? $article['source'] ?? 'Nội bộ') ?></strong></span>
             </div>
+
             <div class="meta-item border-start ps-3">
               <i class="bi bi-calendar3"></i>
               <span><?= date('d/m/Y H:i', strtotime($published_time)) ?></span>
             </div>
+
             <div class="meta-item border-start ps-3">
               <i class="bi bi-eye-fill"></i>
               <span><?= number_format($article['view_count']) ?> lượt xem</span>
             </div>
           </div>
-          
+
+          <?php if ($article['status'] === 'Approved'): ?>
+            <div class="article-reading-wrap">
+              <div class="article-reading-bar">
+                <div id="articleReadingProgress"></div>
+              </div>
+
+              <div class="article-reading-text">
+                Tự động chuyển bài sau <span id="readingCountdown">30</span> giây
+              </div>
+            </div>
+
+            <?php if ($nextArticle): ?>
+              <a id="nextArticleAuto" href="article.php?id=<?= (int)$nextArticle['id'] ?>" style="display:none;"></a>
+            <?php endif; ?>
+          <?php endif; ?>
+
           <?php if (!empty($article['image_url'])): ?>
             <figure class="article-image-wrap">
               <img
@@ -189,9 +231,9 @@ include 'partials/header.php';
           <div class="article-summary">
             <?= nl2br(htmlspecialchars($article['summary'])) ?>
           </div>
-          
+
           <div class="article-content">
-            <?= nl2br($article['content']) ?> 
+            <?= nl2br($article['content']) ?>
           </div>
 
           <?php if ($article['status'] === 'Approved'): ?>
@@ -206,8 +248,12 @@ include 'partials/header.php';
               <?php if (isLoggedIn()): ?>
                 <form method="POST" class="comment-form" id="comment-form">
                   <input type="hidden" name="action" value="add_comment">
-                  <div class="comment-error" id="comment-error" style="<?= $comment_error !== '' ? '' : 'display:none;' ?>"><?= htmlspecialchars($comment_error) ?></div>
+                  <div class="comment-error" id="comment-error" style="<?= $comment_error !== '' ? '' : 'display:none;' ?>">
+                    <?= htmlspecialchars($comment_error) ?>
+                  </div>
+
                   <textarea name="comment_content" rows="4" maxlength="1000" placeholder="Viết bình luận của bạn..." required><?= htmlspecialchars($_POST['comment_content'] ?? '') ?></textarea>
+
                   <div class="comment-form-actions">
                     <span>Đăng với tên <?= htmlspecialchars(($_SESSION['full_name'] ?? '') ?: ($_SESSION['username'] ?? 'người dùng')) ?></span>
                     <button type="submit" id="comment-submit-btn">Gửi bình luận</button>
@@ -230,33 +276,19 @@ include 'partials/header.php';
               </div>
             </section>
           <?php endif; ?>
-          
+
           <div class="border-top mt-5">
             <a href="<?= htmlspecialchars($back_url) ?>" class="btn-back">
               <i class="bi bi-arrow-left"></i> Quay lại trang trước
             </a>
           </div>
 
-        </div></div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
-
-<style>
-.btn-delete-comment {
-    border: none;
-    background: transparent;
-    color: #dc2626;
-    font-size: 13px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.btn-delete-comment:hover {
-    text-decoration: underline;
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const commentForm = document.getElementById('comment-form');
@@ -407,5 +439,50 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const progress = document.getElementById("articleReadingProgress");
+  if (!progress) return;
 
+  const countdownText = document.getElementById("readingCountdown");
+  const nextArticle = document.getElementById("nextArticleAuto");
+  const articleCard = document.querySelector(".article-card");
+
+  const duration = 30;
+  const startTime = Date.now();
+
+  progress.style.width = "0%";
+
+  const timer = setInterval(function () {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    progress.style.width = percent + "%";
+
+    if (countdownText) {
+      countdownText.textContent = Math.max(Math.ceil(duration - elapsed), 0);
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(timer);
+
+      if (countdownText) {
+        countdownText.textContent = "Đang chuyển bài...";
+      }
+
+      if (articleCard) {
+        articleCard.classList.add("auto-next-out");
+      }
+
+      setTimeout(function () {
+        if (nextArticle) {
+          window.location.href = nextArticle.href;
+        } else {
+          window.location.href = "index.php";
+        }
+      }, 650);
+    }
+  }, 50);
+});
+</script>
 <?php include 'partials/footer.php'; ?>

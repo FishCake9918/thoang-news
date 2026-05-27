@@ -27,6 +27,14 @@ if ($news_id <= 0) {
     jsonResponse(['success' => false, 'message' => 'ID bài viết không hợp lệ.'], 400);
 }
 
+if (!$user_id) {
+    jsonResponse([
+        'status' => 'auth_required',
+        'success' => false,
+        'message' => 'Vui lòng đăng nhập hoặc đăng ký để lưu bài viết.'
+    ], 401);
+}
+
 try {
     $articleStmt = $pdo->prepare("SELECT id FROM articles WHERE id = ? AND status = 'Approved' LIMIT 1");
     $articleStmt->execute([$news_id]);
@@ -34,22 +42,12 @@ try {
         jsonResponse(['status' => 'error', 'success' => false, 'message' => 'Bài viết không tồn tại hoặc chưa được xuất bản.'], 404);
     }
 
-    if ($user_id) {
-        $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE user_id = :user_id AND article_id = :article_id");
-        $stmt->execute([':user_id' => $user_id, ':article_id' => $news_id]);
-    } else {
-        $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE session_id = :session_id AND user_id IS NULL AND article_id = :article_id");
-        $stmt->execute([':session_id' => $session_id, ':article_id' => $news_id]);
-    }
+    $stmt = $pdo->prepare("SELECT id FROM bookmarks WHERE user_id = :user_id AND article_id = :article_id");
+    $stmt->execute([':user_id' => $user_id, ':article_id' => $news_id]);
 
     if ($stmt->fetch()) {
-        if ($user_id) {
-            $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = :user_id AND article_id = :article_id");
-            $delStmt->execute([':user_id' => $user_id, ':article_id' => $news_id]);
-        } else {
-            $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = :session_id AND user_id IS NULL AND article_id = :article_id");
-            $delStmt->execute([':session_id' => $session_id, ':article_id' => $news_id]);
-        }
+        $delStmt = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = :user_id AND article_id = :article_id");
+        $delStmt->execute([':user_id' => $user_id, ':article_id' => $news_id]);
         jsonResponse(['status' => 'success', 'success' => true, 'action' => 'removed']);
     }
 

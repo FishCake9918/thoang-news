@@ -10,6 +10,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
+if (!$user_id) {
+    http_response_code(401);
+    echo json_encode([
+        'success' => false,
+        'auth_required' => true,
+        'message' => 'Vui lòng đăng nhập hoặc đăng ký để xem và quản lý bài viết đã lưu.'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 try {
     switch ($action) {
         case 'remove':
@@ -19,24 +29,14 @@ try {
                 break;
             }
 
-            if ($user_id) {
-                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND user_id = ?");
-                $stmt->execute([$article_id, $user_id]);
-            } else {
-                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND session_id = ? AND user_id IS NULL");
-                $stmt->execute([$article_id, $session_id]);
-            }
+            $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE article_id = ? AND user_id = ?");
+            $stmt->execute([$article_id, $user_id]);
             echo json_encode(['success' => true]);
             break;
 
         case 'remove_all':
-            if ($user_id) {
-                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ?");
-                $stmt->execute([$user_id]);
-            } else {
-                $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE session_id = ? AND user_id IS NULL");
-                $stmt->execute([$session_id]);
-            }
+            $stmt = $pdo->prepare("DELETE FROM bookmarks WHERE user_id = ?");
+            $stmt->execute([$user_id]);
             echo json_encode(['success' => true]);
             break;
 

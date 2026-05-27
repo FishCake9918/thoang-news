@@ -91,7 +91,7 @@ function renderCard() {
   const cur = currentIdx + 1;
   const total = allNews.length;
   document.getElementById('progressLabel').textContent = `${cur} / ${total}`;
-  document.getElementById('progressBar').style.width = `${Math.round((cur / total) * 100)}%`;
+  startHomeReadingTimer();
 
   document.getElementById('back1').style.display = total - currentIdx > 1 ? '' : 'none';
   document.getElementById('back2').style.display = total - currentIdx > 2 ? '' : 'none';
@@ -279,11 +279,177 @@ function dragEnd() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const frontCard = document.getElementById('frontCard');
+
+  // Không phải trang chủ thì không chạy loadNews
+  if (!frontCard) return;
+
   const initialCat = new URLSearchParams(window.location.search).get('category') || 'all';
   const activeLink = document.querySelector(`.primary-nav .nav-link[data-cat="${initialCat}"]`);
+
   if (activeLink) {
     document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(l => l.classList.remove('active'));
     activeLink.classList.add('active');
   }
+
   loadNews(initialCat);
 });
+
+/* =========================
+   HOME + ARTICLE READING TIMER 30S
+========================= */
+
+let homeReadingTimer = null;
+
+function startHomeReadingTimer() {
+  const bar = document.getElementById('progressBar');
+  const card = document.getElementById('frontCard');
+
+  if (!bar || !card) return;
+
+  clearInterval(homeReadingTimer);
+
+  const duration = 30;
+  const startTime = Date.now();
+
+  bar.style.width = '0%';
+
+  homeReadingTimer = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    bar.style.width = percent + '%';
+
+    if (elapsed >= duration) {
+      clearInterval(homeReadingTimer);
+
+      card.classList.add('auto-next-out');
+
+      setTimeout(() => {
+        card.classList.remove('auto-next-out');
+        skipCard('left');
+      }, 650);
+    }
+  }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const progress = document.getElementById("articleReadingProgress");
+  if (!progress) return;
+
+  const countdownText = document.getElementById("readingCountdown");
+  const nextArticle = document.getElementById("nextArticleAuto");
+  const articleCard = document.querySelector(".article-card");
+
+  const duration = 30;
+  const startTime = Date.now();
+
+  progress.style.width = "0%";
+
+  const articleTimer = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    progress.style.width = percent + "%";
+
+    if (countdownText) {
+      countdownText.textContent = Math.max(Math.ceil(duration - elapsed), 0);
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(articleTimer);
+
+      if (countdownText) {
+        countdownText.textContent = "Đang chuyển bài...";
+      }
+
+      if (articleCard) {
+        articleCard.classList.add("auto-next-out");
+      }
+
+      setTimeout(() => {
+        if (nextArticle) {
+          window.location.href = nextArticle.href;
+        } else {
+          window.location.href = "index.php";
+        }
+      }, 650);
+    }
+  }, 50);
+});
+/* =================================
+   FLOATING FOOTBALL ADS
+================================= */
+
+const adImages = [
+  "images/ad1.jpg",
+  "images/ad2.jpg",
+  "images/ad3.jpg"
+];
+
+document.addEventListener("DOMContentLoaded", function () {
+  const ad = document.getElementById("floatingAd");
+  const adImage = document.getElementById("adImage");
+  const minimizeBtn = document.getElementById("minimizeAd");
+  const closeBtn = document.getElementById("closeAd");
+ 
+  
+  if (!ad) return;
+
+  ad.style.display = "none";
+
+  setTimeout(() => {
+    ad.style.display = "block";
+  }, 5000);
+  let adIndex = 0;
+
+  if (adImage) {
+    setInterval(() => {
+      adImage.style.opacity = "0";
+
+      setTimeout(() => {
+        adIndex = (adIndex + 1) % adImages.length;
+        adImage.src = adImages[adIndex];
+        adImage.style.opacity = "1";
+      }, 350);
+    }, 15000);
+  }
+});
+
+let floatingAdMinimizeTimer = null;
+
+window.minimizeFloatingAd = function () {
+  const ad = document.getElementById("floatingAd");
+  const btn = document.getElementById("minimizeAd");
+
+  if (!ad || !btn) return;
+
+  clearTimeout(floatingAdMinimizeTimer);
+
+  if (ad.classList.contains("minimized")) {
+    ad.classList.remove("minimized");
+    btn.textContent = "−";
+    return;
+  
+  }
+  
+  ad.classList.add("minimized");
+  btn.textContent = "+";
+
+  floatingAdMinimizeTimer = setTimeout(() => {
+    ad.classList.remove("minimized");
+    btn.textContent = "−";
+  }, 8000);
+};
+
+window.closeFloatingAd = function () {
+  const ad = document.getElementById("floatingAd");
+
+  if (!ad) return;
+
+  ad.style.display = "none";
+
+  setTimeout(() => {
+    ad.style.display = "block";
+  }, 10000);
+};

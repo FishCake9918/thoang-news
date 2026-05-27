@@ -514,3 +514,193 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
 .nav-link.nav-hot:hover, .nav-link.nav-hot.active {
   border-bottom-color: #ff3b30 !important;
 }
+
+/* ===== READING TIMER 30S - GREEN EFFECT ===== */
+
+.thoang-progress {
+    height: 7px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.thoang-progress-bar,
+#articleReadingProgress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #0f9f59, #22c55e, #86efac, #16a34a);
+    background-size: 220% 100%;
+    border-radius: 999px;
+    transition: width 1s linear;
+    animation: greenReadingMove 1.4s linear infinite;
+    box-shadow: 0 0 10px rgba(34, 197, 94, .45);
+}
+
+@keyframes greenReadingMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 220% 50%;
+    }
+}
+
+.article-reading-wrap {
+    margin: 18px 0 28px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.article-reading-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.article-reading-text {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #15803d;
+    text-align: right;
+    font-weight: 600;
+}
+
+.article-card.auto-next-out,
+.news-card.auto-next-out {
+    animation: autoNextFadeOut .65s ease forwards;
+}
+
+@keyframes autoNextFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-18px) scale(.98);
+    }
+}
+/* =================================
+   FLOATING FOOTBALL ADS
+================================= */
+
+.floating-ad{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    width:320px;
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    z-index:99999;
+    box-shadow:0 10px 35px rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(10px);
+}
+
+.floating-ad-head{
+    height:42px;
+    background:#111827;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 12px;
+    font-size:13px;
+    font-weight:700;
+}
+
+.floating-ad-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.floating-ad-actions button{
+    width:24px;
+    height:24px;
+    border:none;
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    border-radius:6px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.floating-ad-actions button:hover{
+    background:#22c55e;
+}
+
+.floating-ad-body{
+    width:100%;
+    background:#000;
+}
+
+#adImage{
+    width:100%;
+    display:block;
+    aspect-ratio:16/9;
+    object-fit:cover;
+    transition:opacity .35s ease;
+}
+
+.floating-ad.minimized{
+    width:190px;
+}
+
+.floating-ad.minimized .floating-ad-body{
+    display:none;
+}
+
+@media(max-width:768px){
+
+    .floating-ad{
+        width:260px;
+        right:12px;
+        bottom:12px;
+    }
+
+}
+#floatingAd.floating-ad {
+    position: fixed !important;
+    right: 22px !important;
+    bottom: 22px !important;
+    left: auto !important;
+    top: auto !important;
+    width: 320px;
+    z-index: 99999;
+}
+
+/* DELETE COMMENT BUTTON */
+.btn-delete-comment {
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-delete-comment:hover {
+    text-decoration: underline;
+}
+#floatingAd {
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
+  }
+  
+  #minimizeAd,
+  #closeAd {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative;
+    z-index: 2147483647 !important;
+  }
+  #floatingAd {
+    display: none;
+  }
