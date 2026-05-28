@@ -1,5 +1,6 @@
 let allNews = [];
 let currentIdx = 0;
+let homeReadingTimer = null;
 
 function formatTimeAgo(dateString) {
   if (!dateString) return 'Vừa xong';
@@ -97,6 +98,7 @@ function renderCard() {
   document.getElementById('back2').style.display = total - currentIdx > 2 ? '' : 'none';
 
   updateBookmarkUI(a.is_saved == 1);
+  updateNewsNavControls();
 }
 
 function showAuthRequired(message) {
@@ -168,8 +170,11 @@ function updateBookmarkUI(isSaved) {
   }
 }
 
-function skipCard(direction = 'left') {
+function animateCard(direction, onDone) {
   const card = document.getElementById('frontCard');
+  if (!card) return;
+
+  clearInterval(homeReadingTimer);
   card.style.transition = 'transform .35s ease, opacity .3s';
   const moveX = direction === 'left' ? '-120%' : '120%';
   const rotate = direction === 'left' ? '-15deg' : '15deg';
@@ -180,12 +185,59 @@ function skipCard(direction = 'left') {
   setTimeout(() => {
     card.style.transition = '';
     card.style.opacity = '1';
-    currentIdx++;
+    card.style.transform = '';
+    onDone();
     renderCard();
   }, 380);
 }
 
+function nextCard() {
+  if (allNews.length === 0 || currentIdx >= allNews.length) return;
+
+  animateCard('left', () => {
+    currentIdx++;
+  });
+}
+
+function prevCard() {
+  if (allNews.length === 0 || currentIdx <= 0) return;
+
+  animateCard('right', () => {
+    currentIdx--;
+  });
+}
+
+function skipCard(direction = 'left') {
+  if (direction === 'right') {
+    prevCard();
+    return;
+  }
+
+  nextCard();
+}
+
+function updateNewsNavControls() {
+  const prevBtn = document.getElementById('btnPrev') || document.getElementById('btnSkip');
+  const nextBtn = document.getElementById('btnNext');
+
+  if (prevBtn) {
+    prevBtn.id = 'btnPrev';
+    prevBtn.title = 'Tin trước';
+    prevBtn.setAttribute('aria-label', 'Tin trước');
+    prevBtn.innerHTML = '<i class="bi bi-arrow-left"></i>';
+    prevBtn.onclick = prevCard;
+    prevBtn.disabled = currentIdx <= 0;
+    prevBtn.classList.toggle('is-disabled', currentIdx <= 0);
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = allNews.length === 0 || currentIdx >= allNews.length - 1;
+    nextBtn.classList.toggle('is-disabled', allNews.length === 0 || currentIdx >= allNews.length - 1);
+  }
+}
+
 function showDone() {
+  clearInterval(homeReadingTimer);
   document.getElementById('frontCard').classList.add('d-none');
   document.getElementById('doneCard').classList.remove('d-none');
   document.getElementById('actionArea').classList.add('d-none');
@@ -246,7 +298,7 @@ function dragMove(e) {
   card.style.transform = `translateX(${diff}px) rotate(${diff * 0.04}deg)`;
 
   document.getElementById('hintSkip').style.opacity = diff < -20 ? Math.min((Math.abs(diff) - 20) / 60, 1) : 0;
-  document.getElementById('hintSave').style.opacity = diff > 20 ? Math.min((Math.abs(diff) - 20) / 60, 1) : 0;
+  document.getElementById('hintSave').style.opacity = diff > 20 && currentIdx > 0 ? Math.min((Math.abs(diff) - 20) / 60, 1) : 0;
 }
 
 function dragEnd() {
@@ -262,16 +314,14 @@ function dragEnd() {
 
   const diff = curX - startX;
   if (diff < -80) {
-    skipCard('left');
+    nextCard();
   } else if (diff > 80) {
-    toggleSave().then(saved => {
-      if (saved) {
-        skipCard('right');
-      } else {
-        card.style.transition = 'transform .3s ease';
-        card.style.transform = '';
-      }
-    });
+    if (currentIdx > 0) {
+      prevCard();
+    } else {
+      card.style.transition = 'transform .3s ease';
+      card.style.transform = '';
+    }
   } else {
     card.style.transition = 'transform .3s ease';
     card.style.transform = '';
@@ -283,6 +333,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Không phải trang chủ thì không chạy loadNews
   if (!frontCard) return;
+
+  const prevHint = document.getElementById('hintSave');
+  const nextHint = document.getElementById('hintSkip');
+  const nextBtn = document.querySelector('.btn-next-act');
+  const saveBtn = document.getElementById('btnSave');
+
+  if (prevHint) prevHint.textContent = 'TIN TRƯỚC';
+  if (nextHint) nextHint.textContent = 'TIN TIẾP';
+  if (nextBtn) {
+    nextBtn.id = 'btnNext';
+    nextBtn.title = 'Tiếp theo';
+    nextBtn.onclick = nextCard;
+  }
+  if (saveBtn) saveBtn.title = 'Lưu lại';
+
+  document.addEventListener('keydown', e => {
+    if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+    if (e.key === 'ArrowLeft') {
+      prevCard();
+    }
+
+    if (e.key === 'ArrowRight') {
+      nextCard();
+    }
+  });
 
   const initialCat = new URLSearchParams(window.location.search).get('category') || 'all';
   const activeLink = document.querySelector(`.primary-nav .nav-link[data-cat="${initialCat}"]`);
@@ -298,8 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
 /* =========================
    HOME + ARTICLE READING TIMER 30S
 ========================= */
-
-let homeReadingTimer = null;
 
 function startHomeReadingTimer() {
   const bar = document.getElementById('progressBar');
@@ -327,7 +401,7 @@ function startHomeReadingTimer() {
 
       setTimeout(() => {
         card.classList.remove('auto-next-out');
-        skipCard('left');
+        nextCard();
       }, 650);
     }
   }, 50);

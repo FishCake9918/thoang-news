@@ -127,6 +127,12 @@ footer a:hover { color: #fff; }
 .btn-next-act { width: 56px; height: 56px; border-radius: 4px; background: var(--navy) !important; border-color: var(--navy) !important; color: #fff !important; }
 .btn-next-act:hover { background: #0f1a35 !important; }
 .btn-save-act.saved { background: #e6f4ee !important; border-color: #1d9e75 !important; color: #1d9e75 !important; }
+.btn-act.is-disabled,
+.btn-act:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .card-back1 { position: absolute; top: 8px; left: 0; right: 0; height: 100%; background: #fff; border: 1px solid var(--border); border-radius: 16px; z-index: -1; transform: scale(0.97); }
 .card-back2 { position: absolute; top: 16px; left: 0; right: 0; height: 100%; background: #fff; border: 1px solid var(--border); border-radius: 16px; z-index: -2; transform: scale(0.94); }
 .most-read-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
@@ -568,6 +574,49 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     color: #15803d;
     text-align: right;
     font-weight: 600;
+}
+
+.article-nav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: -8px 0 26px;
+}
+
+.article-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.article-nav-btn:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+    background: var(--bg);
+}
+
+.article-nav-btn-primary {
+    margin-left: auto;
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+}
+
+.article-nav-btn-primary:hover {
+    background: #0f1a35;
+    border-color: #0f1a35;
+    color: #fff;
 }
 
 .article-card.auto-next-out,

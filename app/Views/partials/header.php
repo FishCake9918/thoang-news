@@ -7,14 +7,14 @@ $cur_user  = getCurrentUser();
 $current_page = basename($_SERVER['PHP_SELF'] ?? '');
 $nav_items = [
     'hot'   => ['label' => 'Nóng <i class="bi bi-fire blink-icon"></i>', 'href' => 'index.php?category=hot', 'cat' => 'hot'],
-    'all'   => ['label' => 'Tất cả',    'href' => 'index.php?category=all',   'cat' => 'all'],
-    'world' => ['label' => 'Thế giới',  'href' => 'index.php?category=world', 'cat' => 'world'],
-    'biz'   => ['label' => 'Kinh tế',   'href' => 'index.php?category=biz',   'cat' => 'biz'],
-    'tech'  => ['label' => 'Công nghệ', 'href' => 'index.php?category=tech',  'cat' => 'tech'],
-    'sport' => ['label' => 'Thể thao',  'href' => 'index.php?category=sport', 'cat' => 'sport'],
-    'life'  => ['label' => 'Đời sống',  'href' => 'index.php?category=life',  'cat' => 'life'],
-    'edu'   => ['label' => 'Giáo dục',  'href' => 'index.php?category=edu',   'cat' => 'edu'],
-    'other' => ['label' => 'Khác',      'href' => 'index.php?category=other', 'cat' => 'other'],
+    'all'   => ['label' => 'Tất cả', 'href' => 'index.php?category=all', 'cat' => 'all'],
+    'world' => ['label' => 'Thế giới', 'href' => 'index.php?category=world', 'cat' => 'world'],
+    'biz'   => ['label' => 'Kinh tế', 'href' => 'index.php?category=biz', 'cat' => 'biz'],
+    'tech'  => ['label' => 'Công nghệ', 'href' => 'index.php?category=tech', 'cat' => 'tech'],
+    'sport' => ['label' => 'Thể thao', 'href' => 'index.php?category=sport', 'cat' => 'sport'],
+    'life'  => ['label' => 'Đời sống', 'href' => 'index.php?category=life', 'cat' => 'life'],
+    'edu'   => ['label' => 'Giáo dục', 'href' => 'index.php?category=edu', 'cat' => 'edu'],
+    'other' => ['label' => 'Khác', 'href' => 'index.php?category=other', 'cat' => 'other'],
 ];
 ?>
 <!doctype html>
@@ -24,11 +24,9 @@ $nav_items = [
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><?= htmlspecialchars($page_title) ?></title>
   <link rel="icon" type="image/png" href="images/favicon.png">
-  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
-  
   <link href="stylesheets/style.css" rel="stylesheet"/>
 </head>
 <body>
@@ -38,7 +36,7 @@ $nav_items = [
   <div class="container d-flex align-items-center gap-3">
     <i class="bi bi-shield-fill-check"></i>
     <strong>Chế độ Admin</strong>
-    <span style="color:#9daabf;font-size:11px">— Bạn có toàn quyền quản trị hệ thống</span>
+    <span style="color:#9daabf;font-size:11px">- Bạn có toàn quyền quản trị hệ thống</span>
     <span class="ms-auto" style="color:#9daabf">
       <i class="bi bi-person-fill me-1"></i>
       <?= htmlspecialchars($cur_user['full_name'] ?: $cur_user['username']) ?>
@@ -49,7 +47,13 @@ $nav_items = [
 
 <div class="top-bar">
   <div class="container d-flex justify-content-between align-items-center">
-    <span><?= viDate() ?></span>
+    <div class="d-flex align-items-center gap-2" style="font-size: 13px;">
+      <span><?= viDate() ?></span>
+      <span class="opacity-50 d-none d-md-inline">|</span>
+      <div id="weatherWidget" class="d-none d-md-flex align-items-center gap-1">
+        <span class="opacity-75" style="font-size: 12px;">Đang tải thời tiết...</span>
+      </div>
+    </div>
     <span>
       <?php if ($is_logged): ?>
         <i class="bi bi-circle-fill me-1" style="color:var(--gold);font-size:8px"></i>
@@ -75,14 +79,13 @@ $nav_items = [
         <input type="text" name="q" placeholder="Tìm kiếm..." required />
       </form>
       <?php if ($is_logged): ?>
-        
         <?php if ($_SESSION['role'] === 'admin'): ?>
           <a href="dashboard.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-speedometer2 me-1"></i>Admin Panel
           </a>
         <?php elseif ($_SESSION['role'] === 'writer'): ?>
           <a href="dashboard_writer.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
-            <i class="bi bi-pen me-1"></i>Trang Tác giả
+            <i class="bi bi-pen me-1"></i>Trang tác giả
           </a>
           <?php if ($current_page !== 'dashboard_writer.php'): ?>
             <a href="vietbai.php" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
