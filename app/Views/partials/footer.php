@@ -23,7 +23,7 @@ $footerLinks = [
 
 <?php if ($showFloatingAd): ?>
 <div id="floatingAd" class="floating-ad">
-  <div class="floating-ad-head">
+  <div class="floating-ad-head drag-handle" data-drag-handle>
     <span>Quảng cáo</span>
     <button type="button" class="btn-close" style="font-size:10px; filter:invert(1);" aria-label="Close" onclick="closeFloatingAd()"></button>
   </div>
@@ -160,8 +160,8 @@ function fetchWeather() {
 </button>
 
 <!-- Khung Chatbot HTML -->
-<div id="chatbot-container" style="position: fixed; bottom: 90px; right: 30px; width: 350px; border: 1px solid #ddd; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; display: none; flex-direction: column; overflow: hidden; font-family: sans-serif;">
-    <div style="background: #534AB7; color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+<div id="chatbot-container" class="chatbot-panel" style="position: fixed; bottom: 90px; right: 30px; width: 350px; border: 1px solid #ddd; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; display: none; flex-direction: column; overflow: hidden; font-family: sans-serif;">
+    <div id="chatbot-drag-head" class="drag-handle" data-drag-handle style="background: #534AB7; color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
         <span style="font-weight: bold; font-size: 16px;">Trợ lý AI Thoáng.vn</span>
         <button id="close-chatbot" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
