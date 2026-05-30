@@ -554,3 +554,67 @@ window.closeFloatingAd = function () {
     ad.style.display = "block";
   }, 10000);
 };
+
+/* =================================
+   DRAGGABLE ELEMENTS (Kéo thả)
+================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-drag-handle]").forEach(handle => {
+    const targetElement = handle.closest("#floatingAd") || handle.closest("#chatbot-container");
+    if (!targetElement) return;
+
+    let isDragging = false;
+    let initialX = 0, initialY = 0, currentX = 0, currentY = 0;
+    let xOffset = 0, yOffset = 0;
+
+    handle.addEventListener("mousedown", dragStart);
+    handle.addEventListener("touchstart", dragStart, { passive: false });
+
+    document.addEventListener("mousemove", drag);
+    document.addEventListener("touchmove", drag, { passive: false });
+
+    document.addEventListener("mouseup", dragEnd);
+    document.addEventListener("touchend", dragEnd);
+
+    function dragStart(e) {
+      if (e.target.closest("button") || e.target.closest("a")) return;
+
+      if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
+      isDragging = true;
+      handle.style.cursor = "grabbing";
+    }
+
+    function drag(e) {
+      if (!isDragging) return;
+      if (e.cancelable) e.preventDefault();
+
+      if (e.type === "touchmove") {
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+      } else {
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+      }
+
+      xOffset = currentX;
+      yOffset = currentY;
+      targetElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    }
+
+    function dragEnd() {
+      if (!isDragging) return;
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      handle.style.cursor = "grab";
+    }
+
+    handle.style.cursor = "grab";
+  });
+});
