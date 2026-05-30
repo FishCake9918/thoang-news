@@ -5,17 +5,15 @@ $is_logged = isLoggedIn();
 $is_admin  = isAdmin();
 $cur_user  = getCurrentUser();
 $current_page = basename($_SERVER['PHP_SELF'] ?? '');
-$nav_items = [
-    'hot'   => ['label' => 'Nóng <i class="bi bi-fire blink-icon"></i>', 'href' => 'index.php?category=hot', 'cat' => 'hot'],
-    'all'   => ['label' => 'Tất cả', 'href' => 'index.php?category=all', 'cat' => 'all'],
-    'world' => ['label' => 'Thế giới', 'href' => 'index.php?category=world', 'cat' => 'world'],
-    'biz'   => ['label' => 'Kinh tế', 'href' => 'index.php?category=biz', 'cat' => 'biz'],
-    'tech'  => ['label' => 'Công nghệ', 'href' => 'index.php?category=tech', 'cat' => 'tech'],
-    'sport' => ['label' => 'Thể thao', 'href' => 'index.php?category=sport', 'cat' => 'sport'],
-    'life'  => ['label' => 'Đời sống', 'href' => 'index.php?category=life', 'cat' => 'life'],
-    'edu'   => ['label' => 'Giáo dục', 'href' => 'index.php?category=edu', 'cat' => 'edu'],
-    'other' => ['label' => 'Khác', 'href' => 'index.php?category=other', 'cat' => 'other'],
-];
+$nav_categories = $nav_categories ?? [];
+
+if ($nav_categories === [] && isset($pdo)) {
+    try {
+        $nav_categories = (new \App\Models\CategoryModel($pdo))->activeTree();
+    } catch (Throwable $e) {
+        $nav_categories = [];
+    }
+}
 ?>
 <!doctype html>
 <html lang="vi">
@@ -39,7 +37,7 @@ $nav_items = [
     <span style="color:#9daabf;font-size:11px">- Bạn có toàn quyền quản trị hệ thống</span>
     <span class="ms-auto" style="color:#9daabf">
       <i class="bi bi-person-fill me-1"></i>
-      <?= htmlspecialchars($cur_user['full_name'] ?: $cur_user['username']) ?>
+      <?= htmlspecialchars(($cur_user['full_name'] ?? '') ?: ($cur_user['username'] ?? 'Admin')) ?>
     </span>
   </div>
 </div>
@@ -83,6 +81,9 @@ $nav_items = [
           <a href="dashboard.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-speedometer2 me-1"></i>Admin Panel
           </a>
+          <a href="dashboard.php?view=categories#category-manager" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
+            <i class="bi bi-tags me-1"></i>Danh mục
+          </a>
         <?php elseif ($_SESSION['role'] === 'writer'): ?>
           <a href="dashboard_writer.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-pen me-1"></i>Trang tác giả
@@ -117,13 +118,50 @@ $nav_items = [
 <div class="primary-nav">
   <div class="container">
     <ul class="nav">
-      <?php foreach ($nav_items as $key => $item): ?>
-        <li class="nav-item">
-          <a class="nav-link <?= $active_nav === $key ? 'active' : '' ?> <?= $key === 'hot' ? 'nav-hot' : '' ?>"
-             href="<?= $item['href'] ?>"
-             data-cat="<?= htmlspecialchars($item['cat'] ?? $key) ?>">
-            <?= $item['label'] ?>
+      <li class="nav-item">
+        <a class="nav-link nav-home" href="index.php?category=all" data-cat="all" title="Trang chủ">
+          <i class="bi bi-house-door-fill"></i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?= $active_nav === 'hot' ? 'active' : '' ?> nav-hot"
+           href="index.php?category=hot"
+           data-cat="hot">
+          Nóng <i class="bi bi-fire blink-icon"></i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?= $active_nav === 'all' ? 'active' : '' ?>"
+           href="index.php?category=all"
+           data-cat="all">
+          Tất cả
+        </a>
+      </li>
+      <?php foreach ($nav_categories as $category): ?>
+        <?php
+          $slug = $category['slug'] ?? '';
+          $children = $category['children'] ?? [];
+          $isActive = $active_nav === $slug || in_array($active_nav, array_column($children, 'slug'), true);
+        ?>
+        <li class="nav-item nav-dropdown">
+          <a class="nav-link <?= $isActive ? 'active' : '' ?>"
+             href="index.php?category=<?= urlencode($slug) ?>"
+             data-cat="<?= htmlspecialchars($slug) ?>">
+            <?= htmlspecialchars($category['name'] ?? '') ?>
+            <?php if (!empty($children)): ?>
+              <i class="bi bi-chevron-down nav-caret"></i>
+            <?php endif; ?>
           </a>
+          <?php if (!empty($children)): ?>
+            <div class="category-dropdown">
+              <?php foreach ($children as $child): ?>
+                <a href="index.php?category=<?= urlencode($child['slug']) ?>"
+                   data-cat="<?= htmlspecialchars($child['slug']) ?>">
+                  <?= htmlspecialchars($child['name']) ?>
+                </a>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
         </li>
       <?php endforeach; ?>
     </ul>

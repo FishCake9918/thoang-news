@@ -6,15 +6,18 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Models\ArticleModel;
+use App\Models\CategoryModel;
 use PDOException;
 
 class WriterArticleApiController extends Controller
 {
     private ArticleModel $articles;
+    private CategoryModel $categories;
 
-    public function __construct(ArticleModel $articles)
+    public function __construct(ArticleModel $articles, CategoryModel $categories)
     {
         $this->articles = $articles;
+        $this->categories = $categories;
     }
 
     public function save(): void
@@ -64,6 +67,13 @@ class WriterArticleApiController extends Controller
         $authorName = trim($_SESSION['full_name'] ?? '') ?: trim($_SESSION['username'] ?? 'Tác giả');
 
         try {
+            if (!$this->categories->isSelectableForArticle($categoryId)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Danh mục này không thể gắn bài viết. Vui lòng chọn danh mục con đang hiển thị.',
+                ], 400);
+            }
+
             if ($articleId > 0 && !$this->articles->findByAuthor($articleId, Auth::id())) {
                 $this->json(['success' => false, 'message' => 'Không tìm thấy bài viết hoặc bạn không có quyền chỉnh sửa.'], 404);
             }

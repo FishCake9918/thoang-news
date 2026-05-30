@@ -10,9 +10,8 @@ require_once __DIR__ . '/config/session.php';
 
 $page_title = 'Trang chủ - Thoáng.vn';
 $active_nav = $_GET['category'] ?? 'all';
-$allowed_nav = ['hot', 'all', 'world', 'biz', 'tech', 'sport', 'life', 'edu', 'other'];
 
-if (!in_array($active_nav, $allowed_nav, true)) {
+if ($active_nav === '' || !preg_match('/^[a-z0-9-]+$/', $active_nav)) {
     $active_nav = 'all';
 }
 

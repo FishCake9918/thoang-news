@@ -24,6 +24,120 @@
       </div>
     <?php endif; ?>
 
+    <?php if (($admin_view ?? 'overview') === 'categories'): ?>
+    <div class="card shadow-sm border-0 p-4 bg-white mb-4" id="category-manager">
+      <span class="section-label">Quản lý danh mục</span>
+
+      <form method="POST" action="dashboard.php?view=categories#category-manager" class="row g-3 align-items-end mb-4">
+        <input type="hidden" name="action" value="save_category">
+        <input type="hidden" name="category_id" value="0">
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Tên danh mục</label>
+          <input type="text" name="name" class="form-control form-control-sm" placeholder="VD: Chính trị" required>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <label class="form-label">Slug</label>
+          <input type="text" name="slug" class="form-control form-control-sm" placeholder="chinh-tri">
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Danh mục cha</label>
+          <select name="parent_id" class="form-select form-select-sm">
+            <option value="0">Không có</option>
+            <?php foreach ($categories as $cat): ?>
+              <?php if (empty($cat['parent_id'])): ?>
+                <option value="<?= (int)$cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="col-lg-1 col-md-3">
+          <label class="form-label">Thứ tự</label>
+          <input type="number" name="sort_order" class="form-control form-control-sm" min="1" placeholder="Tự động">
+        </div>
+        <div class="col-lg-1 col-md-3">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="is_active" id="newCatActive" checked>
+            <label class="form-check-label" for="newCatActive">Hiện</label>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <button type="submit" class="btn btn-sm w-100" style="background:var(--navy);color:#fff;font-weight:700;">
+            <i class="bi bi-plus-lg me-1"></i>Thêm
+          </button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" style="font-size:13px;">
+          <thead class="table-light">
+            <tr>
+              <th>Tên</th>
+              <th>Slug</th>
+              <th>Danh mục cha</th>
+              <th class="text-center">Bài viết</th>
+              <th class="text-center">Hiện</th>
+              <th class="text-center">Thứ tự</th>
+              <th class="text-end">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($categories)): ?>
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">Chưa có danh mục.</td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($categories as $cat): ?>
+                <tr>
+                  <td style="min-width:180px;">
+                    <form method="POST" action="dashboard.php?view=categories#category-manager" id="cat-form-<?= (int)$cat['id'] ?>">
+                      <input type="hidden" name="action" value="save_category">
+                      <input type="hidden" name="category_id" value="<?= (int)$cat['id'] ?>">
+                      <input type="text" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($cat['name']) ?>" required>
+                    </form>
+                  </td>
+                  <td style="min-width:150px;">
+                    <input form="cat-form-<?= (int)$cat['id'] ?>" type="text" name="slug" class="form-control form-control-sm" value="<?= htmlspecialchars($cat['slug']) ?>" required>
+                  </td>
+                  <td style="min-width:170px;">
+                    <select form="cat-form-<?= (int)$cat['id'] ?>" name="parent_id" class="form-select form-select-sm">
+                      <option value="0">Không có</option>
+                      <?php foreach ($categories as $parent): ?>
+                        <?php if (empty($parent['parent_id']) && (int)$parent['id'] !== (int)$cat['id']): ?>
+                          <option value="<?= (int)$parent['id'] ?>" <?= (int)($cat['parent_id'] ?? 0) === (int)$parent['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($parent['name']) ?>
+                          </option>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    </select>
+                  </td>
+                  <td class="text-center"><?= number_format((int)$cat['article_count']) ?></td>
+                  <td class="text-center">
+                    <input form="cat-form-<?= (int)$cat['id'] ?>" type="checkbox" name="is_active" <?= (int)$cat['is_active'] === 1 ? 'checked' : '' ?>>
+                  </td>
+                  <td style="width:90px;">
+                    <input form="cat-form-<?= (int)$cat['id'] ?>" type="number" name="sort_order" class="form-control form-control-sm" value="<?= (int)$cat['sort_order'] ?>">
+                  </td>
+                  <td class="text-end" style="min-width:120px;">
+                    <button form="cat-form-<?= (int)$cat['id'] ?>" type="submit" class="btn btn-sm btn-outline-primary" title="Lưu">
+                      <i class="bi bi-save"></i>
+                    </button>
+                    <form method="POST" action="dashboard.php?view=categories#category-manager" class="d-inline" onsubmit="return confirm('Xóa danh mục này? Chỉ xóa được khi chưa có bài viết và danh mục con.');">
+                      <input type="hidden" name="action" value="delete_category">
+                      <input type="hidden" name="category_id" value="<?= (int)$cat['id'] ?>">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="row mb-4">
       <div class="col-md-3 col-sm-6 mb-3">

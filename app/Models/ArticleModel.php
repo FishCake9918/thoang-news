@@ -89,10 +89,13 @@ class ArticleModel extends Model
                 n.*,
                 c.slug AS category,
                 c.name AS category_name,
+                c.color_bg,
+                c.color_text,
                 n.source AS source_name,
                 " . ($userId ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved
             FROM articles n
             LEFT JOIN categories c ON n.category_id = c.id
+            LEFT JOIN categories p ON c.parent_id = p.id
         ";
 
         $params = [];
@@ -108,13 +111,20 @@ class ArticleModel extends Model
 
         $where = ["n.status = 'Approved'"];
 
-        if ($category !== 'all') {
-            $where[] = "c.slug = :category";
-            $params[':category'] = $category;
+        if ($category === 'hot') {
+            $where[] = "DATE(n.published_at) = CURDATE()";
+        }
+
+        if ($category !== 'all' && $category !== 'hot') {
+            $where[] = "(c.slug = :category_slug OR p.slug = :parent_slug)";
+            $params[':category_slug'] = $category;
+            $params[':parent_slug'] = $category;
         }
 
         $sql .= " WHERE " . implode(' AND ', $where);
-        $sql .= " ORDER BY n.published_at DESC, n.created_at DESC";
+        $sql .= $category === 'hot'
+            ? " ORDER BY n.published_at DESC, n.view_count DESC, n.created_at DESC"
+            : " ORDER BY n.published_at DESC, n.created_at DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

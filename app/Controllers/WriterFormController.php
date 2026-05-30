@@ -46,13 +46,16 @@ class WriterFormController
         try {
             $this->categories->ensureOtherCategory();
             $categories = $this->categories->all();
+            $category_tree = $this->categories->activeTree();
         } catch (PDOException $e) {
             $categories = [];
+            $category_tree = [];
         }
 
         return [
             'article' => $article,
             'categories' => $categories,
+            'category_tree' => $category_tree,
             'redirect' => null,
         ];
     }

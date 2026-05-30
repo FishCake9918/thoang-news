@@ -29,6 +29,7 @@ if (!empty($formData['redirect'])) {
 
 $article = $formData['article'];
 $categories = $formData['categories'];
+$category_tree = $formData['category_tree'];
 $page_title = ($article_id > 0 ? 'Chỉnh sửa bài viết' : 'Viết bài mới') . ' - Thoáng.vn';
 
 View::render('writer.form', get_defined_vars());

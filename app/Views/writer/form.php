@@ -23,17 +23,32 @@
                 <label class="form-label">Chủ đề / Danh mục <span class="text-danger">*</span></label>
                 <select id="category_id" class="form-select" required>
                   <option value="">-- Chọn danh mục --</option>
-                  <?php if (empty($categories)): ?>
+                  <?php if (empty($category_tree ?? [])): ?>
                     <option value="">Không thể tải danh mục</option>
                   <?php else: ?>
-                    <?php foreach ($categories as $row): ?>
-                      <?php $selected = ((int)$article['category_id'] === (int)$row['id']) ? 'selected' : ''; ?>
-                      <option value="<?= (int)$row['id'] ?>" <?= $selected ?>>
-                        <?= htmlspecialchars($row['name']) ?>
-                      </option>
+                    <?php foreach ($category_tree as $parent): ?>
+                      <?php $children = $parent['children'] ?? []; ?>
+                      <?php if (empty($children)): ?>
+                        <?php $selected = ((int)$article['category_id'] === (int)$parent['id']) ? 'selected' : ''; ?>
+                        <option value="<?= (int)$parent['id'] ?>" <?= $selected ?>>
+                          <?= htmlspecialchars($parent['name']) ?>
+                        </option>
+                      <?php else: ?>
+                        <optgroup label="<?= htmlspecialchars($parent['name']) ?>">
+                          <?php foreach ($children as $child): ?>
+                            <?php $selected = ((int)$article['category_id'] === (int)$child['id']) ? 'selected' : ''; ?>
+                            <option value="<?= (int)$child['id'] ?>" <?= $selected ?>>
+                              <?= htmlspecialchars($child['name']) ?>
+                            </option>
+                          <?php endforeach; ?>
+                        </optgroup>
+                      <?php endif; ?>
                     <?php endforeach; ?>
                   <?php endif; ?>
                 </select>
+                <div class="text-muted mt-2" style="font-size:12px;">
+                  Danh mục có nhóm con sẽ hiển thị theo cụm để chọn đúng chủ đề bài viết.
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Tags bài viết</label>

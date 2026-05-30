@@ -56,7 +56,11 @@ function renderCard() {
     other: { label: 'Khác', bg: '#E5E7EB', color: '#374151' }
   };
 
-  const style = catStyles[a.category] || catStyles.other;
+  const style = catStyles[a.category] || {
+    label: a.category_name || 'Tin tức',
+    bg: a.color_bg || '#E5E7EB',
+    color: a.color_text || '#374151'
+  };
   const sourceName = a.source_name || 'Thoáng';
 
   document.getElementById('cardCat').textContent = style.label;
@@ -250,13 +254,16 @@ function restart() {
   loadNews(activeCat);
 }
 
-document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(link => {
+document.querySelectorAll('.primary-nav [data-cat]').forEach(link => {
   link.addEventListener('click', function(e) {
     const currentPage = window.location.pathname.split('/').pop() || 'index.php';
     if (currentPage === 'index.php' || currentPage === '') {
       e.preventDefault();
       document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(l => l.classList.remove('active'));
-      this.classList.add('active');
+      const owningNavLink = this.classList.contains('nav-link')
+        ? this
+        : this.closest('.nav-dropdown')?.querySelector('.nav-link');
+      if (owningNavLink) owningNavLink.classList.add('active');
       const cat = this.dataset.cat || 'all';
       const url = new URL(window.location.href);
       url.searchParams.set('category', cat);
@@ -361,11 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const initialCat = new URLSearchParams(window.location.search).get('category') || 'all';
-  const activeLink = document.querySelector(`.primary-nav .nav-link[data-cat="${initialCat}"]`);
+  const activeLink = document.querySelector(`.primary-nav [data-cat="${initialCat}"]`);
 
   if (activeLink) {
     document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(l => l.classList.remove('active'));
-    activeLink.classList.add('active');
+    const owningNavLink = activeLink.classList.contains('nav-link')
+      ? activeLink
+      : activeLink.closest('.nav-dropdown')?.querySelector('.nav-link');
+    if (owningNavLink) owningNavLink.classList.add('active');
   }
 
   loadNews(initialCat);
