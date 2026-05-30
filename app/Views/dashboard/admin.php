@@ -1,4 +1,56 @@
-<?php include __DIR__ . '/../partials/header.php'; ?>
+<?php
+include __DIR__ . '/../partials/header.php';
+
+$articlePageSize = 5;
+$articleStatusFilter = $_GET['article_status'] ?? 'all';
+$articleStatusLabels = [
+    'all' => 'Tất cả',
+    'request' => 'Chờ duyệt',
+    'Approved' => 'Đã duyệt',
+    'disapproved' => 'Không duyệt',
+];
+
+if (!isset($articleStatusLabels[$articleStatusFilter])) {
+    $articleStatusFilter = 'all';
+}
+
+$filteredArticles = array_values(array_filter($articles ?? [], function (array $article) use ($articleStatusFilter): bool {
+    return $articleStatusFilter === 'all' || ($article['status'] ?? '') === $articleStatusFilter;
+}));
+
+$articleStatusCounts = array_fill_keys(array_keys($articleStatusLabels), 0);
+$articleStatusCounts['all'] = count($articles ?? []);
+foreach ($articles ?? [] as $article) {
+    $status = $article['status'] ?? '';
+    if (isset($articleStatusCounts[$status])) {
+        $articleStatusCounts[$status]++;
+    }
+}
+
+$articleTotal = count($filteredArticles);
+$articleTotalPages = max(1, (int)ceil($articleTotal / $articlePageSize));
+$articlePage = max(1, min($articleTotalPages, (int)($_GET['article_page'] ?? 1)));
+$articleOffset = ($articlePage - 1) * $articlePageSize;
+$paginatedArticles = array_slice($filteredArticles, $articleOffset, $articlePageSize);
+
+$articlePageUrl = function (int $page): string {
+    $params = $_GET;
+    $params['article_page'] = $page;
+    return 'dashboard.php?' . http_build_query($params) . '#article-approval';
+};
+
+$articleFilterUrl = function (string $status): string {
+    $params = $_GET;
+    unset($params['article_page']);
+    if ($status === 'all') {
+        unset($params['article_status']);
+    } else {
+        $params['article_status'] = $status;
+    }
+    $query = http_build_query($params);
+    return 'dashboard.php' . ($query !== '' ? '?' . $query : '') . '#article-approval';
+};
+?>
 
 <div class="page-body">
   <div class="container-fluid px-4">
@@ -497,8 +549,29 @@
       <div class="col-xl-7 mb-4">
 
         <!-- PHÊ DUYỆT BÀI VIẾT -->
-        <div class="card shadow-sm border-0 p-4 bg-white">
+        <div class="card shadow-sm border-0 p-4 bg-white" id="article-approval">
           <span class="section-label">Phê duyệt & kiểm soát bài viết</span>
+
+          <?php if ($articleTotal > 0): ?>
+            <div class="admin-pagination-summary mt-2">
+              Hiển thị <?= number_format($articleOffset + 1) ?>-<?= number_format(min($articleOffset + $articlePageSize, $articleTotal)) ?>
+              / <?= number_format($articleTotal) ?> bài viết
+            </div>
+          <?php else: ?>
+            <div class="admin-pagination-summary mt-2">
+              Không có bài viết trong bộ lọc này.
+            </div>
+          <?php endif; ?>
+
+          <div class="admin-filter-tabs mt-3" aria-label="Lọc trạng thái bài viết">
+            <?php foreach ($articleStatusLabels as $statusKey => $statusLabel): ?>
+              <a class="admin-filter-tab <?= $articleStatusFilter === $statusKey ? 'active' : '' ?>"
+                 href="<?= htmlspecialchars($articleFilterUrl($statusKey)) ?>">
+                <?= htmlspecialchars($statusLabel) ?>
+                <span><?= number_format((int)$articleStatusCounts[$statusKey]) ?></span>
+              </a>
+            <?php endforeach; ?>
+          </div>
 
           <div class="table-responsive mt-3">
             <table class="table table-hover align-middle" style="font-size:14px;">
@@ -511,14 +584,14 @@
               </thead>
 
               <tbody>
-                <?php if (empty($articles)): ?>
+                <?php if (empty($paginatedArticles)): ?>
                   <tr>
                     <td colspan="3" class="text-center text-muted py-4">
                       Chưa có bài viết nào.
                     </td>
                   </tr>
                 <?php else: ?>
-                  <?php foreach ($articles as $a): ?>
+                  <?php foreach ($paginatedArticles as $a): ?>
                     <?php
                       $authorName = $a['full_name']
                           ?: ($a['username']
@@ -624,6 +697,35 @@
               </tbody>
             </table>
           </div>
+
+          <?php if ($articleTotalPages > 1): ?>
+            <nav class="admin-pagination" aria-label="Phân trang phê duyệt bài viết">
+              <a class="admin-page-link <?= $articlePage <= 1 ? 'disabled' : '' ?>"
+                 href="<?= $articlePage > 1 ? htmlspecialchars($articlePageUrl($articlePage - 1)) : '#' ?>">
+                <i class="bi bi-chevron-left"></i>
+                Trước
+              </a>
+
+              <div class="admin-page-numbers">
+                <?php for ($p = 1; $p <= $articleTotalPages; $p++): ?>
+                  <?php if ($p === 1 || $p === $articleTotalPages || abs($p - $articlePage) <= 1): ?>
+                    <a class="admin-page-num <?= $p === $articlePage ? 'active' : '' ?>"
+                       href="<?= htmlspecialchars($articlePageUrl($p)) ?>">
+                      <?= $p ?>
+                    </a>
+                  <?php elseif (abs($p - $articlePage) === 2): ?>
+                    <span class="admin-page-ellipsis">...</span>
+                  <?php endif; ?>
+                <?php endfor; ?>
+              </div>
+
+              <a class="admin-page-link <?= $articlePage >= $articleTotalPages ? 'disabled' : '' ?>"
+                 href="<?= $articlePage < $articleTotalPages ? htmlspecialchars($articlePageUrl($articlePage + 1)) : '#' ?>">
+                Sau
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </nav>
+          <?php endif; ?>
         </div>
 
         <!-- THỐNG KÊ CHI TIẾT -->
