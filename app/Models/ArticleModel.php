@@ -9,15 +9,14 @@ class ArticleModel extends Model
 {
     public function find(int $id): ?array
     {
+        // Tự động cộng thêm 1 lượt xem khi lấy chi tiết bài viết
+        $this->incrementViews($id);
+
         $stmt = $this->db->prepare("
             SELECT a.*, c.name AS category_name,
-                   u.id AS author_user_id,
-                   u.username AS author_username,
-                   u.full_name AS author_full_name,
-                   u.role AS author_role
+                   (SELECT COUNT(*) FROM comments cmt WHERE cmt.article_id = a.id) AS comment_count
             FROM articles a
             LEFT JOIN categories c ON a.category_id = c.id
-            LEFT JOIN users u ON a.author_id = u.id
             WHERE a.id = ?
             LIMIT 1
         ");
@@ -97,8 +96,8 @@ class ArticleModel extends Model
                 c.color_bg,
                 c.color_text,
                 n.source AS source_name,
-                (SELECT COUNT(*) FROM comments cm WHERE cm.article_id = n.id) AS comment_count,
-                " . ($userId ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved
+                " . ($userId ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved,
+                (SELECT COUNT(*) FROM comments cmt WHERE cmt.article_id = n.id) AS comment_count
             FROM articles n
             LEFT JOIN categories c ON n.category_id = c.id
             LEFT JOIN categories p ON c.parent_id = p.id
@@ -231,23 +230,5 @@ class ArticleModel extends Model
     {
         $stmt = $this->db->prepare("DELETE FROM articles WHERE id = ? AND author_id = ?");
         $stmt->execute([$articleId, $authorId]);
-    }
-
-    public function byWriterForProfile(int $writerId, bool $includeAllStatuses): array
-    {
-        $where = $includeAllStatuses
-            ? "a.author_id = ?"
-            : "a.author_id = ? AND a.status = 'Approved'";
-
-        $stmt = $this->db->prepare("
-            SELECT a.id, a.title, a.summary, a.status, a.view_count, a.created_at, a.updated_at, a.published_at,
-                   c.name AS category_name
-            FROM articles a
-            LEFT JOIN categories c ON a.category_id = c.id
-            WHERE {$where}
-            ORDER BY FIELD(a.status, 'Approved', 'request', 'disapproved'), a.published_at DESC, a.updated_at DESC, a.created_at DESC
-        ");
-        $stmt->execute([$writerId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
