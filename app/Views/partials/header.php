@@ -96,10 +96,13 @@ if ($nav_categories === [] && isset($pdo)) {
         <?php endif; ?>
 
         <div class="user-badge">
-          <i class="bi bi-person-fill"></i>
+          <img class="nav-avatar" src="<?= htmlspecialchars($cur_user['avatar'] ?? 'images/avatars/avatar-01.svg') ?>" alt="">
           <?= htmlspecialchars($cur_user['username']) ?>
           <span class="role-pill"><?= ucfirst($_SESSION['role']) ?></span>
         </div>
+        <a href="account.php" class="auth-link">
+          <i class="bi bi-person-gear"></i>Tài khoản
+        </a>
         <a href="logout.php" class="auth-link">
           <i class="bi bi-box-arrow-right"></i>Đăng xuất
         </a>

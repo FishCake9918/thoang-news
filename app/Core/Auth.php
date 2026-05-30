@@ -56,6 +56,7 @@ class Auth
             'username' => $_SESSION['username'] ?? '',
             'email' => $_SESSION['email'] ?? '',
             'full_name' => $_SESSION['full_name'] ?? '',
+            'avatar' => $_SESSION['avatar'] ?? 'images/avatars/avatar-01.svg',
             'role' => self::role(),
         ];
     }

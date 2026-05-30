@@ -49,6 +49,7 @@ class AuthController extends Controller
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['avatar'] = $user['avatar'] ?? 'images/avatars/avatar-01.svg';
             $_SESSION['role'] = $user['role'];
 
             $redirect = 'index.php';

@@ -7,6 +7,24 @@ use PDO;
 
 class UserModel extends Model
 {
+    public static function defaultAvatars(): array
+    {
+        $avatars = [];
+        for ($i = 1; $i <= 16; $i++) {
+            $avatars[] = 'images/avatars/avatar-' . str_pad((string)$i, 2, '0', STR_PAD_LEFT) . '.svg';
+        }
+        return $avatars;
+    }
+
+    public function ensureAvatarColumn(): void
+    {
+        try {
+            $this->db->query("SELECT avatar FROM users LIMIT 1");
+        } catch (\PDOException $e) {
+            $this->db->exec("ALTER TABLE users ADD COLUMN avatar VARCHAR(120) DEFAULT 'images/avatars/avatar-01.svg' AFTER full_name");
+        }
+    }
+
     public function findByLogin(string $login): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1");
@@ -86,5 +104,48 @@ class UserModel extends Model
     {
         $stmt = $this->db->prepare("UPDATE users SET is_verified = 1, verify_token = NULL WHERE id = ?");
         return $stmt->execute([$userId]);
+    }
+
+    public function findById(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, username, email, password, full_name, avatar, role, created_at FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function usernameOrEmailTakenByOther(int $userId, string $username, string $email): bool
+    {
+        $stmt = $this->db->prepare("
+            SELECT id
+            FROM users
+            WHERE id <> ? AND (username = ? OR email = ?)
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $username, $email]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function updateAccount(int $userId, string $username, string $email, string $avatar): bool
+    {
+        $stmt = $this->db->prepare("UPDATE users SET username = ?, email = ?, avatar = ? WHERE id = ?");
+        return $stmt->execute([$username, $email, $avatar, $userId]);
+    }
+
+    public function updatePassword(int $userId, string $passwordHash): bool
+    {
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        return $stmt->execute([$passwordHash, $userId]);
+    }
+
+    public function findWriterProfile(int $writerId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, username, email, full_name, avatar, role, created_at
+            FROM users
+            WHERE id = ? AND role = 'writer'
+            LIMIT 1
+        ");
+        $stmt->execute([$writerId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 }

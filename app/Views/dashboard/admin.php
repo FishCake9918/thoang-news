@@ -267,6 +267,11 @@
                       </td>
 
                       <td class="text-end">
+                        <?php if ($u['role'] === 'writer'): ?>
+                          <a href="writer.php?id=<?= (int)$u['id'] ?>" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                        <?php endif; ?>
                         <?php if ((int)$u['id'] !== (int)($_SESSION['user_id'] ?? 0)): ?>
                           <form method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa user này?');">
                             <input type="hidden" name="action" value="delete_user">
@@ -936,5 +941,4 @@ if (document.getElementById('articleStatusChart')) {
 </script>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>
-
 
