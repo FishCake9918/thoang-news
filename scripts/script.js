@@ -68,8 +68,6 @@ function renderCard() {
   document.getElementById('cardCat').style.color = style.color;
   document.getElementById('cardTitle').textContent = a.title;
   document.getElementById('cardSummary').textContent = a.summary;
-  document.getElementById('cardViews').textContent = Number(a.view_count || 0).toLocaleString('vi-VN');
-  document.getElementById('cardComments').textContent = Number(a.comment_count || 0).toLocaleString('vi-VN');
 
   const imageWrap = document.getElementById('cardImageWrap');
   const image = document.getElementById('cardImage');
@@ -343,6 +341,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Không phải trang chủ thì không chạy loadNews
   if (!frontCard) return;
 
+  frontCard.style.cursor = 'pointer';
+  frontCard.addEventListener('click', (e) => {
+    if (e.target.closest('button') || e.target.closest('a')) return;
+    if (Math.abs(curX - startX) > 10) return; // Nếu đang vuốt thì không kích hoạt click
+    if (allNews.length > 0 && currentIdx < allNews.length) {
+      window.location.href = `article.php?id=${allNews[currentIdx].id}`;
+    }
+  });
+
   const prevHint = document.getElementById('hintSave');
   const nextHint = document.getElementById('hintSkip');
   const nextBtn = document.querySelector('.btn-next-act');
@@ -547,93 +554,3 @@ window.closeFloatingAd = function () {
     ad.style.display = "block";
   }, 10000);
 };
-
-function makePanelDraggable(panel, handle) {
-  if (!panel || !handle || panel.dataset.draggableReady === "1") return;
-  panel.dataset.draggableReady = "1";
-
-  let startX = 0;
-  let startY = 0;
-  let startLeft = 0;
-  let startTop = 0;
-  let moved = false;
-
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-  }
-
-  function placePanel(left, top) {
-    const rect = panel.getBoundingClientRect();
-    const margin = 8;
-    const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
-    const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
-
-    panel.style.left = clamp(left, margin, maxLeft) + "px";
-    panel.style.top = clamp(top, margin, maxTop) + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-    panel.style.position = "fixed";
-  }
-
-  handle.addEventListener("pointerdown", function (event) {
-    if (event.button !== undefined && event.button !== 0) return;
-    if (event.target.closest("button, a, input, textarea, select")) return;
-
-    const rect = panel.getBoundingClientRect();
-    startX = event.clientX;
-    startY = event.clientY;
-    startLeft = rect.left;
-    startTop = rect.top;
-    moved = false;
-
-    panel.classList.add("is-dragging-panel");
-    panel.style.width = rect.width + "px";
-    placePanel(startLeft, startTop);
-    handle.setPointerCapture?.(event.pointerId);
-    event.preventDefault();
-  });
-
-  handle.addEventListener("pointermove", function (event) {
-    if (!panel.classList.contains("is-dragging-panel")) return;
-
-    const dx = event.clientX - startX;
-    const dy = event.clientY - startY;
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true;
-    placePanel(startLeft + dx, startTop + dy);
-  });
-
-  function endDrag(event) {
-    if (!panel.classList.contains("is-dragging-panel")) return;
-    panel.classList.remove("is-dragging-panel");
-    handle.releasePointerCapture?.(event.pointerId);
-  }
-
-  handle.addEventListener("pointerup", endDrag);
-  handle.addEventListener("pointercancel", endDrag);
-
-  handle.addEventListener("click", function (event) {
-    if (!moved) return;
-    event.preventDefault();
-    event.stopPropagation();
-    moved = false;
-  }, true);
-
-  window.addEventListener("resize", function () {
-    const rect = panel.getBoundingClientRect();
-    if (panel.style.left && panel.style.top) {
-      placePanel(rect.left, rect.top);
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  makePanelDraggable(
-    document.getElementById("floatingAd"),
-    document.querySelector("#floatingAd .floating-ad-head")
-  );
-
-  makePanelDraggable(
-    document.getElementById("chatbot-container"),
-    document.getElementById("chatbot-drag-head")
-  );
-});
