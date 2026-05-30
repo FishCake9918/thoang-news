@@ -22,7 +22,7 @@ $footerLinks = [
 </footer>
 
 <?php if ($showFloatingAd): ?>
-<div id="floatingAd" class="floating-ad">
+<div id="floatingAd" class="floating-ad" style="left: 20px; right: auto;">
   <div class="floating-ad-head drag-handle" data-drag-handle>
     <span>Quảng cáo</span>
     <button type="button" class="btn-close" style="font-size:10px; filter:invert(1);" aria-label="Close" onclick="closeFloatingAd()"></button>
