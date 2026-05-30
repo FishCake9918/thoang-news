@@ -57,6 +57,8 @@ class Auth
             'email' => $_SESSION['email'] ?? '',
             'full_name' => $_SESSION['full_name'] ?? '',
             'role' => self::role(),
+            'theme_preference' => $_SESSION['theme_preference'] ?? 'light',
+            'article_font_size' => (int)($_SESSION['article_font_size'] ?? 16),
         ];
     }
 }

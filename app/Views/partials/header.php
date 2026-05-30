@@ -6,6 +6,9 @@ $is_admin  = isAdmin();
 $cur_user  = getCurrentUser();
 $current_page = basename($_SERVER['PHP_SELF'] ?? '');
 $nav_categories = $nav_categories ?? [];
+$theme_preference = $is_logged ? ($_SESSION['theme_preference'] ?? 'light') : '';
+$article_font_size = $is_logged ? (int)($_SESSION['article_font_size'] ?? 16) : 16;
+$preference_key = $is_logged ? ('thoangPrefsUser' . (int)($_SESSION['user_id'] ?? 0)) : 'thoangPrefsGuest';
 
 if ($nav_categories === [] && isset($pdo)) {
     try {
@@ -22,6 +25,27 @@ if ($nav_categories === [] && isset($pdo)) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><?= htmlspecialchars($page_title) ?></title>
   <link rel="icon" type="image/png" href="images/favicon.png">
+  <script>
+    (function () {
+      var accountTheme = <?= json_encode($theme_preference) ?>;
+      var preferenceKey = <?= json_encode($preference_key) ?>;
+      var savedPrefs = {};
+      try {
+        savedPrefs = JSON.parse(localStorage.getItem(preferenceKey) || '{}') || {};
+      } catch (e) {
+        savedPrefs = {};
+      }
+      var savedTheme = savedPrefs.theme || accountTheme || 'light';
+      var theme = savedTheme === 'dark' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      window.thoangPrefs = {
+        isLoggedIn: <?= $is_logged ? 'true' : 'false' ?>,
+        storageKey: preferenceKey,
+        theme: theme,
+        articleFontSize: parseInt(savedPrefs.articleFontSize || <?= $article_font_size ?>, 10) || 16
+      };
+    })();
+  </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -76,6 +100,10 @@ if ($nav_categories === [] && isset($pdo)) {
       <form action="search.php" method="GET" class="masthead-search d-none d-md-block mb-0">
         <input type="text" name="q" placeholder="Tìm kiếm..." required />
       </form>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Chuyển chế độ sáng tối" title="Chế độ sáng/tối">
+        <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
+        <i class="bi bi-sun-fill theme-icon-light"></i>
+      </button>
       <?php if ($is_logged): ?>
         <?php if ($_SESSION['role'] === 'admin'): ?>
           <a href="dashboard.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
