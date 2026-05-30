@@ -14,8 +14,7 @@ use App\Controllers\ChatController;
 
 header('Content-Type: application/json');
 
-// THAY ĐỔI: Sử dụng API Key của OpenRouter (Bắt đầu bằng sk-or-...)
-$apiKey = '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';
+$apiKey = '';
 
 if ($apiKey === '') {
     http_response_code(500);
