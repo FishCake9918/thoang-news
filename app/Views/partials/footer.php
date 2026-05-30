@@ -5,14 +5,6 @@ $footerLinks = [
     ['label' => 'Trang chủ', 'href' => 'index.php'],
     ['label' => 'Đã lưu', 'href' => 'saved.php'],
     ['label' => 'Giới thiệu', 'href' => 'about.php'],
-    ['label' => 'Chính trị', 'href' => 'index.php?category=politics'],
-    ['label' => 'Thế giới', 'href' => 'index.php?category=world'],
-    ['label' => 'Kinh tế', 'href' => 'index.php?category=biz'],
-    ['label' => 'Thể thao', 'href' => 'index.php?category=sport'],
-    ['label' => 'Công nghệ', 'href' => 'index.php?category=tech'],
-    ['label' => 'Đời sống', 'href' => 'index.php?category=life'],
-    ['label' => 'Giáo dục', 'href' => 'index.php?category=edu'],
-    ['label' => 'Khác', 'href' => 'index.php?category=other'],
 ];
 ?>
 
@@ -122,8 +114,11 @@ function fetchWeather() {
 
   const updateWeatherUI = (data) => {
     if (data.success) {
+      const icon = data.icon || '';
       weatherWidget.innerHTML = `
-        <img src="${data.icon}" alt="${data.description}" style="width:20px; height:20px; margin-right: 2px;">
+        ${icon
+          ? `<img src="${icon}" alt="${data.description}" style="width:20px; height:20px; margin-right:2px;" referrerpolicy="no-referrer" onerror="this.outerHTML='<i class=&quot;bi bi-cloud-sun-fill&quot; style=&quot;color:var(--gold);font-size:16px;margin-right:4px;&quot;></i>';">`
+          : `<i class="bi bi-cloud-sun-fill" style="color:var(--gold);font-size:16px;margin-right:4px;"></i>`}
         <span style="font-weight: 500;">${data.temp}°C</span>
         <span class="d-none d-lg-inline opacity-75">, ${data.city}</span>
         <span class="opacity-75 ms-1">- ${data.description}</span>
@@ -141,14 +136,18 @@ function fetchWeather() {
   };
 
   const fetchByDefaultCity = () => {
-    fetch(`api/get_weather.php?city=Ho Chi Minh City`)
+    fetch(`api/get_weather.php?city=Ho Chi Minh City,VN`)
       .then(response => response.json())
       .then(updateWeatherUI)
       .catch(() => weatherWidget.innerHTML = '<span class="opacity-75 fs-7">Lỗi kết nối.</span>');
   };
 
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => fetchByCoords(pos.coords.latitude, pos.coords.longitude), fetchByDefaultCity);
+    navigator.geolocation.getCurrentPosition(
+      pos => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+      fetchByDefaultCity,
+      { enableHighAccuracy: false, timeout: 7000, maximumAge: 600000 }
+    );
   } else {
     fetchByDefaultCity();
   }

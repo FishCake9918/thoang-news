@@ -37,9 +37,11 @@ class WriterDashboardModel extends Model
                 a.published_at,
                 a.tags,
                 a.source,
-                c.name AS category_name
+                c.name AS category_name,
+                COALESCE(parent.name, c.name, 'Chưa phân loại') AS parent_category_name
             FROM articles a
             LEFT JOIN categories c ON a.category_id = c.id
+            LEFT JOIN categories parent ON c.parent_id = parent.id
             WHERE a.author_id = ?
             ORDER BY
                 FIELD(a.status, 'request', 'Approved', 'disapproved'),
@@ -52,7 +54,7 @@ class WriterDashboardModel extends Model
         foreach ($articles as $article) {
             if ($article['status'] === 'Approved') {
                 $key = 'Approved';
-                $categoryName = $article['category_name'] ?? 'Chưa phân loại';
+                $categoryName = $article['parent_category_name'] ?? 'Chưa phân loại';
                 $catViewsData[$categoryName] = ($catViewsData[$categoryName] ?? 0) + (int)$article['view_count'];
             } elseif ($article['status'] === 'disapproved') {
                 $key = 'disapproved';

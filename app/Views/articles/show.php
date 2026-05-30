@@ -32,7 +32,14 @@ include __DIR__ . '/../partials/header.php';
           <div class="article-meta">
             <div class="meta-item">
               <i class="bi bi-journal-bookmark-fill"></i>
-              <span>Nguồn: <strong><?= htmlspecialchars($article['source_name'] ?? $article['source'] ?? 'Nội bộ') ?></strong></span>
+              <span>
+                Nguồn:
+                <?php if (($article['author_role'] ?? '') === 'writer' && !empty($article['author_user_id']) && isLoggedIn() && in_array($_SESSION['role'] ?? '', ['user', 'admin'], true)): ?>
+                  <strong><a href="writer.php?id=<?= (int)$article['author_user_id'] ?>" class="writer-inline-link"><?= htmlspecialchars(($article['author_full_name'] ?? '') ?: ($article['author_username'] ?? $article['source'] ?? 'Nội bộ')) ?></a></strong>
+                <?php else: ?>
+                  <strong><?= htmlspecialchars($article['source_name'] ?? $article['source'] ?? 'Nội bộ') ?></strong>
+                <?php endif; ?>
+              </span>
             </div>
 
             <div class="meta-item border-start ps-3">

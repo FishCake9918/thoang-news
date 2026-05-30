@@ -267,6 +267,15 @@
                       </td>
 
                       <td class="text-end">
+                        <?php if ($u['role'] === 'writer'): ?>
+                          <a href="writer.php?id=<?= (int)$u['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem hồ sơ writer">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                        <?php elseif ($u['role'] === 'user'): ?>
+                          <a href="dashboard.php?comment_user_id=<?= (int)$u['id'] ?>#user-comments" class="btn btn-sm btn-outline-primary" title="Xem bình luận của user">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                        <?php endif; ?>
                         <?php if ((int)$u['id'] !== (int)($_SESSION['user_id'] ?? 0)): ?>
                           <form method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa user này?');">
                             <input type="hidden" name="action" value="delete_user">
@@ -283,6 +292,50 @@
               </tbody>
             </table>
           </div>
+
+          <?php if (!empty($selected_comment_user)): ?>
+            <div class="user-comments-panel" id="user-comments">
+              <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                <div>
+                  <div class="account-eyebrow">Bình luận của user</div>
+                  <h5 class="mb-1">
+                    <?= htmlspecialchars($selected_comment_user['full_name'] ?: $selected_comment_user['username']) ?>
+                  </h5>
+                  <div class="text-muted" style="font-size:12px;">
+                    @<?= htmlspecialchars($selected_comment_user['username']) ?> ·
+                    <?= htmlspecialchars($selected_comment_user['email']) ?> ·
+                    <?= count($selected_user_comments) ?> bình luận
+                  </div>
+                </div>
+                <a href="dashboard.php" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-x-lg me-1"></i>Đóng
+                </a>
+              </div>
+
+              <?php if (empty($selected_user_comments)): ?>
+                <div class="text-muted" style="font-size:13px;">User này chưa có bình luận nào.</div>
+              <?php else: ?>
+                <div class="user-comment-list">
+                  <?php foreach ($selected_user_comments as $comment): ?>
+                    <article class="user-comment-row">
+                      <div class="d-flex justify-content-between gap-3 flex-wrap">
+                        <div class="user-comment-article">
+                          <a href="article.php?id=<?= (int)$comment['article_id'] ?>&from=dashboard#comments">
+                            <?= htmlspecialchars($comment['article_title']) ?>
+                          </a>
+                          <span><?= htmlspecialchars($comment['category_name'] ?? 'Tin tức') ?></span>
+                        </div>
+                        <time><?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></time>
+                      </div>
+                      <p>
+                        <?= htmlspecialchars(mb_strlen($comment['content']) > 180 ? mb_substr($comment['content'], 0, 180) . '...' : $comment['content']) ?>
+                      </p>
+                    </article>
+                  <?php endforeach; ?>
+                </div>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
         </div>
 
         <!-- HỘP THƯ GÓP Ý -->
@@ -856,6 +909,7 @@ function fbDelete(id) {
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
 Chart.register(ChartDataLabels);
+const adminChartTextColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#c6d1e2' : '#666';
 
 // Biểu đồ lượt xem theo danh mục
 const catNames = <?= json_encode(array_column($cat_stats, 'name')) ?>;
@@ -876,7 +930,7 @@ if (document.getElementById('catViewsChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: adminChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },
@@ -917,7 +971,7 @@ if (document.getElementById('articleStatusChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: adminChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },
@@ -936,5 +990,3 @@ if (document.getElementById('articleStatusChart')) {
 </script>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>
-
-

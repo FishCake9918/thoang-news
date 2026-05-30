@@ -27,6 +27,11 @@
               <span class="card-read-time" id="cardReadTime">~ 30 giây</span>
             </div>
 
+            <div class="card-mini-stats" id="cardMiniStats">
+              <span><i class="bi bi-eye"></i><b id="cardViews">0</b></span>
+              <span><i class="bi bi-chat-dots"></i><b id="cardComments">0</b></span>
+            </div>
+
             <figure class="card-image-wrap d-none" id="cardImageWrap">
               <img id="cardImage" class="card-image" src="" alt="" draggable="false">
             </figure>
