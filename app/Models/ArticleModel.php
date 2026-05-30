@@ -97,6 +97,7 @@ class ArticleModel extends Model
                 c.color_bg,
                 c.color_text,
                 n.source AS source_name,
+                (SELECT COUNT(*) FROM comments cm WHERE cm.article_id = n.id) AS comment_count,
                 " . ($userId ? "IF(b.id IS NOT NULL, 1, 0)" : "0") . " AS is_saved
             FROM articles n
             LEFT JOIN categories c ON n.category_id = c.id

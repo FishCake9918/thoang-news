@@ -68,6 +68,8 @@ function renderCard() {
   document.getElementById('cardCat').style.color = style.color;
   document.getElementById('cardTitle').textContent = a.title;
   document.getElementById('cardSummary').textContent = a.summary;
+  document.getElementById('cardViews').textContent = Number(a.view_count || 0).toLocaleString('vi-VN');
+  document.getElementById('cardComments').textContent = Number(a.comment_count || 0).toLocaleString('vi-VN');
 
   const imageWrap = document.getElementById('cardImageWrap');
   const image = document.getElementById('cardImage');

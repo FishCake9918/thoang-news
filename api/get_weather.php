@@ -12,6 +12,7 @@ require_once __DIR__ . '/../app/Models/WeatherModel.php';
 require_once __DIR__ . '/../app/Controllers/WeatherController.php';
 
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 // !!! QUAN TRỌNG: Bạn BẮT BUỘC phải thay thế 'YOUR_OPENWEATHERMAP_API_KEY' bằng API key của bạn.
 // Lấy key miễn phí tại: https://openweathermap.org/appid
@@ -25,13 +26,16 @@ if ($apiKey === 'YOUR_API_KEY_HERE' || $apiKey === '') {
 
 $lat = $_GET['lat'] ?? null;
 $lon = $_GET['lon'] ?? null;
-$city = $_GET['city'] ?? 'Ho Chi Minh City'; // Thành phố mặc định
+$city = trim($_GET['city'] ?? 'Ho Chi Minh City,VN'); // Thành phố mặc định
+if (strcasecmp($city, 'Ho Chi Minh City') === 0) {
+    $city = 'Ho Chi Minh City,VN';
+}
 $cache_ttl = 600; // Cache trong 10 phút (600 giây)
 
 // Tạo key cache duy nhất dựa trên vị trí
 $cache_key = $lat && $lon
-    ? 'weatherapi_' . round((float)$lat, 2) . '_' . round((float)$lon, 2)
-    : 'weatherapi_' . str_replace(' ', '_', strtolower($city));
+    ? 'weather_v6_' . round((float)$lat, 2) . '_' . round((float)$lon, 2)
+    : 'weather_v6_' . str_replace([' ', ','], '_', strtolower($city));
 
 // 1. Kiểm tra cache trước khi gọi API
 if (isset($_SESSION[$cache_key]) && (time() - $_SESSION[$cache_key]['timestamp']) < $cache_ttl) {
@@ -39,18 +43,24 @@ if (isset($_SESSION[$cache_key]) && (time() - $_SESSION[$cache_key]['timestamp']
     exit;
 }
 
-$weatherModel = new WeatherModel($apiKey);
-$weatherController = new WeatherController($weatherModel);
+try {
+    $weatherModel = new WeatherModel($apiKey);
+    $weatherController = new WeatherController($weatherModel);
 
-// 2. Nếu không có cache, gọi API và bắt đầu bộ đệm đầu ra để lấy kết quả
-ob_start();
-if ($lat && $lon) {
-    $weatherController->getWeatherByCoords((float)$lat, (float)$lon);
-} else {
-    $weatherController->getWeatherByCity($city);
+    // 2. Nếu không có cache, gọi API và bắt đầu bộ đệm đầu ra để lấy kết quả
+    ob_start();
+    if ($lat && $lon) {
+        $weatherController->getWeatherByCoords((float)$lat, (float)$lon);
+    } else {
+        $weatherController->getWeatherByCity($city);
+    }
+    $response_body = ob_get_clean();
+    $response_data = json_decode($response_body, true);
+} catch (Throwable $e) {
+    http_response_code(200);
+    echo json_encode(['success' => false, 'message' => 'Không thể tải thời tiết.']);
+    exit;
 }
-$response_body = ob_get_clean();
-$response_data = json_decode($response_body, true);
 
 // 3. Nếu gọi API thành công, lưu kết quả vào cache (session)
 if (isset($response_data['success']) && $response_data['success'] === true) {

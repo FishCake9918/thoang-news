@@ -206,6 +206,12 @@ body {
   color: #1d4ed8 !important;
 }
 
+:root[data-theme="dark"] .card-mini-stats span {
+  background: #dbeafe;
+  color: #10213b;
+  border-color: #93c5fd;
+}
+
 :root[data-theme="dark"] .category-dropdown a:hover,
 :root[data-theme="dark"] .secondary-nav a:hover,
 :root[data-theme="dark"] .fb-header:hover {
@@ -293,6 +299,24 @@ body {
 :root[data-theme="dark"] .fb-subject,
 :root[data-theme="dark"] .feedback-stat-label {
   color: #eef4ff;
+}
+
+:root[data-theme="dark"] .user-comments-panel {
+  border-top-color: #425472;
+}
+
+:root[data-theme="dark"] .user-comment-row {
+  background: #101a2d;
+  border-color: #425472;
+}
+
+:root[data-theme="dark"] .user-comment-row p {
+  color: #d5deec;
+}
+
+:root[data-theme="dark"] .user-comment-article span,
+:root[data-theme="dark"] .user-comment-row time {
+  color: #c6d1e2;
 }
 
 :root[data-theme="dark"] .text-secondary {
@@ -484,6 +508,9 @@ footer a:hover { color: #fff; }
 .hint-save { right: 16px; background: #e6f4ee; color: #0f6e56; border: 1px solid #0f6e56; }
 .card-cat { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 10px; border-radius: 2px; margin-bottom: 14px; }
 .card-read-time { font-size: 11px; color: var(--muted); }
+.card-mini-stats { position: absolute; top: 58px; right: 20px; z-index: 12; display: inline-flex; gap: 6px; align-items: center; }
+.card-mini-stats span { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,.92); color: #1a2744; border: 1px solid var(--border); border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card-mini-stats i { font-size: 12px; color: var(--red); }
 .card-image-wrap { width: 100%; aspect-ratio: 16 / 9; max-height: 260px; margin: 0 0 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg); }
 .card-image { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-headline { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; line-height: 1.3; color: var(--text); margin-bottom: 12px; }
@@ -687,6 +714,14 @@ footer a:hover { color: #fff; }
 .status-approved { background: #d1e7dd; color: #0a3622; }
 .status-request { background: #fff3cd; color: #856404; }
 .status-disapproved { background: #fdecea; color: #9d1c24; }
+.user-comments-panel { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.user-comment-list { display: flex; flex-direction: column; gap: 12px; }
+.user-comment-row { border: 1px solid var(--border); border-radius: 8px; background: var(--bg); padding: 14px 16px; }
+.user-comment-article { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.user-comment-article a { color: var(--navy); font-size: 13.5px; font-weight: 800; line-height: 1.4; text-decoration: none; }
+.user-comment-article a:hover { color: var(--red); }
+.user-comment-article span, .user-comment-row time { color: var(--muted); font-size: 11.5px; }
+.user-comment-row p { color: #444; font-size: 13px; line-height: 1.65; margin: 10px 0 0; overflow-wrap: anywhere; }
 
 /* â”€â”€ 9. TRANG GIá»šI THIá»†U (ABOUT) â”€â”€ */
 .about-hero { background: var(--navy); padding: 56px 0 48px; margin-bottom: 36px; position: relative; overflow: hidden; }

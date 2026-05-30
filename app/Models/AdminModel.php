@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use PDO;
 
 class AdminModel extends Model
 {
@@ -48,6 +49,39 @@ class AdminModel extends Model
     {
         $stmt = $this->db->prepare("DELETE FROM comments WHERE id = ?");
         $stmt->execute([$commentId]);
+    }
+
+    public function userBrief(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, username, email, full_name, role
+            FROM users
+            WHERE id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function commentsByUser(int $userId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                c.id,
+                c.content,
+                c.created_at,
+                a.id AS article_id,
+                a.title AS article_title,
+                a.status AS article_status,
+                cat.name AS category_name
+            FROM comments c
+            INNER JOIN articles a ON a.id = c.article_id
+            LEFT JOIN categories cat ON cat.id = a.category_id
+            WHERE c.user_id = ?
+            ORDER BY c.created_at DESC, c.id DESC
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function saveCategory(array $data): void

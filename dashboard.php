@@ -19,6 +19,19 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
 $error = '';
 $adminController = new AdminController(new AdminModel($pdo));
 $error = $adminController->handleRequest() ?? '';
+$selected_comment_user = null;
+$selected_user_comments = [];
+$comment_user_id = (int)($_GET['comment_user_id'] ?? 0);
+
+if ($comment_user_id > 0) {
+    $commentAdminModel = new AdminModel($pdo);
+    $selected_comment_user = $commentAdminModel->userBrief($comment_user_id);
+    if ($selected_comment_user && ($selected_comment_user['role'] ?? '') === 'user') {
+        $selected_user_comments = $commentAdminModel->commentsByUser($comment_user_id);
+    } else {
+        $selected_comment_user = null;
+    }
+}
 
 $adminDashboard = new AdminDashboardController(new AdminDashboardModel($pdo));
 $dashboardData = $adminDashboard->show();
