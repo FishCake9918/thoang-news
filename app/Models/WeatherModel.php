@@ -5,8 +5,6 @@ namespace App\Models;
 class WeatherModel
 {
     private string $apiKey;
-    private const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
-    private const WEATHERAPI_BASE_URL = 'https://api.weatherapi.com/v1/current.json';
     private const OPENMETEO_BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
     public function __construct(string $apiKey)
@@ -49,65 +47,15 @@ class WeatherModel
 
     public function findByCity(string $city): ?array
     {
-        $openWeatherUrl = sprintf(
-            '%s?appid=%s&q=%s&units=metric&lang=vi',
-            self::OPENWEATHER_BASE_URL,
-            $this->apiKey,
-            urlencode($city)
-        );
-        $data = $this->fetchWeatherData($openWeatherUrl);
-
-        if ($data && isset($data['main'])) {
-            return $data;
-        }
-
-        $weatherApiUrl = sprintf(
-            '%s?key=%s&q=%s&lang=vi',
-            self::WEATHERAPI_BASE_URL,
-            $this->apiKey,
-            urlencode($city)
-        );
-        $data = $this->fetchWeatherData($weatherApiUrl);
-
-        if ($data && isset($data['current'])) {
-            return $data;
-        }
-
         if (preg_match('/ho\\s*chi\\s*minh|hcm|sai\\s*gon/i', $city)) {
             return $this->findByOpenMeteoCoords(10.8231, 106.6297, 'Ho Chi Minh City');
         }
 
-        return null;
+        return $this->findByOpenMeteoCoords(10.8231, 106.6297, 'Ho Chi Minh City');
     }
 
     public function findByCoords(float $lat, float $lon): ?array
     {
-        $openWeatherUrl = sprintf(
-            '%s?appid=%s&lat=%f&lon=%f&units=metric&lang=vi',
-            self::OPENWEATHER_BASE_URL,
-            $this->apiKey,
-            $lat,
-            $lon
-        );
-        $data = $this->fetchWeatherData($openWeatherUrl);
-
-        if ($data && isset($data['main'])) {
-            return $data;
-        }
-
-        $weatherApiUrl = sprintf(
-            '%s?key=%s&q=%f,%f&lang=vi',
-            self::WEATHERAPI_BASE_URL,
-            $this->apiKey,
-            $lat,
-            $lon
-        );
-        $data = $this->fetchWeatherData($weatherApiUrl);
-
-        if ($data && isset($data['current'])) {
-            return $data;
-        }
-
         return $this->findByOpenMeteoCoords($lat, $lon);
     }
 

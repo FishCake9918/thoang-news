@@ -21,33 +21,7 @@ class WeatherController
 
     private function iconUrl(array $data): string
     {
-        if (($data['provider'] ?? '') === 'open-meteo') {
-            return '';
-        }
-
-        if (!empty($data['weather'][0]['icon'])) {
-            return 'https://openweathermap.org/img/wn/' . rawurlencode($data['weather'][0]['icon']) . '@2x.png';
-        }
-
-        $icon = (string)($data['current']['condition']['icon'] ?? '');
-
-        if ($icon === '') {
-            return '';
-        }
-
-        if (str_starts_with($icon, '//')) {
-            return 'https:' . $icon;
-        }
-
-        if (str_starts_with($icon, 'http://')) {
-            return 'https://' . substr($icon, 7);
-        }
-
-        if (str_starts_with($icon, 'https://')) {
-            return $icon;
-        }
-
-        return 'https://cdn.weatherapi.com' . $icon;
+        return '';
     }
 
     private function openMeteoDescription(int $code): string
@@ -78,29 +52,13 @@ class WeatherController
     public function getWeatherByCity(string $city): void
     {
         $data = $this->weatherModel->findByCity($city);
-        if ($data && isset($data['main'])) {
-            $this->sendJsonResponse([
-                'success' => true,
-                'city' => $data['name'] ?? preg_replace('/,\s*VN$/i', '', $city),
-                'temp' => round((float)$data['main']['temp']),
-                'description' => ucfirst($data['weather'][0]['description'] ?? ''),
-                'icon' => $this->iconUrl($data)
-            ]);
-        } elseif ($data && (($data['provider'] ?? '') === 'open-meteo')) {
+        if ($data && (($data['provider'] ?? '') === 'open-meteo')) {
             $this->sendJsonResponse([
                 'success' => true,
                 'city' => $data['name'] ?: preg_replace('/,\s*VN$/i', '', $city),
                 'temp' => round((float)$data['current']['temperature_2m']),
                 'description' => $this->openMeteoDescription((int)($data['current']['weather_code'] ?? -1)),
                 'icon' => ''
-            ]);
-        } elseif ($data && isset($data['current'])) {
-            $this->sendJsonResponse([
-                'success' => true,
-                'city' => $data['location']['name'] ?? preg_replace('/,\s*VN$/i', '', $city),
-                'temp' => round($data['current']['temp_c']),
-                'description' => ucfirst($data['current']['condition']['text']),
-                'icon' => $this->iconUrl($data)
             ]);
         } else {
             $this->sendJsonResponse(['success' => false, 'message' => 'Không tìm thấy dữ liệu thời tiết.'], 404);
@@ -110,29 +68,13 @@ class WeatherController
     public function getWeatherByCoords(float $lat, float $lon): void
     {
         $data = $this->weatherModel->findByCoords($lat, $lon);
-        if ($data && isset($data['main'])) {
+        if ($data && (($data['provider'] ?? '') === 'open-meteo')) {
             $this->sendJsonResponse([
                 'success' => true,
-                'city' => $data['name'] ?? '',
-                'temp' => round((float)$data['main']['temp']),
-                'description' => ucfirst($data['weather'][0]['description'] ?? ''),
-                'icon' => $this->iconUrl($data)
-            ]);
-        } elseif ($data && (($data['provider'] ?? '') === 'open-meteo')) {
-            $this->sendJsonResponse([
-                'success' => true,
-                'city' => $data['name'] ?: 'Vị trí hiện tại',
+                'city' => 'Vị trí hiện tại',
                 'temp' => round((float)$data['current']['temperature_2m']),
                 'description' => $this->openMeteoDescription((int)($data['current']['weather_code'] ?? -1)),
                 'icon' => ''
-            ]);
-        } elseif ($data && isset($data['current'])) {
-            $this->sendJsonResponse([
-                'success' => true,
-                'city' => $data['location']['name'],
-                'temp' => round($data['current']['temp_c']),
-                'description' => ucfirst($data['current']['condition']['text']),
-                'icon' => $this->iconUrl($data)
             ]);
         } else {
             $this->sendJsonResponse(['success' => false, 'message' => 'Không thể lấy thời tiết cho vị trí của bạn.'], 404);
