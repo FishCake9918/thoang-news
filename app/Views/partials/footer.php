@@ -155,6 +155,117 @@ function fetchWeather() {
 }
 </script>
 
+<!-- Nút mở Chatbot -->
+<button id="open-chatbot" style="position: fixed; bottom: 30px; right: 30px; padding: 12px 20px; background: #534AB7; color: #fff; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 9998; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;">
+    💬 Chat AI
+</button>
+
+<!-- Khung Chatbot HTML -->
+<div id="chatbot-container" style="position: fixed; bottom: 90px; right: 30px; width: 350px; border: 1px solid #ddd; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; display: none; flex-direction: column; overflow: hidden; font-family: sans-serif;">
+    <div style="background: #534AB7; color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: bold; font-size: 16px;">Trợ lý AI Thoáng.vn</span>
+        <button id="close-chatbot" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+    
+    <div id="chat-messages" style="height: 350px; overflow-y: auto; padding: 15px; font-size: 14px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: #e5e7eb; padding: 10px 14px; border-radius: 16px; align-self: flex-start; max-width: 85%; color: #374151;">
+            Xin chào! Tôi là trợ lý AI của Thoáng.vn. Bạn muốn tìm hiểu tin tức gì hôm nay?
+        </div>
+    </div>
+    
+    <div style="padding: 12px; border-top: 1px solid #eee; display: flex; background: #fff; align-items: center;">
+        <input type="text" id="chat-input" placeholder="Nhập câu hỏi của bạn..." style="flex: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 14px;">
+        <button id="send-chat" style="margin-left: 8px; padding: 10px 18px; background: #534AB7; color: #fff; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px;">Gửi</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chatContainer = document.getElementById('chatbot-container');
+    const openBtn = document.getElementById('open-chatbot');
+    const closeBtn = document.getElementById('close-chatbot');
+    const sendBtn = document.getElementById('send-chat');
+    const chatInput = document.getElementById('chat-input');
+    const messagesDiv = document.getElementById('chat-messages');
+
+    openBtn.addEventListener('click', () => {
+        chatContainer.style.display = 'flex';
+        openBtn.style.display = 'none';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatContainer.style.display = 'none';
+        openBtn.style.display = 'flex';
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // Lấy ID bài viết từ URL nếu người dùng đang ở trang article.php
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+
+        messagesDiv.innerHTML += `
+            <div style="background: #EEEDFE; color: #534AB7; padding: 10px 14px; border-radius: 16px; align-self: flex-end; max-width: 85%;">
+                ${text}
+            </div>`;
+        chatInput.value = '';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        const loadingId = 'loading-' + Date.now();
+        messagesDiv.innerHTML += `
+            <div id="${loadingId}" style="background: #e5e7eb; padding: 10px 14px; border-radius: 16px; align-self: flex-start; max-width: 85%; color: #6b7280; font-style: italic;">
+                Đang suy nghĩ...
+            </div>`;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        fetch('api/chat.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, article_id: articleId })
+        })
+        .then(async response => {
+            const rawText = await response.text();
+            try {
+                return JSON.parse(rawText);
+            } catch (e) {
+                throw new Error("Phản hồi không hợp lệ: " + rawText.substring(0, 150));
+            }
+        })
+        .then(data => {
+            document.getElementById(loadingId).remove();
+            if (data.success) {
+                const reply = data.reply.replace(/\n/g, '<br>');
+                messagesDiv.innerHTML += `
+                    <div style="background: #e5e7eb; padding: 10px 14px; border-radius: 16px; align-self: flex-start; max-width: 85%; color: #374151;">
+                        ${reply}
+                    </div>`;
+            } else {
+                messagesDiv.innerHTML += `
+                    <div style="background: #fee2e2; color: #b91c1c; padding: 10px 14px; border-radius: 16px; align-self: flex-start; max-width: 85%;">
+                        Lỗi: ${data.message}
+                    </div>`;
+            }
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        })
+        .catch(err => {
+            document.getElementById(loadingId).remove();
+            messagesDiv.innerHTML += `
+                <div style="background: #fee2e2; color: #b91c1c; padding: 10px 14px; border-radius: 16px; align-self: flex-start; max-width: 85%; overflow-wrap: anywhere;">
+                    <b>Lỗi hệ thống:</b> ${err.message}
+                </div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    }
+});
+</script>
+
 <script src="scripts/script.js"></script>
 
 </body>
