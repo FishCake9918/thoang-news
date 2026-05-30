@@ -99,5 +99,7 @@ function fetchWeather() {
 }
 </script>
 
+<script src="/thoang-news/scripts/script.js"></script>
+
 </body>
 </html>

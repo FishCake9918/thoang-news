@@ -439,6 +439,10 @@ async function loadAds() {
   } catch (error) {
     console.error('Lỗi tải quảng cáo:', error);
   }
+  setInterval(() => {
+    adIndex = (adIndex + 1) % ads.length;
+    showAd();
+}, 8000);
 }
 
 function showAd() {
@@ -450,17 +454,27 @@ function showAd() {
   if (!img || !title || !price || !link) return;
   if (!ads.length) return;
 
-  const ad = ads[adIndex];
+  img.classList.add("ad-changing");
+  title.classList.add("ad-changing");
+  price.classList.add("ad-changing");
 
-  img.src = ad.thumbnail;
-  
-  img.onerror = () => {
-    adIndex = (adIndex + 1) % ads.length;
-    showAd();
-  };
-  title.textContent = ad.title;
-  price.textContent = (ad.price * 25000).toLocaleString('vi-VN') + "₫";
-  link.href = "https://www.google.com/search?q=" + encodeURIComponent(ad.title);
+  setTimeout(() => {
+
+    const ad = ads[adIndex];
+
+    img.src = ad.images?.[0] || ad.thumbnail;
+    title.textContent = ad.title;
+    price.textContent =
+      (ad.price * 25000).toLocaleString("vi-VN") + "₫";
+
+    link.href =
+      "https://www.google.com/search?q=" + encodeURIComponent(ad.title);
+
+    img.classList.remove("ad-changing");
+    title.classList.remove("ad-changing");
+    price.classList.remove("ad-changing");
+
+  }, 300);
 }
 
 document.addEventListener("DOMContentLoaded", function () {

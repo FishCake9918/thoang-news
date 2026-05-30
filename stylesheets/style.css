@@ -774,3 +774,13 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     position: relative;
     z-index: 2147483647 !important;
   }
+  #adImage,
+  #adTitle,
+  #adPrice {
+      transition: all .4s ease;
+  }
+  
+  .ad-changing {
+      opacity: 0;
+      transform: translateY(10px);
+  }
