@@ -37,20 +37,6 @@ include __DIR__ . '/../partials/header.php';
           </div>
 
           <?php if ($article['status'] === 'Approved'): ?>
-            <div class="article-reading-wrap">
-              <div class="article-reading-bar">
-                <div id="articleReadingProgress"></div>
-              </div>
-
-              <div class="article-reading-text">
-                Tự động chuyển bài sau <span id="readingCountdown">30</span> giây
-              </div>
-            </div>
-
-            <?php if ($nextArticle): ?>
-              <a id="nextArticleAuto" href="article.php?id=<?= (int)$nextArticle['id'] ?>" style="display:none;"></a>
-            <?php endif; ?>
-
             <div class="article-nav-actions">
               <?php if ($prevArticle): ?>
                 <a class="article-nav-btn" id="prevArticleLink" href="article.php?id=<?= (int)$prevArticle['id'] ?>">
@@ -292,50 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const progress = document.getElementById("articleReadingProgress");
-  if (!progress) return;
-
-  const countdownText = document.getElementById("readingCountdown");
-  const nextArticle = document.getElementById("nextArticleAuto");
   const prevArticleLink = document.getElementById("prevArticleLink");
   const nextArticleLink = document.getElementById("nextArticleLink");
-  const articleCard = document.querySelector(".article-card");
-
-  const duration = 30;
-  const startTime = Date.now();
-
-  progress.style.width = "0%";
-
-  const timer = setInterval(function () {
-    const elapsed = (Date.now() - startTime) / 1000;
-    const percent = Math.min((elapsed / duration) * 100, 100);
-
-    progress.style.width = percent + "%";
-
-    if (countdownText) {
-      countdownText.textContent = Math.max(Math.ceil(duration - elapsed), 0);
-    }
-
-    if (elapsed >= duration) {
-      clearInterval(timer);
-
-      if (countdownText) {
-        countdownText.textContent = "Đang chuyển bài...";
-      }
-
-      if (articleCard) {
-        articleCard.classList.add("auto-next-out");
-      }
-
-      setTimeout(function () {
-        if (nextArticle) {
-          window.location.href = nextArticle.href;
-        } else {
-          window.location.href = "index.php";
-        }
-      }, 650);
-    }
-  }, 50);
 
   document.addEventListener("keydown", function (e) {
     if (e.target && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;

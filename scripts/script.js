@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================
-   HOME + ARTICLE READING TIMER 30S
+   HOME READING TIMER 30S
 ========================= */
 
 function startHomeReadingTimer() {
@@ -417,50 +417,6 @@ function startHomeReadingTimer() {
   }, 50);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const progress = document.getElementById("articleReadingProgress");
-  if (!progress) return;
-
-  const countdownText = document.getElementById("readingCountdown");
-  const nextArticle = document.getElementById("nextArticleAuto");
-  const articleCard = document.querySelector(".article-card");
-
-  const duration = 30;
-  const startTime = Date.now();
-
-  progress.style.width = "0%";
-
-  const articleTimer = setInterval(() => {
-    const elapsed = (Date.now() - startTime) / 1000;
-    const percent = Math.min((elapsed / duration) * 100, 100);
-
-    progress.style.width = percent + "%";
-
-    if (countdownText) {
-      countdownText.textContent = Math.max(Math.ceil(duration - elapsed), 0);
-    }
-
-    if (elapsed >= duration) {
-      clearInterval(articleTimer);
-
-      if (countdownText) {
-        countdownText.textContent = "Đang chuyển bài...";
-      }
-
-      if (articleCard) {
-        articleCard.classList.add("auto-next-out");
-      }
-
-      setTimeout(() => {
-        if (nextArticle) {
-          window.location.href = nextArticle.href;
-        } else {
-          window.location.href = "index.php";
-        }
-      }, 650);
-    }
-  }, 50);
-});
 /* =================================
    FLOATING FOOTBALL ADS
 ================================= */
