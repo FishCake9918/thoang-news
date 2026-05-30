@@ -15,7 +15,7 @@
 }
 
 :root[data-theme="dark"] {
-  --navy: #23395d;
+  --navy: #8fb4e8;
   --red: #fb7185;
   --gold: #facc15;
   --bg: #0d1526;
@@ -65,10 +65,47 @@ body {
   border-color: var(--border);
 }
 
+:root[data-theme="dark"] .card.bg-white,
+:root[data-theme="dark"] .table-responsive,
+:root[data-theme="dark"] .list-group,
+:root[data-theme="dark"] .list-group-item {
+  background-color: #182235 !important;
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .table {
+  --bs-table-bg: #182235;
+  --bs-table-color: #eef4ff;
+  --bs-table-border-color: #425472;
+  --bs-table-striped-bg: #1f2b42;
+  --bs-table-striped-color: #eef4ff;
+  --bs-table-hover-bg: #22304a;
+  --bs-table-hover-color: #ffffff;
+  background-color: #182235 !important;
+  color: #eef4ff !important;
+}
+
+:root[data-theme="dark"] .table > :not(caption) > * > *,
+:root[data-theme="dark"] .table-light > :not(caption) > * > * {
+  background-color: #182235 !important;
+  color: #eef4ff !important;
+  border-color: #425472 !important;
+}
+
+:root[data-theme="dark"] .table thead th,
+:root[data-theme="dark"] .table strong {
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .badge.bg-primary {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
 :root[data-theme="dark"] .text-muted,
 :root[data-theme="dark"] .form-label,
 :root[data-theme="dark"] .form-label-sm {
-  color: var(--muted) !important;
+  color: #c6d1e2 !important;
 }
 
 :root[data-theme="dark"] .form-control,
@@ -118,6 +155,20 @@ body {
 :root[data-theme="dark"] .card-headline,
 :root[data-theme="dark"] .sidebar-heading {
   color: var(--text) !important;
+}
+
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+  color: #eef4ff;
+}
+
+:root[data-theme="dark"] [style*="color:var(--navy)"],
+:root[data-theme="dark"] [style*="color: var(--navy)"] {
+  color: #8fb4e8 !important;
 }
 
 :root[data-theme="dark"] .article-meta {
@@ -201,9 +252,103 @@ body {
 }
 
 :root[data-theme="dark"] .floating-ad {
-  background: var(--white);
-  border-color: var(--border);
-  color: var(--text);
+  background: #f8fafc !important;
+  border-color: #64748b;
+  color: #111827;
+}
+
+:root[data-theme="dark"] .floating-ad-head {
+  background: #111827;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] #floatingAd .floating-ad-body,
+:root[data-theme="dark"] #floatingAd .bg-white {
+  background: #f8fafc !important;
+  color: #111827 !important;
+}
+
+:root[data-theme="dark"] #adTitle {
+  color: #111827 !important;
+}
+
+:root[data-theme="dark"] #adPrice {
+  color: #059669 !important;
+}
+
+:root[data-theme="dark"] #adImage {
+  background: #ffffff;
+}
+
+:root[data-theme="dark"] .feedback-stat-box,
+:root[data-theme="dark"] .fb-item {
+  background: #182235;
+  border-color: #425472;
+}
+
+:root[data-theme="dark"] .fb-email {
+  color: #8fb4e8;
+}
+
+:root[data-theme="dark"] .fb-subject,
+:root[data-theme="dark"] .feedback-stat-label {
+  color: #eef4ff;
+}
+
+:root[data-theme="dark"] .text-secondary {
+  color: #c6d1e2 !important;
+}
+
+:root[data-theme="dark"] .mr-num,
+:root[data-theme="dark"] [style*="color:var(--border)"],
+:root[data-theme="dark"] [style*="color: var(--border)"] {
+  color: #8fb4e8 !important;
+}
+
+:root[data-theme="dark"] [style*="color:#444"],
+:root[data-theme="dark"] [style*="color: #444"] {
+  color: #d5deec !important;
+}
+
+:root[data-theme="dark"] .list-group-item {
+  border-color: #c6d1e2 !important;
+}
+
+:root[data-theme="dark"] .border-bottom {
+  border-bottom-color: #c6d1e2 !important;
+}
+
+:root[data-theme="dark"] .btn-outline-secondary {
+  color: #d5deec;
+  border-color: #7f8da3;
+}
+
+:root[data-theme="dark"] .btn-outline-secondary:hover {
+  background: #263651;
+  color: #ffffff;
+  border-color: #9aa8ba;
+}
+
+:root[data-theme="dark"] .site-footer {
+  background: #162238;
+  border-top: 1px solid #33445f;
+}
+
+:root[data-theme="dark"] .footer-links {
+  border-top-color: #3b4f6f;
+}
+
+:root[data-theme="dark"] .footer-links a {
+  color: #dbe7f8;
+}
+
+:root[data-theme="dark"] .footer-links a:hover {
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .footer-tagline,
+:root[data-theme="dark"] .footer-copy {
+  color: #b8c6dc;
 }
 
 /* â”€â”€ 2. HEADER, NAV & FOOTER (DÃ™NG CHUNG) â”€â”€ */

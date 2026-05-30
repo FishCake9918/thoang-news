@@ -260,6 +260,7 @@ include __DIR__ . '/../partials/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
 Chart.register(ChartDataLabels);
+const writerChartTextColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#c6d1e2' : '#666';
 
 const writerCatNames = <?= json_encode(array_keys($cat_views_data)) ?>;
 const writerCatViews = <?= json_encode(array_values($cat_views_data)) ?>;
@@ -279,7 +280,7 @@ if (document.getElementById('writerCatViewsChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: writerChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },
@@ -319,7 +320,7 @@ if (document.getElementById('writerStatusChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: writerChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },

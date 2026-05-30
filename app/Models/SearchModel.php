@@ -28,10 +28,16 @@ class SearchModel extends Model
             FROM articles a
             LEFT JOIN categories c ON c.id = a.category_id
             WHERE a.status = 'Approved'
-              AND (a.title LIKE ? OR a.summary LIKE ?)
+              AND (
+                LOWER(a.title) COLLATE utf8mb4_bin LIKE ? COLLATE utf8mb4_bin
+                OR LOWER(a.summary) COLLATE utf8mb4_bin LIKE ? COLLATE utf8mb4_bin
+              )
             ORDER BY a.published_at DESC, a.created_at DESC
         ");
-        $like = "%$keyword%";
+        $normalizedKeyword = function_exists('mb_strtolower')
+            ? mb_strtolower($keyword, 'UTF-8')
+            : strtolower($keyword);
+        $like = "%$normalizedKeyword%";
         $stmt->execute([$like, $like]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

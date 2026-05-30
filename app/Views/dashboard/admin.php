@@ -861,6 +861,7 @@ function fbDelete(id) {
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
 Chart.register(ChartDataLabels);
+const adminChartTextColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#c6d1e2' : '#666';
 
 // Biểu đồ lượt xem theo danh mục
 const catNames = <?= json_encode(array_column($cat_stats, 'name')) ?>;
@@ -881,7 +882,7 @@ if (document.getElementById('catViewsChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: adminChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },
@@ -922,7 +923,7 @@ if (document.getElementById('articleStatusChart')) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'right', labels: { font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
+        legend: { position: 'right', labels: { color: adminChartTextColor, font: { size: 11, family: "'Be Vietnam Pro', sans-serif" } } },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 11 },
@@ -941,4 +942,3 @@ if (document.getElementById('articleStatusChart')) {
 </script>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>
-

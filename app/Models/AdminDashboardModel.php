@@ -93,10 +93,23 @@ class AdminDashboardModel extends Model
     private function categoryStats(): array
     {
         $stmt = $this->db->query("
-            SELECT c.name, COUNT(a.id) AS article_count, COALESCE(SUM(a.view_count), 0) AS total_views
-            FROM categories c
-            LEFT JOIN articles a ON c.id = a.category_id AND a.status = 'Approved'
-            GROUP BY c.id, c.name
+            SELECT
+                parent.id,
+                parent.name,
+                COUNT(a.id) AS article_count,
+                COALESCE(SUM(a.view_count), 0) AS total_views
+            FROM categories parent
+            LEFT JOIN categories child
+                ON child.parent_id = parent.id
+            LEFT JOIN articles a
+                ON a.status = 'Approved'
+                AND (
+                    a.category_id = parent.id
+                    OR a.category_id = child.id
+                )
+            WHERE parent.parent_id IS NULL
+              AND parent.is_active = 1
+            GROUP BY parent.id, parent.name
             ORDER BY total_views DESC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

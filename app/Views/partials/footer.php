@@ -5,14 +5,6 @@ $footerLinks = [
     ['label' => 'Trang chủ', 'href' => 'index.php'],
     ['label' => 'Đã lưu', 'href' => 'saved.php'],
     ['label' => 'Giới thiệu', 'href' => 'about.php'],
-    ['label' => 'Chính trị', 'href' => 'index.php?category=politics'],
-    ['label' => 'Thế giới', 'href' => 'index.php?category=world'],
-    ['label' => 'Kinh tế', 'href' => 'index.php?category=biz'],
-    ['label' => 'Thể thao', 'href' => 'index.php?category=sport'],
-    ['label' => 'Công nghệ', 'href' => 'index.php?category=tech'],
-    ['label' => 'Đời sống', 'href' => 'index.php?category=life'],
-    ['label' => 'Giáo dục', 'href' => 'index.php?category=edu'],
-    ['label' => 'Khác', 'href' => 'index.php?category=other'],
 ];
 ?>
 
