@@ -51,6 +51,8 @@ class AuthController extends Controller
             $_SESSION['full_name'] = $user['full_name'];
             $_SESSION['avatar'] = $user['avatar'] ?? 'images/avatars/avatar-01.svg';
             $_SESSION['role'] = $user['role'];
+            $_SESSION['theme_preference'] = $user['theme_preference'] ?? 'light';
+            $_SESSION['article_font_size'] = (int)($user['article_font_size'] ?? 16);
 
             $redirect = 'index.php';
             if ($user['role'] === 'admin') {

@@ -42,10 +42,20 @@ class UserModel extends Model
     public function createUser(string $username, string $email, string $passwordHash, string $fullName, string $verifyToken): bool
     {
         $stmt = $this->db->prepare("
-            INSERT INTO users (username, email, password, full_name, role, is_verified, verify_token)
-            VALUES (?, ?, ?, ?, 'user', 0, ?)
+            INSERT INTO users (username, email, password, full_name, role, is_verified, verify_token, theme_preference, article_font_size)
+            VALUES (?, ?, ?, ?, 'user', 0, ?, 'light', 16)
         ");
         return $stmt->execute([$username, $email, $passwordHash, $fullName, $verifyToken]);
+    }
+
+    public function updatePreferences(int $userId, string $theme, int $fontSize): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE users
+            SET theme_preference = ?, article_font_size = ?
+            WHERE id = ?
+        ");
+        return $stmt->execute([$theme, $fontSize, $userId]);
     }
 
     public function mergeGuestBookmarks(int $userId, string $oldSessionId, string $newSessionId): void

@@ -56,6 +56,62 @@ $footerLinks = [
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+function saveUserPreference(partial) {
+  const prefs = window.thoangPrefs || {};
+  const next = {
+    theme: partial.theme || prefs.theme || 'light',
+    article_font_size: partial.articleFontSize || partial.article_font_size || prefs.articleFontSize || 16
+  };
+
+  prefs.theme = next.theme;
+  prefs.articleFontSize = parseInt(next.article_font_size, 10);
+  window.thoangPrefs = prefs;
+
+  const storageKey = prefs.storageKey || 'thoangPrefsGuest';
+  localStorage.setItem(storageKey, JSON.stringify({
+    theme: next.theme,
+    articleFontSize: prefs.articleFontSize
+  }));
+  localStorage.setItem('thoangTheme', next.theme);
+
+  if (!prefs.isLoggedIn) {
+    localStorage.setItem('thoangArticleFontSize', String(next.article_font_size));
+    return;
+  }
+
+  fetch('api/user_preferences.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json; charset=utf-8'},
+    body: JSON.stringify(next)
+  }).catch(function () {});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const prefs = window.thoangPrefs || {};
+
+  function syncThemeButton(theme) {
+    if (!themeToggle) return;
+    themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+    themeToggle.title = theme === 'dark' ? 'Đổi sang chế độ sáng' : 'Đổi sang chế độ tối';
+  }
+
+  syncThemeButton(root.getAttribute('data-theme') || 'light');
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      const nextTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', nextTheme);
+      syncThemeButton(nextTheme);
+      saveUserPreference({
+        theme: nextTheme,
+        articleFontSize: prefs.articleFontSize || 16
+      });
+    });
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
   fetchWeather();
 });

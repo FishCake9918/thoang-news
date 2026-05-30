@@ -9,6 +9,16 @@ include __DIR__ . '/../partials/header.php';
     <div class="row justify-content-center">
       <div class="col-lg-9 col-xl-8">
 
+        <div class="article-font-control" aria-label="Điều chỉnh cỡ chữ bài viết">
+          <button type="button" id="articleFontIncrease" aria-label="Tăng cỡ chữ" title="Tăng cỡ chữ">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+          <div class="article-font-mark">aA</div>
+          <button type="button" id="articleFontDecrease" aria-label="Giảm cỡ chữ" title="Giảm cỡ chữ">
+            <i class="bi bi-dash-lg"></i>
+          </button>
+        </div>
+
         <div class="article-card">
 
           <span class="article-cat">
@@ -285,8 +295,53 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  const articleContent = document.querySelector(".article-content");
+  const increaseBtn = document.getElementById("articleFontIncrease");
+  const decreaseBtn = document.getElementById("articleFontDecrease");
   const prevArticleLink = document.getElementById("prevArticleLink");
   const nextArticleLink = document.getElementById("nextArticleLink");
+
+  const prefs = window.thoangPrefs || {};
+  let articleFontSize = parseInt(prefs.articleFontSize || localStorage.getItem("thoangArticleFontSize") || 16, 10);
+  articleFontSize = Math.max(14, Math.min(22, articleFontSize));
+
+  function applyArticleFontSize() {
+    if (!articleContent) return;
+    articleContent.style.setProperty("--article-font-size", articleFontSize + "px");
+    articleContent.style.fontSize = articleFontSize + "px";
+    articleContent.querySelectorAll("p, li").forEach(function (node) {
+      node.style.fontSize = "inherit";
+    });
+    if (decreaseBtn) decreaseBtn.disabled = articleFontSize <= 14;
+    if (increaseBtn) increaseBtn.disabled = articleFontSize >= 22;
+  }
+
+  function saveArticleFontSize() {
+    if (typeof saveUserPreference === "function") {
+      saveUserPreference({
+        theme: (window.thoangPrefs && window.thoangPrefs.theme) || document.documentElement.getAttribute("data-theme") || "light",
+        articleFontSize: articleFontSize
+      });
+    }
+  }
+
+  applyArticleFontSize();
+
+  if (increaseBtn) {
+    increaseBtn.addEventListener("click", function () {
+      articleFontSize = Math.min(22, articleFontSize + 1);
+      applyArticleFontSize();
+      saveArticleFontSize();
+    });
+  }
+
+  if (decreaseBtn) {
+    decreaseBtn.addEventListener("click", function () {
+      articleFontSize = Math.max(14, articleFontSize - 1);
+      applyArticleFontSize();
+      saveArticleFontSize();
+    });
+  }
 
   document.addEventListener("keydown", function (e) {
     if (e.target && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
@@ -321,6 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, { passive: true });
 });
+</script>
 <script src="scripts/script.js"></script>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>

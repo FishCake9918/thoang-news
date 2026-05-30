@@ -58,6 +58,8 @@ class Auth
             'full_name' => $_SESSION['full_name'] ?? '',
             'avatar' => $_SESSION['avatar'] ?? 'images/avatars/avatar-01.svg',
             'role' => self::role(),
+            'theme_preference' => $_SESSION['theme_preference'] ?? 'light',
+            'article_font_size' => (int)($_SESSION['article_font_size'] ?? 16),
         ];
     }
 }
