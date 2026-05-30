@@ -91,6 +91,13 @@ function renderCard() {
   document.getElementById('cardTime').textContent = formatTimeAgo(a.published_at || a.created_at);
   document.getElementById('cardTag').textContent = a.tags || '';
   document.getElementById('cardLink').href = `article.php?id=${a.id}`;
+
+  const cardViews = document.getElementById('cardViews');
+  if (cardViews) cardViews.textContent = a.view_count || 0;
+
+  const cardComments = document.getElementById('cardComments');
+  if (cardComments) cardComments.textContent = a.comment_count || 0;
+
   document.getElementById('frontCard').style.transform = '';
 
   const cur = currentIdx + 1;
