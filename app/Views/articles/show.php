@@ -296,10 +296,12 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const articleContent = document.querySelector(".article-content");
+  const fontControl = document.querySelector(".article-font-control");
   const increaseBtn = document.getElementById("articleFontIncrease");
   const decreaseBtn = document.getElementById("articleFontDecrease");
   const prevArticleLink = document.getElementById("prevArticleLink");
   const nextArticleLink = document.getElementById("nextArticleLink");
+  let ignoreArticleSwipeUntil = 0;
 
   const prefs = window.thoangPrefs || {};
   let articleFontSize = parseInt(prefs.articleFontSize || localStorage.getItem("thoangArticleFontSize") || 16, 10);
@@ -343,6 +345,92 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (fontControl) {
+    const positionKey = "thoangArticleFontControlPosition";
+    let draggingFontControl = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+
+    function clampFontControlPosition(left, top) {
+      const rect = fontControl.getBoundingClientRect();
+      const padding = 8;
+      const maxLeft = window.innerWidth - rect.width - padding;
+      const maxTop = window.innerHeight - rect.height - padding;
+
+      return {
+        left: Math.min(Math.max(padding, left), Math.max(padding, maxLeft)),
+        top: Math.min(Math.max(padding, top), Math.max(padding, maxTop))
+      };
+    }
+
+    function setFontControlPosition(left, top, shouldSave) {
+      const next = clampFontControlPosition(left, top);
+      fontControl.style.position = "fixed";
+      fontControl.style.left = next.left + "px";
+      fontControl.style.top = next.top + "px";
+      fontControl.style.right = "auto";
+      fontControl.style.margin = "0";
+
+      if (shouldSave) {
+        localStorage.setItem(positionKey, JSON.stringify(next));
+      }
+    }
+
+    try {
+      const savedPosition = JSON.parse(localStorage.getItem(positionKey) || "null");
+      if (savedPosition && Number.isFinite(savedPosition.left) && Number.isFinite(savedPosition.top)) {
+        setFontControlPosition(savedPosition.left, savedPosition.top, false);
+      }
+    } catch (e) {
+      localStorage.removeItem(positionKey);
+    }
+
+    fontControl.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button")) return;
+
+      const rect = fontControl.getBoundingClientRect();
+      draggingFontControl = true;
+      ignoreArticleSwipeUntil = Date.now() + 700;
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      fontControl.classList.add("is-dragging-panel");
+      fontControl.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    fontControl.addEventListener("pointermove", function (e) {
+      if (!draggingFontControl) return;
+
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      ignoreArticleSwipeUntil = Date.now() + 700;
+      setFontControlPosition(e.clientX - dragOffsetX, e.clientY - dragOffsetY, false);
+      e.preventDefault();
+    });
+
+    function endFontControlDrag(e) {
+      if (!draggingFontControl) return;
+
+      draggingFontControl = false;
+      fontControl.classList.remove("is-dragging-panel");
+      setFontControlPosition(lastPointerX - dragOffsetX, lastPointerY - dragOffsetY, true);
+      if (e && fontControl.hasPointerCapture(e.pointerId)) {
+        fontControl.releasePointerCapture(e.pointerId);
+      }
+    }
+
+    fontControl.addEventListener("pointerup", endFontControlDrag);
+    fontControl.addEventListener("pointercancel", endFontControlDrag);
+    window.addEventListener("resize", function () {
+      const rect = fontControl.getBoundingClientRect();
+      setFontControlPosition(rect.left, rect.top, true);
+    });
+  }
+
   document.addEventListener("keydown", function (e) {
     if (e.target && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
 
@@ -358,10 +446,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let articleTouchStartX = 0;
 
   document.addEventListener("touchstart", function (e) {
+    if (Date.now() < ignoreArticleSwipeUntil) return;
     articleTouchStartX = e.touches[0].clientX;
   }, { passive: true });
 
   document.addEventListener("touchend", function (e) {
+    if (Date.now() < ignoreArticleSwipeUntil) return;
     const endX = e.changedTouches[0].clientX;
     const diff = endX - articleTouchStartX;
 
