@@ -6,10 +6,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
         <h2 class="mb-1" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);">
-          Bảng quản trị hệ thống
+          <?= ($admin_view ?? 'overview') === 'categories' ? 'Quản lý danh mục' : 'Bảng quản trị hệ thống' ?>
         </h2>
         <div class="text-muted" style="font-size:13px;">
-          Quản lý thành viên, duyệt bài writer, theo dõi phản hồi và thống kê hệ thống.
+          <?= ($admin_view ?? 'overview') === 'categories'
+              ? 'Thêm, chỉnh sửa, ẩn/hiện và sắp xếp các danh mục hiển thị trên website.'
+              : 'Quản lý thành viên, duyệt bài writer, theo dõi phản hồi và thống kê hệ thống.' ?>
         </div>
       </div>
 
@@ -136,7 +138,7 @@
         </table>
       </div>
     </div>
-    <?php endif; ?>
+    <?php else: ?>
 
     <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="row mb-4">
@@ -804,6 +806,8 @@
 
       </div>
     </div>
+
+    <?php endif; ?>
 
   </div>
 </div>
