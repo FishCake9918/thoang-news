@@ -20,11 +20,23 @@ $showFloatingAd = in_array($currentPage, ['index.php', 'article.php'], true);
 <div id="floatingAd" class="floating-ad">
   <div class="floating-ad-head">
     <span>Quảng cáo</span>
-    <button type="button" class="btn-close" style="font-size:10px; filter:invert(1);" aria-label="Close" onclick="document.getElementById('floatingAd').remove();"></button>
+    <button type="button" class="btn-close" style="font-size:10px; filter:invert(1);" aria-label="Close" onclick="closeFloatingAd()"></button>
   </div>
-  <div class="floating-ad-body p-2 text-center text-muted bg-white" style="font-size:12px;">
-    Nội dung quảng cáo...
-  </div>
+  <div class="floating-ad-body bg-white p-2">
+  <a id="adLink" href="#" target="_blank" style="text-decoration:none;color:inherit;">
+    <img id="adImage"
+         src=""
+         style="width:100%;height:120px;object-fit:cover;border-radius:6px;">
+
+    <div id="adTitle"
+         style="font-size:13px;font-weight:600;margin-top:8px;">
+    </div>
+
+    <div id="adPrice"
+         style="font-size:12px;color:#198754;">
+    </div>
+  </a>
+</div>
 </div>
 <?php endif; ?>
 

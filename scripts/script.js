@@ -455,37 +455,75 @@ document.addEventListener("DOMContentLoaded", function () {
    FLOATING FOOTBALL ADS
 ================================= */
 
-const adImages = [
-  "images/ad1.jpg",
-  "images/ad2.jpg",
-  "images/ad3.jpg"
-];
+let ads = [];
+let adIndex = 0;
+
+async function loadAds() {
+  try {
+    const response = await fetch('https://dummyjson.com/products/category/laptops?limit=10');
+
+    if (!response.ok) throw new Error('Không gọi được API quảng cáo');
+
+    const data = await response.json();
+    ads = data.products || [];
+
+    if (ads.length > 0) {
+      setTimeout(showAd, 500);
+    }
+  } catch (error) {
+    console.error('Lỗi tải quảng cáo:', error);
+  }
+}
+
+function showAd() {
+  const img = document.getElementById("adImage");
+  const title = document.getElementById("adTitle");
+  const price = document.getElementById("adPrice");
+  const link = document.getElementById("adLink");
+
+  if (!img || !title || !price || !link) return;
+  if (!ads.length) return;
+
+  const ad = ads[adIndex];
+
+  img.src = ad.thumbnail;
+  
+  img.onerror = () => {
+    adIndex = (adIndex + 1) % ads.length;
+    showAd();
+  };
+  title.textContent = ad.title;
+  price.textContent = (ad.price * 25000).toLocaleString('vi-VN') + "₫";
+  link.href = "https://www.google.com/search?q=" + encodeURIComponent(ad.title);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const ad = document.getElementById("floatingAd");
   const adImage = document.getElementById("adImage");
-  const minimizeBtn = document.getElementById("minimizeAd");
-  const closeBtn = document.getElementById("closeAd");
- 
-  
+
   if (!ad) return;
+
+  loadAds();
 
   ad.style.display = "none";
 
   setTimeout(() => {
     ad.style.display = "block";
   }, 5000);
-  let adIndex = 0;
 
+  
   if (adImage) {
     setInterval(() => {
+      if (!ads.length) return;
+
       adImage.style.opacity = "0";
 
       setTimeout(() => {
-        adIndex = (adIndex + 1) % adImages.length;
-        adImage.src = adImages[adIndex];
+        adIndex = (adIndex + 1) % ads.length;
+        showAd();
         adImage.style.opacity = "1";
       }, 350);
+
     }, 15000);
   }
 });

@@ -370,5 +370,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, { passive: true });
 });
-</script>
+<script src="scripts/script.js"></script>
+
 <?php include __DIR__ . '/../partials/footer.php'; ?>

@@ -642,14 +642,13 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     position:fixed;
     right:22px;
     bottom:22px;
-    width:320px;
+    width:300px;
     background:#fff;
     border-radius:16px;
     overflow:hidden;
     z-index:99999;
     box-shadow:0 10px 35px rgba(0,0,0,.18);
-    border:1px solid rgba(255,255,255,.15);
-    backdrop-filter:blur(10px);
+
 }
 
 .floating-ad-head{
@@ -692,10 +691,25 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
 
 #adImage{
     width:100%;
-    display:block;
-    aspect-ratio:16/9;
+    height:180px;
     object-fit:cover;
-    transition:opacity .35s ease;
+    display:block;
+    background:#f8f8f8;
+}
+
+#adTitle{
+    font-size:14px;
+    font-weight:700;
+    color:#111827;
+    line-height:1.4;
+    margin-top:8px;
+}
+
+#adPrice{
+    font-size:15px;
+    font-weight:700;
+    color:#dc2626;
+    margin-top:4px;
 }
 
 .floating-ad.minimized{
@@ -749,7 +763,4 @@ textarea.fb-reply-input:focus { outline: none; border-color: var(--navy); }
     cursor: pointer !important;
     position: relative;
     z-index: 2147483647 !important;
-  }
-  #floatingAd {
-    display: none;
   }
