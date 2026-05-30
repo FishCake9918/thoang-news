@@ -1,6 +1,19 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 $showFloatingAd = in_array($currentPage, ['index.php', 'article.php'], true);
+$footerLinks = [
+    ['label' => 'Trang chủ', 'href' => 'index.php'],
+    ['label' => 'Đã lưu', 'href' => 'saved.php'],
+    ['label' => 'Giới thiệu', 'href' => 'about.php'],
+    ['label' => 'Chính trị', 'href' => 'index.php?category=politics'],
+    ['label' => 'Thế giới', 'href' => 'index.php?category=world'],
+    ['label' => 'Kinh tế', 'href' => 'index.php?category=biz'],
+    ['label' => 'Thể thao', 'href' => 'index.php?category=sport'],
+    ['label' => 'Công nghệ', 'href' => 'index.php?category=tech'],
+    ['label' => 'Đời sống', 'href' => 'index.php?category=life'],
+    ['label' => 'Giáo dục', 'href' => 'index.php?category=edu'],
+    ['label' => 'Khác', 'href' => 'index.php?category=other'],
+];
 ?>
 
 <footer class="site-footer">
@@ -8,9 +21,9 @@ $showFloatingAd = in_array($currentPage, ['index.php', 'article.php'], true);
     <div class="footer-logo">Thoáng<span>.</span>vn</div>
     <div class="footer-tagline">Tin tức nhanh - Đọc ngay - Hiểu liền</div>
     <div class="footer-links">
-      <a href="index.php">Trang chủ</a>
-      <a href="saved.php">Đã lưu</a>
-      <a href="about.php">Giới thiệu</a>
+      <?php foreach ($footerLinks as $link): ?>
+        <a href="<?= htmlspecialchars($link['href']) ?>"><?= htmlspecialchars($link['label']) ?></a>
+      <?php endforeach; ?>
     </div>
     <div class="footer-copy">© 2026 Thoáng.vn - Dự án môn Lập trình Web · UEH</div>
   </div>
@@ -40,7 +53,6 @@ $showFloatingAd = in_array($currentPage, ['index.php', 'article.php'], true);
 </div>
 <?php endif; ?>
 
-<!-- Thêm lại thư viện Bootstrap JS để xử lý sự kiện Tab, Dropdown, Modal -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>

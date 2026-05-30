@@ -18,9 +18,9 @@ class FeedApiController extends Controller
 
     public function index(string $category): void
     {
-        $allowedCategories = ['all', 'world', 'biz', 'tech', 'sport', 'life', 'edu', 'other'];
+        $category = trim($category);
 
-        if (!in_array($category, $allowedCategories, true)) {
+        if ($category === '' || !preg_match('/^[a-z0-9-]+$/', $category)) {
             $category = 'all';
         }
 

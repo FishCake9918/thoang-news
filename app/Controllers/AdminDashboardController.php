@@ -37,6 +37,7 @@ class AdminDashboardController
                 'writer_stats' => [],
                 'top_bookmarked' => [],
                 'recent_comments' => [],
+                'categories' => [],
                 'error' => 'Không thể tải dữ liệu dashboard: ' . $e->getMessage(),
             ];
         }

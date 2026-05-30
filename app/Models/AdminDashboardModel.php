@@ -20,6 +20,7 @@ class AdminDashboardModel extends Model
             'writer_stats' => $this->writerStats(),
             'top_bookmarked' => $this->topBookmarked(),
             'recent_comments' => $this->recentComments(),
+            'categories' => $this->categories(),
         ];
     }
 
@@ -152,6 +153,27 @@ class AdminDashboardModel extends Model
             JOIN articles a ON c.article_id = a.id
             ORDER BY c.created_at DESC
             LIMIT 5
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function categories(): array
+    {
+        $stmt = $this->db->query("
+            SELECT
+                c.id,
+                c.name,
+                c.slug,
+                c.parent_id,
+                c.sort_order,
+                c.is_active,
+                p.name AS parent_name,
+                COUNT(a.id) AS article_count
+            FROM categories c
+            LEFT JOIN categories p ON c.parent_id = p.id
+            LEFT JOIN articles a ON a.category_id = c.id
+            GROUP BY c.id, c.name, c.slug, c.parent_id, c.sort_order, c.is_active, p.name
+            ORDER BY c.parent_id IS NOT NULL, c.sort_order ASC, c.id ASC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

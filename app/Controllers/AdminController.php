@@ -48,6 +48,16 @@ class AdminController extends Controller
                 $this->deleteComment();
                 return null;
             }
+
+            if ($action === 'save_category') {
+                $this->saveCategory();
+                return null;
+            }
+
+            if ($action === 'delete_category') {
+                $this->deleteCategory();
+                return null;
+            }
         } catch (Throwable $e) {
             return 'Lỗi xử lý: ' . $e->getMessage();
         }
@@ -123,5 +133,65 @@ class AdminController extends Controller
 
         $this->admin->deleteComment($commentId);
         $this->redirect('dashboard.php');
+    }
+
+    private function saveCategory(): void
+    {
+        $name = trim($_POST['name'] ?? '');
+        $slug = trim($_POST['slug'] ?? '');
+
+        if ($name === '') {
+            throw new \InvalidArgumentException('Tên danh mục không được để trống.');
+        }
+
+        $slug = $this->slugify($slug !== '' ? $slug : $name);
+        if ($slug === '') {
+            throw new \InvalidArgumentException('Slug danh mục không hợp lệ.');
+        }
+
+        $this->admin->saveCategory([
+            'id' => (int)($_POST['category_id'] ?? 0),
+            'name' => $name,
+            'slug' => $slug,
+            'parent_id' => (int)($_POST['parent_id'] ?? 0),
+            'sort_order' => (int)($_POST['sort_order'] ?? 0),
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+        ]);
+
+        $this->redirect('dashboard.php?view=categories#category-manager');
+    }
+
+    private function deleteCategory(): void
+    {
+        $categoryId = (int)($_POST['category_id'] ?? 0);
+
+        if ($categoryId <= 0) {
+            throw new \InvalidArgumentException('Danh mục không hợp lệ.');
+        }
+
+        $this->admin->deleteCategory($categoryId);
+        $this->redirect('dashboard.php?view=categories#category-manager');
+    }
+
+    private function slugify(string $value): string
+    {
+        $value = trim(mb_strtolower($value, 'UTF-8'));
+        $value = strtr($value, [
+            'à' => 'a', 'á' => 'a', 'ạ' => 'a', 'ả' => 'a', 'ã' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ậ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ặ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẹ' => 'e', 'ẻ' => 'e', 'ẽ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ệ' => 'e', 'ể' => 'e', 'ễ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ị' => 'i', 'ỉ' => 'i', 'ĩ' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ọ' => 'o', 'ỏ' => 'o', 'õ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ộ' => 'o', 'ổ' => 'o', 'ỗ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ợ' => 'o', 'ở' => 'o', 'ỡ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ụ' => 'u', 'ủ' => 'u', 'ũ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ự' => 'u', 'ử' => 'u', 'ữ' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỵ' => 'y', 'ỷ' => 'y', 'ỹ' => 'y',
+            'đ' => 'd',
+        ]);
+        $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+        return trim($value, '-');
     }
 }

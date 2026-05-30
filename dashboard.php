@@ -32,7 +32,9 @@ $top_articles = $dashboardData['top_articles'];
 $writer_stats = $dashboardData['writer_stats'];
 $top_bookmarked = $dashboardData['top_bookmarked'];
 $recent_comments = $dashboardData['recent_comments'];
+$categories = $dashboardData['categories'];
 $error = $error ?: $dashboardData['error'];
+$admin_view = ($_GET['view'] ?? '') === 'categories' ? 'categories' : 'overview';
 $engagement_rate = $stats['total_views'] > 0
     ? round(($stats['total_bookmarks'] / $stats['total_views']) * 100, 2)
     : 0;
