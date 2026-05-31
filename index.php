@@ -31,8 +31,9 @@ use App\Models\UserModel;
 use App\Models\WriterDashboardModel;
 
 session_start();
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/config/session.php';
+$root = defined('APP_ROOT') ? APP_ROOT : __DIR__;
+require_once $root . '/config/db.php';
+require_once $root . '/config/session.php';
 
 $router = new Router();
 
