@@ -97,7 +97,8 @@ if ($nav_categories === [] && isset($pdo)) {
       <div class="masthead-tagline">Lướt qua là nắm ngay</div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <form action="<?= route('search') ?>" method="GET" class="masthead-search d-none d-md-block mb-0">
+      <form action="index.php" method="GET" class="masthead-search d-none d-md-block mb-0">
+        <input type="hidden" name="route" value="search">
         <input type="text" name="q" placeholder="Tìm kiếm..." required />
       </form>
       <button type="button" class="theme-toggle" id="themeToggle" aria-label="Chuyển chế độ sáng tối" title="Chế độ sáng/tối">

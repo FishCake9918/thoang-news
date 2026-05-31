@@ -12,7 +12,8 @@
         </div>
 
         <div class="filter-bar mb-4">
-          <form method="GET" action="<?= route('search') ?>" class="m-0">
+          <form method="GET" action="index.php" class="m-0">
+            <input type="hidden" name="route" value="search">
             <div class="d-flex gap-2 flex-wrap align-items-center">
               <input
                 type="text"
