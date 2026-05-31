@@ -43,6 +43,21 @@ $footerLinks = [
   </a>
 </div>
 </div>
+
+<script>
+  // Kiểm tra ngay khi tải HTML để tránh quảng cáo bị nháy (flash)
+  if (sessionStorage.getItem('thoang_ad_closed') === 'true') {
+    document.getElementById('floatingAd').style.display = 'none';
+  }
+  
+  function closeFloatingAd() {
+    var ad = document.getElementById('floatingAd');
+    if (ad) {
+      ad.style.display = 'none';
+      sessionStorage.setItem('thoang_ad_closed', 'true'); // Lưu trạng thái đã tắt
+    }
+  }
+</script>
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
