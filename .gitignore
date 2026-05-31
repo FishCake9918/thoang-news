@@ -1,5 +1,4 @@
-config/mailer.php
-config/db.php
+
 setup.php
 .DS_Store
 Thumbs.db
