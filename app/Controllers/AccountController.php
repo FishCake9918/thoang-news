@@ -81,7 +81,13 @@ class AccountController extends Controller
             return ['Tên đăng nhập hoặc email đã được tài khoản khác sử dụng.', ''];
         }
 
-        $this->users->updateAccount($userId, $username, $email, $avatar);
+        if (isset($_POST['full_name'])) {
+            $fullName = trim($_POST['full_name']);
+            $this->users->updateAccount($userId, $username, $email, $avatar, $fullName);
+            $_SESSION['full_name'] = $fullName;
+        } else {
+            $this->users->updateAccount($userId, $username, $email, $avatar);
+        }
 
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;

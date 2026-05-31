@@ -160,7 +160,7 @@ class AdminDashboardModel extends Model
     private function recentComments(): array
     {
         $stmt = $this->db->query("
-            SELECT c.id, c.content, c.created_at, u.username, a.title, a.id AS article_id
+            SELECT c.id, c.content, c.created_at, u.username, u.full_name, a.title, a.id AS article_id
             FROM comments c
             JOIN users u ON c.user_id = u.id
             JOIN articles a ON c.article_id = a.id

@@ -82,7 +82,7 @@ if ($nav_categories === [] && isset($pdo)) {
         Xin chào,
         <?= $is_admin
             ? '<strong style="color:var(--gold)">Admin</strong>'
-            : '<strong>' . htmlspecialchars($cur_user['username']) . '</strong>' ?>
+            : '<strong>' . htmlspecialchars(($cur_user['full_name'] ?? '') ?: $cur_user['username']) . '</strong>' ?>
       <?php else: ?>
         <a href="login.php">Đăng nhập</a> để lưu tin và gửi góp ý.
       <?php endif; ?>
@@ -125,7 +125,7 @@ if ($nav_categories === [] && isset($pdo)) {
 
         <div class="user-badge">
           <img class="nav-avatar" src="<?= htmlspecialchars($cur_user['avatar'] ?? 'images/avatars/avatar-01.svg') ?>" alt="">
-          <?= htmlspecialchars($cur_user['username']) ?>
+          <?= htmlspecialchars(($cur_user['full_name'] ?? '') ?: $cur_user['username']) ?>
           <span class="role-pill"><?= ucfirst($_SESSION['role']) ?></span>
         </div>
         <a href="account.php" class="auth-link">

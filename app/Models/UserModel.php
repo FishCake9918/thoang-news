@@ -135,10 +135,15 @@ class UserModel extends Model
         return (bool)$stmt->fetchColumn();
     }
 
-    public function updateAccount(int $userId, string $username, string $email, string $avatar): bool
+    public function updateAccount(int $userId, string $username, string $email, string $avatar, string $fullName = null): bool
     {
-        $stmt = $this->db->prepare("UPDATE users SET username = ?, email = ?, avatar = ? WHERE id = ?");
-        return $stmt->execute([$username, $email, $avatar, $userId]);
+        if ($fullName !== null) {
+            $stmt = $this->db->prepare("UPDATE users SET username = ?, email = ?, full_name = ?, avatar = ? WHERE id = ?");
+            return $stmt->execute([$username, $email, $fullName, $avatar, $userId]);
+        } else {
+            $stmt = $this->db->prepare("UPDATE users SET username = ?, email = ?, avatar = ? WHERE id = ?");
+            return $stmt->execute([$username, $email, $avatar, $userId]);
+        }
     }
 
     public function updatePassword(int $userId, string $passwordHash): bool

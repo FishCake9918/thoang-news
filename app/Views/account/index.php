@@ -41,6 +41,11 @@
                 <label class="form-label" for="email">Email</label>
                 <input class="form-control" id="email" name="email" type="email" value="<?= htmlspecialchars($user['email']) ?>" required>
               </div>
+              <div class="col-12">
+                <label class="form-label" for="full_name">Họ và tên hiển thị</label>
+                <input class="form-control" id="full_name" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" placeholder="Ví dụ: Minh Anh">
+                <div class="form-text" style="font-size: 13px; color: #6c757d; margin-top: 5px;">Tên này sẽ được ưu tiên hiển thị khi bạn bình luận hoặc đăng bài.</div>
+              </div>
             </div>
 
             <div class="avatar-grid" role="radiogroup" aria-label="Chọn avatar">
