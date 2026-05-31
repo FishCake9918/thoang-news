@@ -151,7 +151,7 @@ include __DIR__ . '/../partials/header.php';
             <h3><?= htmlspecialchars($sections['cta']['title'] ?? 'Thoáng qua là nắm ngay.') ?></h3>
             <p><?= htmlspecialchars($sections['cta']['desc'] ?? '') ?></p>
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <a href="<?= htmlspecialchars($sections['cta']['btn1_url'] ?? 'index.php') ?>" class="btn-cta-gold">
+              <a href="<?= htmlspecialchars($sections['cta']['btn1_url'] ?? route('index')) ?>" class="btn-cta-gold">
                 <i class="bi bi-play-fill me-1"></i><?= htmlspecialchars($sections['cta']['btn1_text'] ?? 'Đọc tin ngay') ?>
               </a>
               <?php if (!$is_admin): ?>
@@ -181,7 +181,7 @@ include __DIR__ . '/../partials/header.php';
           <div class="text-center py-4">
             <i class="bi bi-lock" style="font-size:2rem;color:var(--navy);"></i>
             <p class="mt-3">Bạn cần đăng nhập hoặc đăng ký để gửi góp ý cho Thoáng.vn.</p>
-            <a href="login.php" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
+            <a href="<?= route('login') ?>" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
               <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
             </a>
           </div>

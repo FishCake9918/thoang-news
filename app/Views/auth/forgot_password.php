@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 <body>
-  <div class="masthead"><div class="container"><a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a></div></div>
+  <div class="masthead"><div class="container"><a href="<?= route() ?>" class="masthead-logo">Thoáng<span>.</span>vn</a></div></div>
   <div class="flex-grow-1 d-flex align-items-center justify-content-center py-5 px-3">
     <div class="auth-card">
       <div class="auth-title">Quên mật khẩu</div>
@@ -25,7 +25,7 @@
         </div>
         <button type="submit" class="btn-login">Gửi liên kết khôi phục</button>
       </form>
-      <div class="text-center mt-3" style="font-size:13px;"><a href="login.php" class="link-gold">Quay lại đăng nhập</a></div>
+      <div class="text-center mt-3" style="font-size:13px;"><a href="<?= route('login') ?>" class="link-gold">Quay lại đăng nhập</a></div>
     </div>
   </div>
 </body>

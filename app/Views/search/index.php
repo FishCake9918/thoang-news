@@ -12,7 +12,7 @@
         </div>
 
         <div class="filter-bar mb-4">
-          <form method="GET" action="search.php" class="m-0">
+          <form method="GET" action="<?= route('search') ?>" class="m-0">
             <div class="d-flex gap-2 flex-wrap align-items-center">
               <input
                 type="text"
@@ -45,7 +45,7 @@
             <div class="empty-state">
               <i class="bi bi-journal-x"></i>
               <p>Không tìm thấy bài viết nào phù hợp với từ khóa "<?= htmlspecialchars($search_kw) ?>".</p>
-              <a href="index.php" style="font-size:13px; color:var(--navy);">Quay về trang chủ -></a>
+              <a href="<?= route() ?>" style="font-size:13px; color:var(--navy);">Quay về trang chủ -></a>
             </div>
           <?php else: ?>
             <?php foreach ($search_results as $article): ?>
@@ -72,7 +72,7 @@
                 </div>
 
                 <h3 class="saved-headline">
-                  <a href="article.php?id=<?= (int)$article['id'] ?>"><?= htmlspecialchars($article['title']) ?></a>
+                  <a href="<?= route('article', ['id' => (int)$article['id']]) ?>"><?= htmlspecialchars($article['title']) ?></a>
                 </h3>
                 <p class="saved-summary"><?= htmlspecialchars($article['summary']) ?></p>
 

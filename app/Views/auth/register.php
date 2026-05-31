@@ -19,7 +19,7 @@
 
   <div class="masthead">
     <div class="container">
-      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="<?= route('index') ?>" class="masthead-logo">Thoáng<span>.</span>vn</a>
     </div>
   </div>
 
@@ -70,10 +70,10 @@
       <hr class="divider"/>
       <div class="text-center" style="font-size:13px;color:#555">
         Đã có tài khoản?
-        <a href="login.php" class="link-gold">Đăng nhập</a>
+        <a href="<?= route('login') ?>" class="link-gold">Đăng nhập</a>
       </div>
       <div class="text-center mt-2" style="font-size:13px;color:#555">
-        <a href="index.php" style="color:#767676;text-decoration:none">
+        <a href="<?= route() ?>" style="color:#767676;text-decoration:none">
           <i class="bi bi-arrow-left me-1"></i>Quay về trang chủ
         </a>
       </div>

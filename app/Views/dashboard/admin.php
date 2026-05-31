@@ -36,7 +36,8 @@ $paginatedArticles = array_slice($filteredArticles, $articleOffset, $articlePage
 $articlePageUrl = function (int $page): string {
     $params = $_GET;
     $params['article_page'] = $page;
-    return 'dashboard.php?' . http_build_query($params) . '#article-approval';
+    $query = http_build_query($params);
+    return route('dashboard') . '&' . $query . '#article-approval';
 };
 
 $articleFilterUrl = function (string $status): string {
@@ -48,7 +49,7 @@ $articleFilterUrl = function (string $status): string {
         $params['article_status'] = $status;
     }
     $query = http_build_query($params);
-    return 'dashboard.php' . ($query !== '' ? '?' . $query : '') . '#article-approval';
+    return route('dashboard') . ($query !== '' ? '&' . $query : '') . '#article-approval';
 };
 ?>
 
@@ -67,7 +68,7 @@ $articleFilterUrl = function (string $status): string {
         </div>
       </div>
 
-      <a href="index.php" class="btn btn-outline-secondary btn-sm">
+      <a href="<?= route('index') ?>" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-house-door me-1"></i> Về trang chủ
       </a>
     </div>
@@ -82,7 +83,7 @@ $articleFilterUrl = function (string $status): string {
     <div class="card shadow-sm border-0 p-4 bg-white mb-4" id="category-manager">
       <span class="section-label">Quản lý danh mục</span>
 
-      <form method="POST" action="dashboard.php?view=categories#category-manager" class="row g-3 align-items-end mb-4">
+      <form method="POST" action="<?= route('dashboard', ['view' => 'categories'], 'category-manager') ?>" class="row g-3 align-items-end mb-4">
         <input type="hidden" name="action" value="save_category">
         <input type="hidden" name="category_id" value="0">
         <div class="col-lg-3 col-md-6">
@@ -143,7 +144,7 @@ $articleFilterUrl = function (string $status): string {
               <?php foreach ($categories as $cat): ?>
                 <tr>
                   <td style="min-width:180px;">
-                    <form method="POST" action="dashboard.php?view=categories#category-manager" id="cat-form-<?= (int)$cat['id'] ?>">
+                    <form method="POST" action="<?= route('dashboard', ['view' => 'categories'], 'category-manager') ?>" id="cat-form-<?= (int)$cat['id'] ?>">
                       <input type="hidden" name="action" value="save_category">
                       <input type="hidden" name="category_id" value="<?= (int)$cat['id'] ?>">
                       <input type="text" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($cat['name']) ?>" required>
@@ -175,7 +176,7 @@ $articleFilterUrl = function (string $status): string {
                     <button form="cat-form-<?= (int)$cat['id'] ?>" type="submit" class="btn btn-sm btn-outline-primary" title="Lưu">
                       <i class="bi bi-save"></i>
                     </button>
-                    <form method="POST" action="dashboard.php?view=categories#category-manager" class="d-inline" onsubmit="return confirm('Xóa danh mục này? Chỉ xóa được khi chưa có bài viết và danh mục con.');">
+                    <form method="POST" action="<?= route('dashboard', ['view' => 'categories'], 'category-manager') ?>" class="d-inline" onsubmit="return confirm('Xóa danh mục này? Chỉ xóa được khi chưa có bài viết và danh mục con.');">
                       <input type="hidden" name="action" value="delete_category">
                       <input type="hidden" name="category_id" value="<?= (int)$cat['id'] ?>">
                       <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
@@ -322,11 +323,11 @@ $articleFilterUrl = function (string $status): string {
 
                       <td class="text-end">
                         <?php if ($u['role'] === 'writer'): ?>
-                          <a href="writer.php?id=<?= (int)$u['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem hồ sơ writer">
+                          <a href="<?= route('writer', ['id' => (int)$u['id']]) ?>" class="btn btn-sm btn-outline-primary" title="Xem hồ sơ writer">
                             <i class="bi bi-eye"></i>
                           </a>
                         <?php elseif ($u['role'] === 'user'): ?>
-                          <a href="dashboard.php?comment_user_id=<?= (int)$u['id'] ?>#user-comments" class="btn btn-sm btn-outline-primary" title="Xem bình luận của user">
+                          <a href="<?= route('dashboard', ['comment_user_id' => (int)$u['id']], 'user-comments') ?>" class="btn btn-sm btn-outline-primary" title="Xem bình luận của user">
                             <i class="bi bi-eye"></i>
                           </a>
                         <?php endif; ?>
@@ -361,7 +362,7 @@ $articleFilterUrl = function (string $status): string {
                     <?= count($selected_user_comments) ?> bình luận
                   </div>
                 </div>
-                <a href="dashboard.php" class="btn btn-sm btn-outline-secondary">
+                <a href="<?= route('dashboard') ?>" class="btn btn-sm btn-outline-secondary">
                   <i class="bi bi-x-lg me-1"></i>Đóng
                 </a>
               </div>
@@ -374,7 +375,7 @@ $articleFilterUrl = function (string $status): string {
                     <article class="user-comment-row">
                       <div class="d-flex justify-content-between gap-3 flex-wrap">
                         <div class="user-comment-article">
-                          <a href="article.php?id=<?= (int)$comment['article_id'] ?>&from=dashboard#comments">
+                          <a href="<?= route('article', ['id' => (int)$comment['article_id'], 'from' => 'dashboard'], 'comments') ?>">
                             <?= htmlspecialchars($comment['article_title']) ?>
                           </a>
                           <span><?= htmlspecialchars($comment['category_name'] ?? 'Tin tức') ?></span>
@@ -533,7 +534,7 @@ $articleFilterUrl = function (string $status): string {
                     "<?= nl2br(htmlspecialchars($c['content'])) ?>"
                   </div>
                   <div style="font-size:12px; color:var(--muted);">
-                    Trong bài: <a href="article.php?id=<?= (int)$c['article_id'] ?>&from=dashboard#comments" style="text-decoration:none; color:var(--red);">
+                    Trong bài: <a href="<?= route('article', ['id' => (int)$c['article_id'], 'from' => 'dashboard'], 'comments') ?>" style="text-decoration:none; color:var(--red);">
                       <?= htmlspecialchars($c['title']) ?>
                     </a>
                   </div>
@@ -651,7 +652,7 @@ $articleFilterUrl = function (string $status): string {
 
                       <td class="text-end admin-actions-cell">
                         <div class="admin-action-group">
-                          <a href="article.php?id=<?= (int)$a['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
+                          <a href="<?= route('article', ['id' => (int)$a['id']]) ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
                             <i class="bi bi-eye"></i>
                           </a>
 
@@ -807,7 +808,7 @@ $articleFilterUrl = function (string $status): string {
                       </div>
 
                       <div class="flex-grow-1 text-truncate">
-                        <a href="article.php?id=<?= (int)$ta['id'] ?>" target="_blank" style="font-weight:600;font-size:13px;color:var(--navy);text-decoration:none;" title="<?= htmlspecialchars($ta['title']) ?>">
+                        <a href="<?= route('article', ['id' => (int)$ta['id']]) ?>" target="_blank" style="font-weight:600;font-size:13px;color:var(--navy);text-decoration:none;" title="<?= htmlspecialchars($ta['title']) ?>">
                           <?= htmlspecialchars($ta['title']) ?>
                         </a>
                       </div>
@@ -887,7 +888,7 @@ $articleFilterUrl = function (string $status): string {
                       </div>
 
                       <div class="flex-grow-1 text-truncate">
-                        <a href="article.php?id=<?= (int)$tb['id'] ?>" target="_blank" style="font-weight:600;font-size:13px;color:var(--navy);text-decoration:none;" title="<?= htmlspecialchars($tb['title']) ?>">
+                        <a href="<?= route('article', ['id' => (int)$tb['id']]) ?>" target="_blank" style="font-weight:600;font-size:13px;color:var(--navy);text-decoration:none;" title="<?= htmlspecialchars($tb['title']) ?>">
                           <?= htmlspecialchars($tb['title']) ?>
                         </a>
                       </div>

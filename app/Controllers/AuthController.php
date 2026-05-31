@@ -54,11 +54,11 @@ class AuthController extends Controller
             $_SESSION['theme_preference'] = $user['theme_preference'] ?? 'light';
             $_SESSION['article_font_size'] = (int)($user['article_font_size'] ?? 16);
 
-            $redirect = 'index.php';
+            $redirect = route('index');
             if ($user['role'] === 'admin') {
-                $redirect = 'dashboard.php';
+                $redirect = route('dashboard');
             } elseif ($user['role'] === 'writer') {
-                $redirect = 'dashboard_writer.php';
+                $redirect = route('dashboard_writer');
             }
 
             $this->redirect($_GET['redirect'] ?? $redirect);
@@ -108,7 +108,7 @@ class AuthController extends Controller
             $hash = password_hash($password, PASSWORD_BCRYPT);
 
             if ($this->users->createUser($username, $email, $hash, $fullName, $token)) {
-                $verifyLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/verify.php?token=" . $token;
+                $verifyLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?route=verify&token=" . urlencode($token);
                 $subject = "Kích hoạt tài khoản thành viên của bạn - Thoáng.vn";
                 $body = "<p>Xin chào <strong>" . htmlspecialchars($fullName) . "</strong>,</p>"
                     . "<p>Vui lòng nhấn vào liên kết sau để kích hoạt tài khoản:</p>"

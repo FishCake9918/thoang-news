@@ -79,7 +79,7 @@ class AdminController extends Controller
             $this->admin->updateUserRole($userId, $role);
         }
 
-        $this->redirect('dashboard.php');
+        $this->redirect(route('dashboard'));
     }
 
     private function deleteUser(): void
@@ -94,7 +94,7 @@ class AdminController extends Controller
             $this->admin->deleteUser($userId);
         }
 
-        $this->redirect('dashboard.php');
+        $this->redirect(route('dashboard'));
     }
 
     private function updateArticleStatus(): void
@@ -108,7 +108,7 @@ class AdminController extends Controller
         }
 
         $this->admin->updateArticleStatus($articleId, $status);
-        $this->redirect('dashboard.php');
+        $this->redirect(route('dashboard'));
     }
 
     private function deleteArticle(): void
@@ -120,7 +120,7 @@ class AdminController extends Controller
         }
 
         $this->admin->deleteArticle($articleId);
-        $this->redirect('dashboard.php');
+        $this->redirect(route('dashboard'));
     }
 
     private function deleteComment(): void
@@ -132,7 +132,7 @@ class AdminController extends Controller
         }
 
         $this->admin->deleteComment($commentId);
-        $this->redirect('dashboard.php');
+        $this->redirect(route('dashboard'));
     }
 
     private function saveCategory(): void
@@ -158,7 +158,7 @@ class AdminController extends Controller
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
         ]);
 
-        $this->redirect('dashboard.php?view=categories#category-manager');
+        $this->redirect(route('dashboard', ['view' => 'categories'], 'category-manager'));
     }
 
     private function deleteCategory(): void
@@ -170,7 +170,7 @@ class AdminController extends Controller
         }
 
         $this->admin->deleteCategory($categoryId);
-        $this->redirect('dashboard.php?view=categories#category-manager');
+        $this->redirect(route('dashboard', ['view' => 'categories'], 'category-manager'));
     }
 
     private function slugify(string $value): string

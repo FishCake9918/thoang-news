@@ -103,7 +103,7 @@
                   <div class="most-read-item" style="gap:8px;">
                     <i class="bi bi-clock text-muted mt-1" style="font-size:13px;"></i>
                     <div class="mr-title">
-                      <a href="article.php?id=<?= (int)$latest['id'] ?>" style="font-weight: 500;">
+                      <a href="<?= route('article', ['id' => (int)$latest['id']]) ?>" style="font-weight: 500;">
                         <?= htmlspecialchars($latest['title']) ?>
                       </a>
                       <div class="text-muted mt-1" style="font-size:11px;">
@@ -127,7 +127,7 @@
                   <div class="most-read-item">
                     <div class="mr-num"><?= $idx + 1 ?></div>
                     <div class="mr-title">
-                      <a href="article.php?id=<?= (int)$top['id'] ?>">
+                      <a href="<?= route('article', ['id' => (int)$top['id']]) ?>">
                         <?= htmlspecialchars($top['title']) ?>
                       </a>
                       <div class="text-muted mt-1" style="font-size:11px;">

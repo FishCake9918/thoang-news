@@ -35,7 +35,7 @@ class PasswordController extends Controller
                 $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
                 $this->users->setResetToken((int)$user['id'], $token, $expires);
 
-                $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?token=" . $token;
+                $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?route=reset_password&token=" . urlencode($token);
                 $subject = "Yêu cầu khôi phục mật khẩu - Thoáng.vn";
                 $body = "<p>Xin chào <strong>" . htmlspecialchars($user['full_name'] ?? '') . "</strong>,</p>"
                     . "<p>Liên kết khôi phục mật khẩu có hiệu lực trong 15 phút:</p>"
@@ -75,7 +75,7 @@ class PasswordController extends Controller
 
         try {
             if ($this->users->resetPassword($userId, password_hash($password, PASSWORD_BCRYPT))) {
-                header('refresh:2;url=login.php');
+                header('refresh:2;url=' . route('login'));
                 return ['', 'Đặt lại mật khẩu thành công! Bạn đang được chuyển hướng về trang đăng nhập...'];
             }
         } catch (PDOException $e) {

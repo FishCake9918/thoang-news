@@ -28,7 +28,7 @@ class AccountController extends Controller
 
         $user = $this->users->findById($userId);
         if (!$user) {
-            $this->redirect('logout.php');
+            $this->redirect(route('logout'));
         }
 
         return [

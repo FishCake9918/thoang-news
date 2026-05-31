@@ -7,7 +7,7 @@
             <?= htmlspecialchars($message) ?>
         </div>
         <div class="mt-4">
-            <a href="login.php" class="btn-login text-decoration-none d-inline-block">Đăng nhập ngay</a>
+            <a href="<?= route('login') ?>" class="btn-login text-decoration-none d-inline-block">Đăng nhập ngay</a>
         </div>
     </div>
 </div>

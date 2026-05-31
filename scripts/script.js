@@ -90,7 +90,8 @@ function renderCard() {
   document.getElementById('cardSourceInit').textContent = sourceName.charAt(0).toUpperCase();
   document.getElementById('cardTime').textContent = formatTimeAgo(a.published_at || a.created_at);
   document.getElementById('cardTag').textContent = a.tags || '';
-  document.getElementById('cardLink').href = `article.php?id=${a.id}`;
+  const articleUrl = `index.php?route=article&id=${encodeURIComponent(a.id)}`;
+  document.getElementById('cardLink').href = articleUrl;
 
   const cardViews = document.getElementById('cardViews');
   if (cardViews) cardViews.textContent = a.view_count || 0;
@@ -130,8 +131,8 @@ function showAuthRequired(message) {
             <p class="mb-0" id="authRequiredMessage"></p>
           </div>
           <div class="modal-footer">
-            <a href="register.php" class="btn btn-outline-secondary btn-sm">Đăng ký</a>
-            <a href="login.php" class="btn btn-primary btn-sm" style="background:var(--navy);border-color:var(--navy)">Đăng nhập</a>
+            <a href="index.php?route=register" class="btn btn-outline-secondary btn-sm">Đăng ký</a>
+            <a href="index.php?route=login" class="btn btn-primary btn-sm" style="background:var(--navy);border-color:var(--navy)">Đăng nhập</a>
           </div>
         </div>
       </div>
@@ -353,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.closest('button') || e.target.closest('a')) return;
     if (Math.abs(curX - startX) > 10) return; // Nếu đang vuốt thì không kích hoạt click
     if (allNews.length > 0 && currentIdx < allNews.length) {
-      window.location.href = `article.php?id=${allNews[currentIdx].id}`;
+      window.location.href = `index.php?route=article&id=${encodeURIComponent(allNews[currentIdx].id)}`;
     }
   });
 

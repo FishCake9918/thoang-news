@@ -4,7 +4,7 @@ if (!isset($active_nav)) $active_nav = '';
 $is_logged = isLoggedIn();
 $is_admin  = isAdmin();
 $cur_user  = getCurrentUser();
-$current_page = basename($_SERVER['PHP_SELF'] ?? '');
+$current_page = currentRequestPage();
 $nav_categories = $nav_categories ?? [];
 $theme_preference = $is_logged ? ($_SESSION['theme_preference'] ?? 'light') : '';
 $article_font_size = $is_logged ? (int)($_SESSION['article_font_size'] ?? 16) : 16;
@@ -84,7 +84,7 @@ if ($nav_categories === [] && isset($pdo)) {
             ? '<strong style="color:var(--gold)">Admin</strong>'
             : '<strong>' . htmlspecialchars(($cur_user['full_name'] ?? '') ?: $cur_user['username']) . '</strong>' ?>
       <?php else: ?>
-        <a href="login.php">Đăng nhập</a> để lưu tin và gửi góp ý.
+        <a href="<?= route('login') ?>">Đăng nhập</a> để lưu tin và gửi góp ý.
       <?php endif; ?>
     </span>
   </div>
@@ -93,11 +93,11 @@ if ($nav_categories === [] && isset($pdo)) {
 <div class="masthead">
   <div class="container d-flex justify-content-between align-items-end flex-wrap gap-2">
     <div>
-      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="<?= route() ?>" class="masthead-logo">Thoáng<span>.</span>vn</a>
       <div class="masthead-tagline">Lướt qua là nắm ngay</div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <form action="search.php" method="GET" class="masthead-search d-none d-md-block mb-0">
+      <form action="<?= route('search') ?>" method="GET" class="masthead-search d-none d-md-block mb-0">
         <input type="text" name="q" placeholder="Tìm kiếm..." required />
       </form>
       <button type="button" class="theme-toggle" id="themeToggle" aria-label="Chuyển chế độ sáng tối" title="Chế độ sáng/tối">
@@ -106,18 +106,18 @@ if ($nav_categories === [] && isset($pdo)) {
       </button>
       <?php if ($is_logged): ?>
         <?php if ($_SESSION['role'] === 'admin'): ?>
-          <a href="dashboard.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
+          <a href="<?= route('dashboard') ?>" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-speedometer2 me-1"></i>Admin Panel
           </a>
-          <a href="dashboard.php?view=categories#category-manager" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
+          <a href="<?= route('dashboard', ['view' => 'categories'], 'category-manager') ?>" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-tags me-1"></i>Danh mục
           </a>
         <?php elseif ($_SESSION['role'] === 'writer'): ?>
-          <a href="dashboard_writer.php" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
+          <a href="<?= route('dashboard_writer') ?>" class="auth-link" style="border-color: var(--gold); color: var(--gold);">
             <i class="bi bi-pen me-1"></i>Trang tác giả
           </a>
-          <?php if ($current_page !== 'dashboard_writer.php'): ?>
-            <a href="vietbai.php" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
+          <?php if (!in_array($current_page, ['dashboard_writer.php', 'dashboard_writer'], true)): ?>
+            <a href="<?= route('vietbai') ?>" class="auth-link" style="border-color: var(--gold); color: var(--gold); font-weight: 600;">
               <i class="bi bi-pencil-square me-1"></i>Viết bài
             </a>
           <?php endif; ?>
@@ -128,17 +128,17 @@ if ($nav_categories === [] && isset($pdo)) {
           <?= htmlspecialchars(($cur_user['full_name'] ?? '') ?: $cur_user['username']) ?>
           <span class="role-pill"><?= ucfirst($_SESSION['role']) ?></span>
         </div>
-        <a href="account.php" class="auth-link">
+        <a href="<?= route('account') ?>" class="auth-link">
           <i class="bi bi-person-gear"></i>Tài khoản
         </a>
-        <a href="logout.php" class="auth-link">
+        <a href="<?= route('logout') ?>" class="auth-link">
           <i class="bi bi-box-arrow-right"></i>Đăng xuất
         </a>
       <?php else: ?>
-        <a href="login.php" class="auth-link">
+        <a href="<?= route('login') ?>" class="auth-link">
           <i class="bi bi-box-arrow-in-right"></i>Đăng nhập
         </a>
-        <a href="register.php" class="auth-link register">
+        <a href="<?= route('register') ?>" class="auth-link register">
           <i class="bi bi-person-plus"></i>Đăng ký
         </a>
       <?php endif; ?>
@@ -150,20 +150,20 @@ if ($nav_categories === [] && isset($pdo)) {
   <div class="container">
     <ul class="nav">
       <li class="nav-item">
-        <a class="nav-link nav-home" href="index.php?category=all" data-cat="all" title="Trang chủ">
+        <a class="nav-link nav-home" href="<?= route('', ['category' => 'all']) ?>" data-cat="all" title="Trang chủ">
           <i class="bi bi-house-door-fill"></i>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link <?= $active_nav === 'hot' ? 'active' : '' ?> nav-hot"
-           href="index.php?category=hot"
+           href="<?= route('', ['category' => 'hot']) ?>"
            data-cat="hot">
           Nóng <i class="bi bi-fire blink-icon"></i>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link <?= $active_nav === 'all' ? 'active' : '' ?>"
-           href="index.php?category=all"
+           href="<?= route('', ['category' => 'all']) ?>"
            data-cat="all">
           Tất cả
         </a>
@@ -176,7 +176,7 @@ if ($nav_categories === [] && isset($pdo)) {
         ?>
         <li class="nav-item nav-dropdown">
           <a class="nav-link <?= $isActive ? 'active' : '' ?>"
-             href="index.php?category=<?= urlencode($slug) ?>"
+             href="<?= route('index') . '&category=' . urlencode($slug) ?>"
              data-cat="<?= htmlspecialchars($slug) ?>">
             <?= htmlspecialchars($category['name'] ?? '') ?>
             <?php if (!empty($children)): ?>
@@ -186,7 +186,7 @@ if ($nav_categories === [] && isset($pdo)) {
           <?php if (!empty($children)): ?>
             <div class="category-dropdown">
               <?php foreach ($children as $child): ?>
-                <a href="index.php?category=<?= urlencode($child['slug']) ?>"
+                <a href="<?= route('index') . '&category=' . urlencode($child['slug']) ?>"
                    data-cat="<?= htmlspecialchars($child['slug']) ?>">
                   <?= htmlspecialchars($child['name']) ?>
                 </a>

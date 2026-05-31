@@ -34,12 +34,12 @@ class WriterFormController
                 $found = $this->articles->findByAuthor($articleId, $authorId);
 
                 if (!$found) {
-                    return ['redirect' => 'dashboard_writer.php'];
+                    return ['redirect' => route('dashboard_writer')];
                 }
 
                 $article = array_merge($article, $found);
             } catch (PDOException $e) {
-                return ['redirect' => 'dashboard_writer.php'];
+                return ['redirect' => route('dashboard_writer')];
             }
         }
 

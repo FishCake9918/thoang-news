@@ -35,7 +35,7 @@ include __DIR__ . '/../partials/header.php';
               <span>
                 Nguồn:
                 <?php if (($article['author_role'] ?? '') === 'writer' && !empty($article['author_user_id']) && isLoggedIn() && in_array($_SESSION['role'] ?? '', ['user', 'admin'], true)): ?>
-                  <strong><a href="writer.php?id=<?= (int)$article['author_user_id'] ?>" class="writer-inline-link"><?= htmlspecialchars(($article['author_full_name'] ?? '') ?: ($article['author_username'] ?? $article['source'] ?? 'Nội bộ')) ?></a></strong>
+                  <strong><a href="<?= route('writer', ['id' => (int)$article['author_user_id']]) ?>" class="writer-inline-link"><?= htmlspecialchars(($article['author_full_name'] ?? '') ?: ($article['author_username'] ?? $article['source'] ?? 'Nội bộ')) ?></a></strong>
                 <?php else: ?>
                   <strong><?= htmlspecialchars($article['source_name'] ?? $article['source'] ?? 'Nội bộ') ?></strong>
                 <?php endif; ?>
@@ -56,13 +56,13 @@ include __DIR__ . '/../partials/header.php';
           <?php if ($article['status'] === 'Approved'): ?>
             <div class="article-nav-actions">
               <?php if ($prevArticle): ?>
-                <a class="article-nav-btn" id="prevArticleLink" href="article.php?id=<?= (int)$prevArticle['id'] ?>">
+                <a class="article-nav-btn" id="prevArticleLink" href="<?= route('article', ['id' => (int)$prevArticle['id']]) ?>">
                   <i class="bi bi-arrow-left"></i> Bài trước
                 </a>
               <?php endif; ?>
 
               <?php if ($nextArticle): ?>
-                <a class="article-nav-btn article-nav-btn-primary" id="nextArticleLink" href="article.php?id=<?= (int)$nextArticle['id'] ?>">
+                <a class="article-nav-btn article-nav-btn-primary" id="nextArticleLink" href="<?= route('article', ['id' => (int)$nextArticle['id']]) ?>">
                   Bài tiếp <i class="bi bi-arrow-right"></i>
                 </a>
               <?php endif; ?>
@@ -115,7 +115,7 @@ include __DIR__ . '/../partials/header.php';
                 </form>
               <?php else: ?>
                 <div class="comment-login-note">
-                  Vui lòng <a href="login.php">đăng nhập</a> để bình luận về bài viết này.
+                  Vui lòng <a href="<?= route('login') ?>">đăng nhập</a> để bình luận về bài viết này.
                 </div>
               <?php endif; ?>
 

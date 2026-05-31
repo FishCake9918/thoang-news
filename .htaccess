@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /
+Options +FollowSymLinks -MultiViews
+FallbackResource /index.php
+
+# Bỏ qua nếu đường dẫn trỏ tới một thư mục (d) hoặc file (f) có thật (như ảnh, file CSS, JS)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Bắt mọi request khác và ném vào biến GET có tên là 'url' cho index.php xử lý
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

@@ -40,7 +40,7 @@ class ArticleController extends Controller
             if (\is_ajax_request()) {
                 $this->json(['success' => false, 'message' => 'Bạn cần đăng nhập để bình luận.'], 401);
             }
-            $this->redirect('login.php');
+            $this->redirect(route('login'));
         }
 
         $content = trim($_POST['comment_content'] ?? '');
@@ -71,7 +71,7 @@ class ArticleController extends Controller
             ]);
         }
 
-        $this->redirect('article.php?id=' . $articleId . '#comments');
+        $this->redirect(route('article', ['id' => $articleId], 'comments'));
     }
 
     private function deleteComment(int $articleId): void
@@ -80,7 +80,7 @@ class ArticleController extends Controller
             if (\is_ajax_request()) {
                 $this->json(['success' => false, 'message' => 'Bạn cần đăng nhập để xoá bình luận.'], 401);
             }
-            $this->redirect('login.php');
+            $this->redirect(route('login'));
         }
 
         $commentId = (int)($_POST['comment_id'] ?? 0);
@@ -89,7 +89,7 @@ class ArticleController extends Controller
             if (\is_ajax_request()) {
                 $this->json(['success' => false, 'message' => 'Bình luận không hợp lệ.'], 400);
             }
-            $this->redirect('article.php?id=' . $articleId . '#comments');
+            $this->redirect(route('article', ['id' => $articleId], 'comments'));
         }
 
         $this->articles->deleteComment(
@@ -105,6 +105,6 @@ class ArticleController extends Controller
             $this->json(['success' => true, 'message' => 'Đã xoá bình luận.', 'comment_id' => $commentId, 'count' => $count]);
         }
 
-        $this->redirect('article.php?id=' . $articleId . '#comments');
+        $this->redirect(route('article', ['id' => $articleId], 'comments'));
     }
 }

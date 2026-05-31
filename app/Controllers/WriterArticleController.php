@@ -32,6 +32,6 @@ class WriterArticleController extends Controller
         }
 
         $this->articles->deleteByAuthor($articleId, $authorId);
-        $this->redirect('dashboard_writer.php');
+        $this->redirect(route('dashboard_writer'));
     }
 }

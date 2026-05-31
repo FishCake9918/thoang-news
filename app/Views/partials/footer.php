@@ -1,10 +1,10 @@
 <?php
-$currentPage = basename($_SERVER['PHP_SELF']);
-$showFloatingAd = in_array($currentPage, ['index.php', 'article.php'], true);
+$currentPage = currentRequestPage();
+$showFloatingAd = in_array($currentPage, ['index.php', 'article.php', 'index', 'article'], true);
 $footerLinks = [
-    ['label' => 'Trang chủ', 'href' => 'index.php'],
-    ['label' => 'Đã lưu', 'href' => 'saved.php'],
-    ['label' => 'Giới thiệu', 'href' => 'about.php'],
+    ['label' => 'Trang chủ', 'href' => route('')],
+    ['label' => 'Đã lưu', 'href' => route('saved')],
+    ['label' => 'Giới thiệu', 'href' => route('about')],
 ];
 ?>
 

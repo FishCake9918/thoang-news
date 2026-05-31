@@ -94,7 +94,7 @@
             </div>
 
             <div class="d-flex gap-3 justify-content-end pt-3 border-top flex-wrap">
-              <a href="dashboard_writer.php" class="btn-cancel">Hủy bỏ</a>
+              <a href="<?= route('dashboard_writer') ?>" class="btn-cancel">Hủy bỏ</a>
               <button type="submit" class="btn-submit">
                 <i class="bi bi-send-fill me-2"></i><?= $article_id > 0 ? 'Cập nhật & gửi duyệt' : 'Nộp bài chờ duyệt' ?>
               </button>
@@ -211,7 +211,7 @@ async function handleFormSubmit(e) {
   .then(data => {
     if (data.success) {
       showAlert('success', data.message);
-      setTimeout(() => window.location.href = 'dashboard_writer.php', 800);
+      setTimeout(() => window.location.href = '<?= route('dashboard_writer') ?>', 800);
     } else {
       showAlert('danger', data.message || 'Không thể lưu bài viết.');
     }

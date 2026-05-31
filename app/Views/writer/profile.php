@@ -42,7 +42,7 @@
                   <span class="article-cat"><?= htmlspecialchars($article['category_name'] ?? 'Tin tức') ?></span>
                   <h3>
                     <?php if ($canOpen): ?>
-                      <a href="article.php?id=<?= (int)$article['id'] ?>"><?= htmlspecialchars($article['title']) ?></a>
+                      <a href="<?= route('article', ['id' => (int)$article['id']]) ?>"><?= htmlspecialchars($article['title']) ?></a>
                     <?php else: ?>
                       <?= htmlspecialchars($article['title']) ?>
                     <?php endif; ?>

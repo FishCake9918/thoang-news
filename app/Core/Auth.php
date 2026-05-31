@@ -29,18 +29,50 @@ class Auth
         return $_SESSION['role'] ?? '';
     }
 
-    public static function requireLogin(string $redirect = 'login.php'): void
+    public static function requireLogin(string $redirect = 'login'): void
     {
         if (!self::check()) {
-            header('Location: ' . $redirect);
+            $location = $redirect;
+            $path = parse_url($redirect, PHP_URL_PATH) ?? '';
+            $queryString = parse_url($redirect, PHP_URL_QUERY) ?? '';
+            $fragment = parse_url($redirect, PHP_URL_FRAGMENT) ?? '';
+
+            if ($path !== '' && strpos($redirect, '://') === false && !str_starts_with($redirect, 'mailto:') && !str_starts_with($redirect, 'tel:')) {
+                if (str_ends_with(strtolower($path), '.php')) {
+                    $path = preg_replace('/\.php$/i', '', trim($path, '/'));
+                }
+
+                if ($path !== '' && !str_contains($redirect, '?route=')) {
+                    parse_str($queryString, $queryParams);
+                    $location = route(trim($path, '/'), $queryParams, $fragment);
+                }
+            }
+
+            header('Location: ' . $location);
             exit;
         }
     }
 
-    public static function requireAdmin(string $redirect = 'login.php'): void
+    public static function requireAdmin(string $redirect = 'login'): void
     {
         if (!self::isAdmin()) {
-            header('Location: ' . $redirect);
+            $location = $redirect;
+            $path = parse_url($redirect, PHP_URL_PATH) ?? '';
+            $queryString = parse_url($redirect, PHP_URL_QUERY) ?? '';
+            $fragment = parse_url($redirect, PHP_URL_FRAGMENT) ?? '';
+
+            if ($path !== '' && strpos($redirect, '://') === false && !str_starts_with($redirect, 'mailto:') && !str_starts_with($redirect, 'tel:')) {
+                if (str_ends_with(strtolower($path), '.php')) {
+                    $path = preg_replace('/\.php$/i', '', trim($path, '/'));
+                }
+
+                if ($path !== '' && !str_contains($redirect, '?route=')) {
+                    parse_str($queryString, $queryParams);
+                    $location = route(trim($path, '/'), $queryParams, $fragment);
+                }
+            }
+
+            header('Location: ' . $location);
             exit;
         }
     }

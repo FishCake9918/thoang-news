@@ -76,7 +76,7 @@ class AboutController
                 'title' => 'Thoáng qua là nắm ngay.',
                 'desc' => 'Hãy thử một lần đọc tin theo cách khác: nhanh hơn, rõ hơn, ít nhiễu hơn.',
                 'btn1_text' => 'Đọc tin ngay',
-                'btn1_url' => 'index.php',
+                'btn1_url' => route('index'),
                 'btn2_text' => 'Gửi góp ý',
                 'btn2_url' => '#',
             ],

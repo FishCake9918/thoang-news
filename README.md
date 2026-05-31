@@ -90,11 +90,22 @@ thoang-news/
 
 ## Cài Đặt Nhanh
 
+### Với Apache (XAMPP)
+
 1. Đặt project trong `C:\xampp\htdocs\thoang-news`.
 2. Import `database.sql` vào MySQL.
 3. Kiểm tra cấu hình database trong `config/db.php`.
 4. Chạy XAMPP Apache và MySQL.
 5. Mở `http://localhost/thoang-news/index.php`.
+
+### Với PHP Built-in Server
+
+1. Mở terminal trong thư mục dự án.
+2. Chạy `php -S localhost:3000 router.php`, hoặc dùng helper script:
+   - `.
+start-server.ps1`
+   - `start-server.bat`
+3. Mở `http://localhost:3000`.
 
 ## Thành Viên
 

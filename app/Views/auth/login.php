@@ -19,7 +19,7 @@
 
   <div class="masthead">
     <div class="container">
-      <a href="index.php" class="masthead-logo">Thoáng<span>.</span>vn</a>
+      <a href="<?= route('index') ?>" class="masthead-logo">Thoáng<span>.</span>vn</a>
     </div>
   </div>
 
@@ -54,7 +54,7 @@
         </div>
 
         <div class="text-end mb-4" style="font-size: 12px;">
-          <a href="forgot_password.php" class="text-secondary text-decoration-none">Quên mật khẩu?</a>
+          <a href="<?= route('forgot_password') ?>" class="text-secondary text-decoration-none">Quên mật khẩu?</a>
         </div>
 
         <button type="submit" class="btn-login">
@@ -65,10 +65,10 @@
       <hr class="divider"/>
       <div class="text-center" style="font-size:13px;color:#555">
         Chưa có tài khoản?
-        <a href="register.php" class="link-gold">Đăng ký ngay</a>
+        <a href="<?= route('register') ?>" class="link-gold">Đăng ký ngay</a>
       </div>
       <div class="text-center mt-2" style="font-size:13px;color:#555">
-        <a href="index.php" style="color:#767676;text-decoration:none">
+        <a href="<?= route() ?>" style="color:#767676;text-decoration:none">
           <i class="bi bi-arrow-left me-1"></i>Quay về trang chủ
         </a>
       </div>

@@ -17,7 +17,7 @@ include __DIR__ . '/../partials/header.php';
         </div>
       </div>
 
-      <a href="vietbai.php" class="btn btn-sm" style="background:var(--navy);color:#fff;font-weight:700;">
+      <a href="<?= route('vietbai') ?>" class="btn btn-sm" style="background:var(--navy);color:#fff;font-weight:700;">
         <i class="bi bi-pencil-square me-1"></i> Viết bài mới
       </a>
     </div>
@@ -222,11 +222,11 @@ include __DIR__ . '/../partials/header.php';
 
                         <td class="text-end admin-actions-cell">
                           <div class="admin-action-group">
-                            <a href="article.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
+                            <a href="<?= route('article', ['id' => (int)$article['id']]) ?>" class="btn btn-sm btn-outline-primary" title="Xem bài">
                               <i class="bi bi-eye"></i>
                             </a>
 
-                            <a href="vietbai.php?id=<?= (int)$article['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Chỉnh sửa">
+                            <a href="<?= route('vietbai', ['id' => (int)$article['id']]) ?>" class="btn btn-sm btn-outline-secondary" title="Chỉnh sửa">
                               <i class="bi bi-pencil-square"></i> <span>Sửa</span>
                             </a>
 

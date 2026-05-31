@@ -9,10 +9,10 @@
             <i class="bi bi-lock"></i>
             <p>Bạn cần đăng nhập hoặc đăng ký để xem các bài viết đã lưu.</p>
             <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
-              <a href="login.php" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
+              <a href="<?= route('login') ?>" class="auth-link" style="background:var(--navy);color:#fff;text-decoration:none;">
                 <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
               </a>
-              <a href="register.php" class="auth-link register" style="text-decoration:none;">
+              <a href="<?= route('register') ?>" class="auth-link register" style="text-decoration:none;">
                 <i class="bi bi-person-plus"></i> Đăng ký
               </a>
             </div>
@@ -27,7 +27,7 @@
 
 <div class="secondary-nav">
   <div class="container p-0">
-    <a href="saved.php?cat=all" class="<?= $filter_cat === 'all' ? 'active' : '' ?>">Tất cả</a>
+    <a href="<?= route('saved', ['cat' => 'all']) ?>" class="<?= $filter_cat === 'all' ? 'active' : '' ?>">Tất cả</a>
     <?php
     $cats = [
         'tech' => 'Công nghệ',
@@ -39,7 +39,7 @@
     ];
     foreach ($cats as $key => $label):
     ?>
-      <a href="saved.php?cat=<?= urlencode($key) ?>" class="<?= $filter_cat === $key ? 'active' : '' ?>">
+      <a href="<?= route('saved', ['cat' => $key]) ?>" class="<?= $filter_cat === $key ? 'active' : '' ?>">
         <?= htmlspecialchars($label) ?>
       </a>
     <?php endforeach; ?>
@@ -51,7 +51,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-9 col-xl-8">
         <div class="filter-bar">
-          <form method="GET" action="saved.php">
+          <form method="GET" action="<?= route('saved') ?>">
             <input type="hidden" name="cat" value="<?= htmlspecialchars($filter_cat) ?>">
             <div class="d-flex gap-2 flex-wrap align-items-center">
               <input
@@ -82,7 +82,7 @@
             <div class="empty-state">
               <i class="bi bi-bookmark-x"></i>
               <p>Chưa có bài nào được lưu<?= $search_kw ? ' phù hợp với "' . htmlspecialchars($search_kw) . '"' : '' ?>.</p>
-              <a href="index.php" style="font-size:13px; color:var(--navy);">Khám phá tin tức -></a>
+              <a href="<?= route() ?>" style="font-size:13px; color:var(--navy);">Khám phá tin tức -></a>
             </div>
           <?php else: ?>
             <?php foreach ($saved_articles as $article): ?>
@@ -111,7 +111,7 @@
                 </div>
 
                 <h3 class="saved-headline">
-                  <a href="article.php?id=<?= (int)$article['id'] ?>"><?= htmlspecialchars($article['title']) ?></a>
+                  <a href="<?= route('article', ['id' => (int)$article['id']]) ?>"><?= htmlspecialchars($article['title']) ?></a>
                 </h3>
                 <p class="saved-summary"><?= htmlspecialchars($article['summary']) ?></p>
 
