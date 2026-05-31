@@ -264,8 +264,12 @@ function restart() {
 
 document.querySelectorAll('.primary-nav [data-cat]').forEach(link => {
   link.addEventListener('click', function(e) {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.php';
-    if (currentPage === 'index.php' || currentPage === '') {
+    const params = new URLSearchParams(window.location.search);
+    const currentRoute = (params.get('route') || '').replace(/^\/+|\/+$/g, '');
+    const isHomeRoute = currentRoute === '' || ['index', 'index.php', 'home', 'home.php'].includes(currentRoute);
+    const hasHomeCards = !!document.getElementById('frontCard');
+
+    if (isHomeRoute && hasHomeCards) {
       e.preventDefault();
       document.querySelectorAll('.primary-nav .nav-link[data-cat]').forEach(l => l.classList.remove('active'));
       const owningNavLink = this.classList.contains('nav-link')

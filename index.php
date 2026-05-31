@@ -75,7 +75,7 @@ $mapGet(['about', 'about.php'], function () use ($pdo): void {
     View::render('about.index', get_defined_vars());
 });
 
-$mapGet(['account', 'account.php'], function () use ($pdo): void {
+$mapAny(['account', 'account.php'], function () use ($pdo): void {
     if (!isLoggedIn()) {
         header('Location: ' . route('login', ['redirect' => route('account')]));
         exit;
