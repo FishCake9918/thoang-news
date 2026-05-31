@@ -17,10 +17,14 @@ class SavedArticleModel extends Model
             $params[] = $category;
         }
 
+        $keyword = trim($keyword);
         if ($keyword !== '') {
-            $where[] = "(a.title LIKE ? OR a.summary LIKE ?)";
-            $params[] = "%$keyword%";
-            $params[] = "%$keyword%";
+            $words = preg_split('/\s+/', $keyword);
+            foreach ($words as $word) {
+                $where[] = "(a.title LIKE ?)";
+                $like = "%$word%";
+                $params[] = $like;
+            }
         }
 
         $sql = "

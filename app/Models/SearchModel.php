@@ -9,9 +9,22 @@ class SearchModel extends Model
 {
     public function articles(string $keyword): array
     {
+        $keyword = trim($keyword);
         if ($keyword === '') {
             return [];
         }
+
+        $words = preg_split('/\s+/', $keyword);
+        $conditions = [];
+        $params = [];
+
+        foreach ($words as $word) {
+            $conditions[] = "(a.title LIKE ?)";
+            $like = "%$word%";
+            $params[] = $like;
+        }
+        
+        $whereClause = implode(' AND ', $conditions);
 
         $stmt = $this->db->prepare("
             SELECT
@@ -28,17 +41,10 @@ class SearchModel extends Model
             FROM articles a
             LEFT JOIN categories c ON c.id = a.category_id
             WHERE a.status = 'Approved'
-              AND (
-                LOWER(a.title) COLLATE utf8mb4_bin LIKE ? COLLATE utf8mb4_bin
-                OR LOWER(a.summary) COLLATE utf8mb4_bin LIKE ? COLLATE utf8mb4_bin
-              )
+              AND ($whereClause)
             ORDER BY a.published_at DESC, a.created_at DESC
         ");
-        $normalizedKeyword = function_exists('mb_strtolower')
-            ? mb_strtolower($keyword, 'UTF-8')
-            : strtolower($keyword);
-        $like = "%$normalizedKeyword%";
-        $stmt->execute([$like, $like]);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

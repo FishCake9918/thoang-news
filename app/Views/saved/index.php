@@ -52,6 +52,7 @@
       <div class="col-lg-9 col-xl-8">
         <div class="filter-bar">
           <form method="GET" action="<?= route('saved') ?>">
+            <input type="hidden" name="route" value="saved">
             <input type="hidden" name="cat" value="<?= htmlspecialchars($filter_cat) ?>">
             <div class="d-flex gap-2 flex-wrap align-items-center">
               <input
