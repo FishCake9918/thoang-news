@@ -300,8 +300,8 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `avatar
 	(2, 'NghiaHua123', 'NghiaHua123@gmail.com', '$2y$10$Aysu1zhTrwiP5eqyPhW6wukeCyUBRgbwa76erLXtq7FQ65EWbmE1a', 'Ronaldo', 'images/avatars/avatar-16.svg', 'writer', 1, NULL, NULL, NULL, 'light', 22, '2026-05-30 05:17:20'),
 	(3, 'writer02', 'writer2@thoang.vn', '$2y$10$Jop12xzbuAPxGhyldwVDgeJmTBx4ZGQsGIdgbhEDGIHrgFVMgx1lW', 'Hoàng Nam - Phóng viên', 'images/avatars/avatar-01.svg', 'writer', 1, NULL, NULL, NULL, 'dark', 22, '2026-05-30 05:17:20'),
 	(4, 'user01', 'user@thoang.vn', '$2y$10$J6s2YBNLZ5uB6N.i1wDr4OeFq.AcTo2Yqod9Q69OUouJV1mssEpne', 'Người đọc mẫu', 'images/avatars/avatar-15.svg', 'user', 1, NULL, NULL, NULL, 'light', 22, '2026-05-30 05:17:20'),
-	(6, 'nghia01', 'huanghia21222005@gmail.com', '$2y$10$4nV/em5s4BYs27Uka10Pbec93GBz53LOacYGO8jDkkcp8Uw/Py4cW', 'Nghĩa Hứa', 'images/avatars/avatar-01.svg', 'user', 0, '229716590f55252f3ab632060b74164d7a580aa57cb811bdddbab992eaac27b2', NULL, NULL, 'light', 16, '2026-05-31 13:26:26'),
-	(7, 'nghia2k5', 'nghixa021@gmail.com', '$2y$10$YUyTWkuT7IRQVO6NrIjIfet/YDdM/fQnImDNw7y4w.CWLMnUD5NiW', 'Nghĩa', 'images/avatars/avatar-01.svg', 'user', 0, 'ab8b204305edb74e00fc020c5e8de71f8ea08362aca03185574d88b230be45d3', NULL, NULL, 'light', 16, '2026-05-31 13:27:58');
+	(6, 'nghia01', 'huanghia21222005@gmail.com', '$2y$10$4nV/em5s4BYs27Uka10Pbec93GBz53LOacYGO8jDkkcp8Uw/Py4cW', 'Nghĩa Hứa', 'images/avatars/avatar-01.svg', 'user', 1, NULL, NULL, NULL, 'light', 16, '2026-05-31 13:26:26'),
+	(7, 'nghia2k5', 'nghixa021@gmail.com', '$2y$10$YUyTWkuT7IRQVO6NrIjIfet/YDdM/fQnImDNw7y4w.CWLMnUD5NiW', 'Nghĩa', 'images/avatars/avatar-01.svg', 'user', 1, NULL, NULL, NULL, 'light', 16, '2026-05-31 13:27:58');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

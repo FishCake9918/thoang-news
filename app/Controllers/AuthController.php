@@ -43,7 +43,11 @@ class AuthController extends Controller
             session_regenerate_id(true);
             $newSessionId = session_id();
 
-            $this->users->mergeGuestBookmarks((int)$user['id'], $oldSessionId, $newSessionId);
+            try {
+                $this->users->mergeGuestBookmarks((int)$user['id'], $oldSessionId, $newSessionId);
+            } catch (PDOException $e) {
+                error_log('Bookmark merge failed during login: ' . $e->getMessage());
+            }
 
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
