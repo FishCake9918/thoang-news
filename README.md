@@ -106,6 +106,8 @@ thoang-news/
 2. Chạy lệnh: `php -S localhost:3000 router.php`
 3. Mở trình duyệt truy cập: `http://localhost:3000`
 
+<img width="2254" height="1241" alt="image" src="https://github.com/user-attachments/assets/8896d2e0-c89e-482e-a913-f1f9c95578d7" />
+
 ## Thành Viên
 
 GROUP 6
