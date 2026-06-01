@@ -36,30 +36,28 @@ Backend đã được tách thành class:
 
 ### 3. OOP + MVC
 
-Luồng xử lý chính:
+Dự án áp dụng mô hình kiến trúc MVC (Model-View-Controller) thông qua một Front Controller duy nhất ở cổng vào là `index.php`:
 
+Luồng xử lý chính:
 ```text
-Entry point ở root hoặc api
--> Controller
--> Model
--> View hoặc JSON Response
+Request (URL) 
+-> index.php (Front Controller / Routing)
+-> Controller tương ứng
+-> Model (Truy vấn dữ liệu từ Database)
+-> View (Render giao diện HTML trả về client) hoặc API JSON Response
 ```
 
 Ví dụ:
-
-- `login.php` gọi `AuthController`, sau đó render `app/Views/auth/login.php`.
-- `saved.php` gọi `SavedController`, sau đó render `app/Views/saved/index.php`.
-- `article.php` gọi `ArticlePageController` và `ArticleController`, sau đó render `app/Views/articles/show.php`.
-- `dashboard.php` gọi `AdminController` và `AdminDashboardController`, sau đó render `app/Views/dashboard/admin.php`.
-
-Các file `.php` ở thư mục gốc chỉ đóng vai trò entry point để giữ URL chạy trên XAMPP. HTML giao diện nằm trong `app/Views`.
+- URL `/login` gọi `AuthController`, sau đó render `app/Views/auth/login.php`.
+- URL `/saved` gọi `SavedController`, sau đó render `app/Views/saved/index.php`.
+- URL `/article?id=...` gọi `ArticlePageController` và `ArticleController`, sau đó render `app/Views/articles/show.php`.
+- URL `/dashboard` gọi `AdminController` và `AdminDashboardController`, sau đó render `app/Views/dashboard/admin.php`.
 
 ### 4. AJAX/Webservice JSON
 
-Frontend dùng `fetch()` để gọi các endpoint trong thư mục `api/`. Các endpoint này trả JSON thông qua Controller API.
+Frontend sử dụng hàm `fetch()` để gọi các API endpoints trong thư mục `api/`. Các endpoint này trả dữ liệu định dạng JSON để xử lý không cần tải lại trang.
 
 Ví dụ:
-
 - `api/get_news.php` gọi `FeedApiController`.
 - `api/toggle_bookmark.php` và `api/saved_actions.php` gọi `BookmarkApiController`.
 - `api/add_article.php` và `api/upload_article_image.php` gọi `WriterArticleApiController`.
@@ -70,42 +68,43 @@ Ví dụ:
 
 ```text
 thoang-news/
-├── app/
-│   ├── Controllers/
-│   ├── Core/
-│   ├── Models/
-│   └── Views/
-├── api/
-├── config/
-├── images/
-├── scripts/
-├── stylesheets/
-├── uploads/
-├── index.php
-├── login.php
-├── article.php
-├── saved.php
-└── dashboard.php
+├── api/                  # Các file API endpoints trả về JSON (AJAX)
+├── app/                  # Thư mục mã nguồn chính áp dụng mô hình MVC
+│   ├── Controllers/      # Các Controller xử lý logic nghiệp vụ
+│   ├── Core/             # Lớp lõi hệ thống (Router, View, Model, Request, Response, Auth)
+│   ├── Models/           # Các Model thực hiện truy vấn cơ sở dữ liệu
+│   └── Views/            # Các file giao diện (HTML/CSS/JS bổ trợ)
+├── config/               # Cấu hình dự án (db.php, mailer.php, session.php)
+├── Diagrams/             # Biểu đồ phân tích và thiết kế hệ thống
+├── images/               # Chứa hình ảnh giao diện tĩnh
+├── libs/                 # Thư viện ngoài tích hợp (PHPMailer)
+├── scripts/              # Các file mã nguồn Javascript
+├── stylesheets/          # Các file mã nguồn CSS
+├── uploads/              # Nơi chứa các tệp tải lên (hình ảnh bài viết)
+├── .gitignore            # Danh sách loại trừ file của Git
+├── .htaccess             # File cấu hình máy chủ Apache phục vụ URL thân thiện
+├── ARCHITECTURE.md       # Tài liệu mô tả kiến trúc dự án chi tiết
+├── index.php             # Front Controller nhận và điều hướng toàn bộ luồng yêu cầu
+├── README.md             # Tài liệu giới thiệu và hướng dẫn cài đặt dự án
+├── router.php            # File định tuyến bổ trợ chạy PHP Built-in Server
+└── thoang_vn.sql         # File backup cơ sở dữ liệu MySQL của dự án
 ```
 
 ## Cài Đặt Nhanh
 
 ### Với Apache (XAMPP)
 
-1. Đặt project trong `C:\xampp\htdocs\thoang-news`.
-2. Import `database.sql` vào MySQL.
-3. Kiểm tra cấu hình database trong `config/db.php`.
+1. Đặt project trong thư mục `C:\xampp\htdocs\thoang-news-main`.
+2. Tạo cơ sở dữ liệu mới mang tên `thoang_vn` trong phpMyAdmin và import file [thoang_vn.sql](file:///c:/xampp/htdocs/thoang-news-main/thoang_vn.sql) vào.
+3. Kiểm tra cấu hình database trong [config/db.php](file:///c:/xampp/htdocs/thoang-news-main/config/db.php).
 4. Chạy XAMPP Apache và MySQL.
-5. Mở `http://localhost/thoang-news/index.php`.
+5. Mở trình duyệt truy cập: `http://localhost/thoang-news-main/index.php` (hoặc cổng cấu hình tương ứng của bạn).
 
 ### Với PHP Built-in Server
 
-1. Mở terminal trong thư mục dự án.
-2. Chạy `php -S localhost:3000 router.php`, hoặc dùng helper script:
-   - `.
-start-server.ps1`
-   - `start-server.bat`
-3. Mở `http://localhost:3000`.
+1. Mở terminal tại thư mục gốc của dự án.
+2. Chạy lệnh: `php -S localhost:3000 router.php`
+3. Mở trình duyệt truy cập: `http://localhost:3000`
 
 ## Thành Viên
 
